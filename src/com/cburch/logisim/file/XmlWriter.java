@@ -78,6 +78,7 @@ import com.cburch.logisim.data.AttributeSet;
 import com.cburch.logisim.data.Location;
 import com.cburch.logisim.instance.StdAttr;
 import com.cburch.logisim.proj.Project;
+import com.cburch.logisim.std.base.Text;
 import com.cburch.logisim.std.hdl.VhdlContent;
 import com.cburch.logisim.std.hdl.VhdlEntity;
 import com.cburch.logisim.tools.AddTool;
@@ -366,6 +367,16 @@ public class XmlWriter {
 
   Element fromComponent(Component comp) {
     ComponentFactory source = comp.getFactory();
+    // Special case (hack): eliminate any Text nodes having no children, i.e. no
+    // text contents. This is a workaround for a long-standing issue where empty
+    // text nodes can be made inadvertently, causing warnings when opening files
+    // and littering the canvas with invisible empty Text components.
+    if (source instanceof Text) {
+      String text = comp.getAttributeSet().getValue(Text.ATTR_TEXT);
+      if (text == null || text.length() == 0) {
+        return null;
+      }
+    }
     Library lib = findLibrary(source);
     String lib_id;
     if (lib == null) {

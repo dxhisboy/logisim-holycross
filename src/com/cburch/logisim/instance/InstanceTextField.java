@@ -127,19 +127,8 @@ public class InstanceTextField
     String text = field.getText();
     if (text == null || text.equals(""))
       return field.getCaret(g, 0);
-
-    Bounds bds = field.getBounds(g);
-    if (bds.getWidth() < 4 || bds.getHeight() < 4) {
-      Location loc = comp.getLocation();
-      bds = bds.add(Bounds.create(loc).expand(2));
-    }
-
-    int x = event.getX();
-    int y = event.getY();
-    if (bds.contains(x, y))
-      return field.getCaret(g, x, y);
     else
-      return null;
+      return field.getCaret(g, event.getX(), event.getY());
   }
 
   private boolean shouldRegister() {

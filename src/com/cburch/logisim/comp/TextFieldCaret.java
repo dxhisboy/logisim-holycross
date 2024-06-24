@@ -50,7 +50,7 @@ import com.cburch.logisim.tools.Caret;
 import com.cburch.logisim.tools.CaretEvent;
 import com.cburch.logisim.tools.CaretListener;
 
-class TextFieldCaret implements Caret, TextFieldListener {
+public class TextFieldCaret implements Caret, TextFieldListener {
 
   public static final Color EDIT_BACKGROUND = new Color(0xff, 0xff, 0x99);
   public static final Color EDIT_BORDER = Color.DARK_GRAY;
@@ -187,6 +187,11 @@ class TextFieldCaret implements Caret, TextFieldListener {
 
   protected boolean allowedCharacter(char c) {
     return (c != KeyEvent.CHAR_UNDEFINED) && !Character.isISOControl(c);
+  }
+
+  public void selectAll() {
+    pos = 0;
+    end = curText.length();
   }
 
   protected void menuShortcutKeyPressed(KeyEvent e, boolean shift) {
@@ -375,7 +380,6 @@ class TextFieldCaret implements Caret, TextFieldListener {
 
   protected void normalKeyPressed(KeyEvent e, boolean shift) {
     switch (e.getKeyCode()) {
-    case KeyEvent.VK_ESCAPE:
     case KeyEvent.VK_CANCEL:
       cancelEditing();
       e.consume();
@@ -385,6 +389,7 @@ class TextFieldCaret implements Caret, TextFieldListener {
       end = pos = 0;
       e.consume();
       break;
+    case KeyEvent.VK_ESCAPE:
     case KeyEvent.VK_ENTER:
       stopEditing();
       e.consume();

@@ -44,13 +44,14 @@ import com.cburch.logisim.Main;
 import com.cburch.logisim.circuit.Circuit;
 import com.cburch.logisim.circuit.CircuitMutator;
 import com.cburch.logisim.circuit.CircuitTransaction;
-import com.cburch.logisim.circuit.appear.AppearanceSvgReader;
 import com.cburch.logisim.circuit.Wire;
+import com.cburch.logisim.circuit.appear.AppearanceSvgReader;
 import com.cburch.logisim.comp.Component;
 import com.cburch.logisim.comp.ComponentFactory;
 import com.cburch.logisim.data.AttributeSet;
 import com.cburch.logisim.data.Bounds;
 import com.cburch.logisim.data.Location;
+import com.cburch.logisim.std.base.Text;
 import com.cburch.logisim.tools.AddTool;
 import com.cburch.logisim.tools.Library;
 import com.cburch.logisim.tools.Tool;
@@ -202,20 +203,25 @@ public class XmlCircuitReader extends CircuitTransaction {
               throw new XmlReaderException(S.fmt("compUnknownError", sub_elt.getAttribute("name")));
           }
           Bounds bds = comp.getBounds();
-          Component conflict = bds.isEmpty() ? null : componentsAt.get(bds);
-          if (conflict != null) {
-            // oops... overlapping components...
-            reader.addError(S.fmt("fileComponentOverlapError", 
-                  conflict.getFactory().getName()+conflict.getLocation(),
-                  comp.getFactory().getName()+conflict.getLocation()),
-                  circData.circuit.getName());
-            overlapComponents.add(comp);
-          } else {
-            if (!bds.isEmpty())
-              componentsAt.put(bds, comp);
-            else
+          if (bds.isEmpty()) {
+            // For text components, don't even print a warning, since empty text
+            // components have plagued many files, since there are still many
+            // ways to inadvertently create empty text components.
+            if (!(comp.getFactory() instanceof Text))
               System.out.println("Note: Within " + circData.circuit.getName() +", ignoring component with empty bounds: " + comp);
-            mutator.add(dest, comp);
+          } else {
+            Component conflict = componentsAt.get(bds);
+            if (conflict != null) {
+              // oops... overlapping components...
+              reader.addError(S.fmt("fileComponentOverlapError",
+                    conflict.getFactory().getName()+conflict.getLocation(),
+                    comp.getFactory().getName()+conflict.getLocation()),
+                    circData.circuit.getName());
+              overlapComponents.add(comp);
+            } else {
+              componentsAt.put(bds, comp);
+              mutator.add(dest, comp);
+            }
           }
         } catch (XmlReaderException e) {
           reader.addErrors(e, circData.circuit.getName() + "."

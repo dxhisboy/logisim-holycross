@@ -45,6 +45,7 @@ import com.cburch.logisim.circuit.CircuitMutation;
 import com.cburch.logisim.comp.Component;
 import com.cburch.logisim.comp.ComponentDrawContext;
 import com.cburch.logisim.comp.ComponentUserEvent;
+import com.cburch.logisim.comp.TextFieldCaret;
 import com.cburch.logisim.data.AttributeSet;
 import com.cburch.logisim.data.Location;
 import com.cburch.logisim.gui.main.Canvas;
@@ -147,6 +148,7 @@ public final class TextTool extends Tool {
   private AttributeSet attrs;
   private Caret caret = null;
   private boolean caretCreatingText = false;
+  private boolean caretNeedsSelectAll = false;
   private Canvas caretCanvas = null;
   private Circuit caretCircuit = null;
   private Component caretComponent = null;
@@ -254,7 +256,7 @@ public final class TextTool extends Tool {
     }
 
     // Maybe user is clicking within the current caret.
-    if (caret != null) {
+    if (caret != null && !caretNeedsSelectAll) {
       caret.mouseDragged(e);
       proj.repaintCanvas();
     }
@@ -262,6 +264,7 @@ public final class TextTool extends Tool {
 
   @Override
   public void mousePressed(Canvas canvas, Graphics g, MouseEvent e) {
+    caretNeedsSelectAll = false;
     Project proj = canvas.getProject();
     Circuit circ = canvas.getCircuit();
 
@@ -331,6 +334,7 @@ public final class TextTool extends Tool {
       if (editable != null) {
         caret = editable.getTextCaret(event);
         proj.getFrame().viewComponentAttributes(circ, caretComponent);
+        caretNeedsSelectAll = true;
       }
     }
 
@@ -356,7 +360,12 @@ public final class TextTool extends Tool {
     }
 
     if (caret != null) {
-      caret.mouseReleased(e);
+      if (caretNeedsSelectAll && caret instanceof TextFieldCaret) {
+        ((TextFieldCaret)caret).selectAll();
+        caretNeedsSelectAll = false;
+      } else {
+        caret.mouseReleased(e);
+      }
       proj.repaintCanvas();
     }
   }

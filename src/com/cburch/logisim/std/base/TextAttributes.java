@@ -52,7 +52,7 @@ class TextAttributes extends AbstractAttributeSet {
   private Bounds offsetBounds;
 
   public TextAttributes() {
-    text = "";
+    text = "text";
     font = StdAttr.DEFAULT_LABEL_FONT;
     halign = Text.ATTR_HALIGN.parse("center");
     valign = Text.ATTR_VALIGN.parse("base");
@@ -114,8 +114,11 @@ class TextAttributes extends AbstractAttributeSet {
 
   @Override
   public <V> void updateAttr(Attribute<V> attr, V value) {
-    if (attr == Text.ATTR_TEXT)
+    if (attr == Text.ATTR_TEXT) {
       text = (String) value;
+      if (text == null || text.length() == 0)
+        text = "text";
+    }
     else if (attr == Text.ATTR_FONT)
       font = (Font) value;
     else if (attr == Text.ATTR_HALIGN)
