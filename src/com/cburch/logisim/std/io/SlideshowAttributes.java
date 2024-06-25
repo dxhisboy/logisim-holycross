@@ -37,6 +37,7 @@ import com.cburch.logisim.data.AbstractAttributeSet;
 import com.cburch.logisim.data.Attribute;
 import com.cburch.logisim.data.AttributeOption;
 import com.cburch.logisim.data.BitWidth;
+import com.cburch.logisim.std.base.Image;
 
 class SlideshowAttributes extends AbstractAttributeSet {
   private final /*public*/ static SlideshowAttributes instance = new SlideshowAttributes(); // why?
@@ -45,7 +46,7 @@ class SlideshowAttributes extends AbstractAttributeSet {
   int count = 4;
   int width = 320;
   int height = 240;
-  Slideshow.Slide[] slides = new Slideshow.Slide[Slideshow.MAX_SLIDES];
+  Image.ImageContent[] slides = new Image.ImageContent[Slideshow.MAX_SLIDES];
   AttributeOption fit = Slideshow.SCALE;
 
   public SlideshowAttributes() { }
@@ -105,7 +106,7 @@ class SlideshowAttributes extends AbstractAttributeSet {
     else {
       for (int i = 0; i < count; i++) {
         if (attr == Slideshow.ATTR_SLIDE.get(i)) {
-          slides[i] = (Slideshow.Slide) value;
+          slides[i] = (Image.ImageContent) value;
           break;
         }
       }

@@ -518,6 +518,44 @@ public class XmlProjectReader extends XmlReader {
 
     for (Element compElt : XmlIterator.forDescendantElements(root, "comp"))
       setDefaultForMissingConstantValues(doc, compElt, wiringLibName);
+
+    if (version.compareTo(LogisimVersion.get(5, 0, 4)) < 0) {
+      // As of version 5.0.4, a new Base Image component has been added, which
+      // should appear in the toolbar by default. The Audio library is also ready
+      // to be visible by default, so we should add it if missing.
+      addBuiltinLibrariesIfMissing(doc, root, "#Audio");
+      repairForImageComponent(doc, root);
+    }
+  }
+
+  private void repairForImageComponent(Document doc, Element root) {
+    String baseLabel = null;
+    for (Element libElt : XmlIterator.forChildElements(root, "lib")) {
+      String desc = libElt.getAttribute("desc");
+      String label = libElt.getAttribute("name");
+      if ("#Base".equals(desc)) {
+        baseLabel = label;
+        break;
+      }
+    }
+    if (baseLabel == null)
+      return; // should not happen
+    for (Element toolbar : XmlIterator.forChildElements(root, "toolbar")) {
+      // Put new tool after "Add Text" or else at the end.
+      Node insertLocation = null;
+      for (Element elt : XmlIterator.forChildElements(toolbar, "tool")) {
+        String lib = elt.getAttribute("lib");
+        String name = elt.getAttribute("name");
+        if (baseLabel.equals(lib) && "Text Tool".equals(name)) {
+          insertLocation = elt.getNextSibling();
+          break;
+        }
+      }
+      Element img = doc.createElement("tool");
+      img.setAttribute("lib", baseLabel);
+      img.setAttribute("name", "Image");
+      toolbar.insertBefore(img, insertLocation);
+    }
   }
   
   private void setDefaultForMissingConstantValues(Document doc, Element elt, String wiringLibName) {

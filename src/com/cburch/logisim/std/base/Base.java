@@ -48,11 +48,13 @@ import com.cburch.logisim.tools.WiringTool;
 public class Base extends Library {
   private final List<Tool> tools;
   private final AddTool textAdder = new AddTool(Base.class, Text.FACTORY);
+  private final AddTool imageAdder = new AddTool(Base.class, new Image());
 
   public Base() {
     WiringTool wiring = new WiringTool();
     SelectTool select = new SelectTool();
     CutterTool cutter = new CutterTool();
+    TextTool text = new TextTool();
 
     tools = Arrays.asList(new Tool[] {
       PokeTool.SINGLETON,
@@ -63,12 +65,14 @@ public class Base extends Library {
       select,
       wiring,
       cutter,
-      new TextTool(), 
+      text,
+      imageAdder,
       // MenuTool is kind of useless, but necessary for custom keyboard/mouse mappings,
       // e.g. for the right-click binding.
       MenuTool.SINGLETON,
       // TextTool internally uses Text.FACTORY, but also supports click-to-edit,
-      // custom cursor, etc. A dedicated "add text tool" is useless. But it
+      // custom cursor, etc. A dedicated "add text tool" is only useful for
+      // having multiple text icons with different presets. But it also
       // needs to exist here for XmlCircuitReader to re-construct circuits, and
       // for XmlWriter to serialize circuits.
       textAdder,
