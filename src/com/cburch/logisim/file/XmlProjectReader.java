@@ -520,15 +520,15 @@ public class XmlProjectReader extends XmlReader {
       setDefaultForMissingConstantValues(doc, compElt, wiringLibName);
 
     if (version.compareTo(LogisimVersion.get(5, 0, 4)) < 0) {
-      // As of version 5.0.4, a new Base Image component has been added, which
+      // As of version 5.0.4, a Base Image and Callout components have been added, which
       // should appear in the toolbar by default. The Audio library is also ready
       // to be visible by default, so we should add it if missing.
       addBuiltinLibrariesIfMissing(doc, root, "#Audio");
-      repairForImageComponent(doc, root);
+      repairForImageAndCalloutComponents(doc, root);
     }
   }
 
-  private void repairForImageComponent(Document doc, Element root) {
+  private void repairForImageAndCalloutComponents(Document doc, Element root) {
     String baseLabel = null;
     for (Element libElt : XmlIterator.forChildElements(root, "lib")) {
       String desc = libElt.getAttribute("desc");
@@ -551,6 +551,10 @@ public class XmlProjectReader extends XmlReader {
           break;
         }
       }
+      Element callout = doc.createElement("tool");
+      callout.setAttribute("lib", baseLabel);
+      callout.setAttribute("name", "Callout");
+      toolbar.insertBefore(callout, insertLocation);
       Element img = doc.createElement("tool");
       img.setAttribute("lib", baseLabel);
       img.setAttribute("name", "Image");

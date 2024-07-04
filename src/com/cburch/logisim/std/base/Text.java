@@ -57,7 +57,7 @@ import com.cburch.logisim.util.StringUtil;
 
 public class Text extends InstanceFactory implements CustomHandles {
 
-  private static class MultilineAttribute extends Attribute<String> {
+  static class MultilineAttribute extends Attribute<String> {
     MultilineAttribute(String name, StringGetter disp) {
       super(name, disp);
     }
@@ -128,19 +128,23 @@ public class Text extends InstanceFactory implements CustomHandles {
                 "base", S.getter("textVertAlignBaseOpt")),
             new AttributeOption(Integer.valueOf(TextField.V_BOTTOM),
                 "bottom", S.getter("textVertAlignBottomOpt")),
-            new AttributeOption(Integer.valueOf(TextField.H_CENTER),
+            new AttributeOption(Integer.valueOf(TextField.V_CENTER),
                 "center", S.getter("textVertAlignCenterOpt")),
           });
 
   public static final Text FACTORY = new Text();
 
   private Text() {
-    super("Text", S.getter("textComponent"));
+    this("Text", S.getter("textComponent"));
+  }
+
+  protected Text(String name, StringGetter desc) {
+    super(name, desc);
     setIconName("comment.png");
     setShouldSnap(false);
   }
 
-  private void configureLabel(Instance instance) {
+  protected void configureLabel(Instance instance) {
     TextAttributes attrs = (TextAttributes) instance.getAttributeSet();
     Location loc = instance.getLocation();
     instance.setTextField(ATTR_TEXT, ATTR_FONT, loc.getX(), loc.getY(),

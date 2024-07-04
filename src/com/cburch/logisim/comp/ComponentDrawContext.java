@@ -133,6 +133,15 @@ public class ComponentDrawContext {
     g.drawOval(x - 4, y - 4, 9, 9);
   }
 
+  public void drawReshapeHandle(Location loc) {
+    int x = loc.getX();
+    int y = loc.getY();
+    g.setColor(Color.magenta);
+    g.fillRect(x - 3, y - 3, 7, 7);
+    g.setColor(Color.black);
+    g.drawRect(x - 3, y - 3, 7, 7);
+  }
+
   public void drawHandle(int x, int y) {
     g.setColor(Color.white);
     g.fillRect(x - 3, y - 3, 7, 7);

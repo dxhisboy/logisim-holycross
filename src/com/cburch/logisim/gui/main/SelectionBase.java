@@ -50,6 +50,7 @@ import com.cburch.logisim.data.AttributeSet;
 import com.cburch.logisim.data.Bounds;
 import com.cburch.logisim.data.Location;
 import com.cburch.logisim.proj.Project;
+import com.cburch.logisim.tools.Reshapable;
 import com.cburch.logisim.util.CollectionUtil;
 
 class SelectionBase {
@@ -85,6 +86,8 @@ class SelectionBase {
   final HashSet<Component> suppressHandles = new HashSet<Component>(); // of Components
   final Set<Component> unionSet = CollectionUtil.createUnmodifiableSetUnion(
       selected, lifted);
+  
+  ArrayList<Location> reshapeHandles = new ArrayList<>();
 
   private Bounds bounds = Bounds.EMPTY_BOUNDS;
 
@@ -143,6 +146,21 @@ class SelectionBase {
         return;
       }
     }
+  }
+
+  public Collection<Location> getReshapeHandles() {
+    return reshapeHandles;
+  }
+
+  void computeCanReshape() {
+    reshapeHandles.clear();
+    // Note: only reshape when selection is a single non-floating component.
+    if (selected.size() != 1 || lifted.size() !=  0)
+      return;
+    Component comp = selected.iterator().next();
+    Reshapable handler = (Reshapable)comp.getFeature(Reshapable.class);
+    if (handler != null)
+      reshapeHandles.addAll(handler.getReshapeHandles());
   }
 
   public static HashMap<Component, Component> copyComponents(Circuit circuit,
@@ -225,6 +243,7 @@ class SelectionBase {
       selected.addAll(lifted);
       lifted.clear();
     }
+    // FIXME: why no fireSelectionChanged() here?
   }
 
   void duplicateHelper(CircuitMutation xn) {
@@ -236,6 +255,7 @@ class SelectionBase {
   public void fireSelectionChanged() {
     bounds = null;
     computeShouldSnap();
+    computeCanReshape();
     Selection.Event e = new Selection.Event(this);
     for (Selection.Listener l : listeners) {
       l.selectionChanged(e);
@@ -360,7 +380,7 @@ class SelectionBase {
     }
 
     if (removed) {
-      if (shouldSnapComponent(comp))
+      if (shouldSnapComponent(comp)) // FIXME: del; happens in fireSelectionChanged
         computeShouldSnap();
       fireSelectionChanged();
     }

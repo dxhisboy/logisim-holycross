@@ -104,6 +104,8 @@ public class Selection extends SelectionBase {
 
         if (change) {
           fireSelectionChanged();
+        } else {
+          computeCanReshape();
         }
       }
     }
@@ -198,6 +200,14 @@ public class Selection extends SelectionBase {
           context.drawHandles(comp);
         g_new.dispose();
       }
+    }
+    if (!reshapeHandles.isEmpty() && hidden.isEmpty()) {
+      Graphics g_new = g.create();
+      context.setGraphics(g_new);
+      for (Location loc: reshapeHandles) {
+        context.drawReshapeHandle(loc);
+      }
+      g_new.dispose();
     }
 
     context.setGraphics(g);

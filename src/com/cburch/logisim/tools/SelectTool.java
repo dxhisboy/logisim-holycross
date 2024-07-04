@@ -118,16 +118,17 @@ public final class SelectTool extends Tool {
     }
   }
 
-  private static final Cursor selectCursor = Cursor
-      .getPredefinedCursor(Cursor.DEFAULT_CURSOR);
-  private static final Cursor rectSelectCursor = Cursor
-      .getPredefinedCursor(Cursor.CROSSHAIR_CURSOR);
-  private static final Cursor moveCursor = Cursor
-      .getPredefinedCursor(Cursor.MOVE_CURSOR);
-
   private static final int IDLE = 0;
   private static final int MOVING = 1;
   private static final int RECT_SELECT = 2;
+  private static final int RESHAPING = 3;
+  private static final Cursor cursors[] = {
+    Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR),
+    Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR),
+    Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR),
+    Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR)
+  };
+
   private static final Icon toolIcon = Icons.getIcon("move.gif");
 
   private static final Color COLOR_UNMATCHED = new Color(192, 0, 0);
@@ -251,6 +252,15 @@ public final class SelectTool extends Tool {
       GraphicsUtil.switchToWidth(gBase, 2);
       gBase.drawRect(bds.x, bds.y,
           Math.max(0, bds.width-1), Math.max(0, bds.height-1));
+    } else if (state == RESHAPING) {
+      Component c = canvas.getSelection().getComponents().iterator().next();
+      Reshapable handler = (Reshapable)c.getFeature(Reshapable.class);
+      Graphics gBase = context.getGraphics();
+      Graphics gDup = gBase.create();
+      context.setGraphics(gDup);
+      context.getInstancePainter().setComponent(c);
+      handler.drawReshaping(context.getInstancePainter(), start, curDx, curDy);
+      gDup.dispose();
     }
   }
 
@@ -261,8 +271,7 @@ public final class SelectTool extends Tool {
 
   @Override
   public Cursor getCursor() {
-    return state == IDLE ? selectCursor
-        : (state == RECT_SELECT ? rectSelectCursor : moveCursor);
+    return cursors[state];
   }
 
   @Override
@@ -295,6 +304,8 @@ public final class SelectTool extends Tool {
         }
       }
       return sel;
+    } else if (state == RESHAPING) {
+      return canvas.getSelection().getComponents();
     } else {
       return null;
     }
@@ -383,6 +394,11 @@ public final class SelectTool extends Tool {
       curDx = e.getX() - start.getX();
       curDy = e.getY() - start.getY();
       proj.repaintCanvas();
+    } else if (state == RESHAPING) {
+      // TODO : handle key modifiers, e.g. to maintain aspect ratio?
+      curDx = e.getX() - start.getX();
+      curDy = e.getY() - start.getY();
+      canvas.getProject().repaintCanvas();
     }
   }
 
@@ -396,6 +412,20 @@ public final class SelectTool extends Tool {
     curDx = 0;
     curDy = 0;
     moveGesture = null;
+
+    // If user click on reshaping handle within selection, start reshaping.
+    // Note: this occurs only when selection is a single non-floating component.
+    for (Location loc : sel.getReshapeHandles()) {
+      int dx = loc.getX() - e.getX();
+      int dy = loc.getY() - e.getY();
+      if (dx * dx + dy * dy < 36) {
+        setState(proj, RESHAPING);
+        start = loc;
+        Component comp = sel.getComponents().iterator().next();
+        proj.repaintCanvas();
+        return;
+      }
+    }
 
     // if the user clicks into the selection,
     // selection is being modified
@@ -502,6 +532,17 @@ public final class SelectTool extends Tool {
         proj.doAction(act);
       }
       setState(proj, IDLE);
+      proj.repaintCanvas();
+    } else if (state == RESHAPING) {
+      setState(proj, IDLE);
+      int dx = curDx = e.getX() - start.getX();
+      int dy = curDy = e.getY() - start.getY();
+      if (dx != 0 || dy != 0) {
+        Component c = proj.getSelection().getComponents().iterator().next();
+        Circuit circuit = canvas.getCircuit();
+        Reshapable handler = (Reshapable)c.getFeature(Reshapable.class);
+        handler.doReshapeAction(proj, circuit, c, start, dx, dy);
+      }
       proj.repaintCanvas();
     }
   }
