@@ -88,6 +88,7 @@ class SelectionBase {
       selected, lifted);
   
   ArrayList<Location> reshapeHandles = new ArrayList<>();
+  Reshapable reshapeHandler = null;
 
   private Bounds bounds = Bounds.EMPTY_BOUNDS;
 
@@ -152,15 +153,20 @@ class SelectionBase {
     return reshapeHandles;
   }
 
+  public Reshapable getReshapeHandler() {
+    return reshapeHandler;
+  }
+
   void computeCanReshape() {
     reshapeHandles.clear();
+    reshapeHandler = null;
     // Note: only reshape when selection is a single non-floating component.
     if (selected.size() != 1 || lifted.size() !=  0)
       return;
     Component comp = selected.iterator().next();
-    Reshapable handler = (Reshapable)comp.getFeature(Reshapable.class);
-    if (handler != null)
-      reshapeHandles.addAll(handler.getReshapeHandles());
+    reshapeHandler = (Reshapable)comp.getFeature(Reshapable.class);
+    if (reshapeHandler != null)
+      reshapeHandles.addAll(reshapeHandler.getReshapeHandles(comp));
   }
 
   public static HashMap<Component, Component> copyComponents(Circuit circuit,

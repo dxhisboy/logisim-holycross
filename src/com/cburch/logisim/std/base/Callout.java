@@ -56,7 +56,7 @@ import com.cburch.logisim.tools.SetAttributeAction;
 import com.cburch.logisim.util.GraphicsUtil;
 import com.cburch.logisim.util.StringUtil;
 
-public class Callout extends Text {
+public class Callout extends Text implements Reshapable {
 
   public static final Attribute<Integer> ATTR_DX =
       Attributes.forInteger("dx", S.getter("calloutDeltaX"));
@@ -120,8 +120,8 @@ public class Callout extends Text {
     paint(painter, border, focus);
   }
 
-  // @Override public
-  void drawReshaping(InstancePainter painter, Location handle, int rdx, int rdy) {
+  @Override
+  public void drawReshaping(InstancePainter painter, Location handle, int rdx, int rdy) {
     CalloutAttributes attrs = (CalloutAttributes) painter.getAttributeSet();
     int dx = attrs.getDx();
     int dy = attrs.getDy();
@@ -152,15 +152,17 @@ public class Callout extends Text {
         instance.recomputeBounds();
     }
 
-    g.setColor(Color.RED);
-    //      o---------o---------o  V_TOP
+    g.setColor(Color.BLACK);
+   
+    // Allowed pivot positions, 1 to 8:
+    //      1---------2---------3  V_TOP
     //      |         |         |
     //      |         |         |
-    //      o---------o---------o  V_CENTER
+    //      8---------o---------4  V_CENTER
     //      |         |         |
     //      o---------X---------o  V_BASELINE
     //      |         |         |
-    //      o---------o---------o  V_BOTTOM
+    //      7---------6---------5  V_BOTTOM
     //   H_LEFT   H_CENTER   H_RIGHT
 
     int wid = tbds.getWidth();
@@ -169,56 +171,56 @@ public class Callout extends Text {
     int right = left + wid;
     int top = loc.getY() + tbds.getY();
     int bot = top + hgt;
-    if (valign == GraphicsUtil.V_TOP && halign == GraphicsUtil.H_LEFT) {
-      // top bar, left pivot
-      g.drawLine(left, top, right, top);
-      g.drawLine(left, top, focus.getX(), focus.getY());
-    } else if (valign == GraphicsUtil.V_TOP && halign == GraphicsUtil.H_RIGHT) {
-      // top bar, left pivot
-      g.drawLine(left, top, right, top);
-      g.drawLine(left+wid, top, focus.getX(), focus.getY());
-    } else if (valign == GraphicsUtil.V_TOP && halign == GraphicsUtil.H_CENTER) {
-      // top bar, center pivot
-      g.drawLine(left, top, right, top);
-      g.drawLine(left+wid/2, top, focus.getX(), focus.getY());
-    } else if (valign == GraphicsUtil.V_BOTTOM && halign == GraphicsUtil.H_LEFT) {
-      // bottom bar, left pivot
-      g.drawLine(left, bot, right, bot);
-      g.drawLine(left, bot, focus.getX(), focus.getY());
-    } else if (valign == GraphicsUtil.V_BOTTOM && halign == GraphicsUtil.H_RIGHT) {
-      // bottom bar, left pivot
-      g.drawLine(left, bot, right, bot);
-      g.drawLine(left+wid, bot, focus.getX(), focus.getY());
-    } else if (valign == GraphicsUtil.V_BOTTOM && halign == GraphicsUtil.H_CENTER) {
-      // bottom bar, center pivot
-      g.drawLine(left, bot, right, bot);
-      g.drawLine(left+wid/2, bot, focus.getX(), focus.getY());
-    } else if (valign == GraphicsUtil.V_BASELINE && halign == GraphicsUtil.H_LEFT) {
+    Location p1 = Location.create(left, top);
+    Location p2 = Location.create(left+wid/2, top);
+    Location p3 = Location.create(right, top);
+    Location p4 = Location.create(right, top+hgt/2);
+    Location p5 = Location.create(right, bot);
+    Location p6 = Location.create(left+wid/2, bot);
+    Location p7 = Location.create(left, bot);
+    Location p8 = Location.create(left, top+hgt/2);
+    Location p = p1;
+    if (valign == GraphicsUtil.V_TOP && halign == GraphicsUtil.H_LEFT) p = p1;
+    else if (valign == GraphicsUtil.V_TOP && halign == GraphicsUtil.H_CENTER) p = p2;
+    else if (valign == GraphicsUtil.V_TOP && halign == GraphicsUtil.H_RIGHT) p = p3;
+    else if (valign == GraphicsUtil.V_CENTER && halign == GraphicsUtil.H_RIGHT) p = p4;
+    else if (valign == GraphicsUtil.V_BOTTOM && halign == GraphicsUtil.H_RIGHT) p = p5;
+    else if (valign == GraphicsUtil.V_BOTTOM && halign == GraphicsUtil.H_CENTER) p = p6;
+    else if (valign == GraphicsUtil.V_BOTTOM && halign == GraphicsUtil.H_LEFT) p = p7;
+    else if (valign == GraphicsUtil.V_CENTER && halign == GraphicsUtil.H_LEFT) p = p8;
+    else if (valign == GraphicsUtil.V_BASELINE && halign == GraphicsUtil.H_LEFT) {
       // left bar, auto pivot
-      g.drawLine(left, top, left, bot);
-      if (focus.getX() >= left && focus.getY() >= top + hgt/2)
-        g.drawLine(left, top, focus.getX(), focus.getY());
-      else if (focus.getX() >= left)
-        g.drawLine(left, bot, focus.getX(), focus.getY());
-      else if (top - focus.getY() >= left - focus.getX())
-        g.drawLine(left, top, focus.getX(), focus.getY());
-      else if (focus.getY() - bot >= left - focus.getX())
-        g.drawLine(left, bot, focus.getX(), focus.getY());
+      if (focus.getX() < left && top - focus.getY() < left - focus.getX() && focus.getY() - bot < left - focus.getX())
+        p = p8;
+      else if (focus.getY() <= top + hgt/2)
+        p = p1;
+      else
+        p = p7;
     } else if (valign == GraphicsUtil.V_BASELINE && halign == GraphicsUtil.H_RIGHT) {
       // right bar, auto pivot
-    } else if (valign == GraphicsUtil.V_BASELINE && halign == GraphicsUtil.H_CENTER) {
-      // bottom bar, auto pivot
-    } else if (valign == GraphicsUtil.V_CENTER && halign == GraphicsUtil.H_LEFT) {
-      // left bar, center pivot
-      g.drawLine(left, top, left, bot);
-      g.drawLine(left, top+hgt/2, focus.getX(), focus.getY());
-    } else if (valign == GraphicsUtil.V_CENTER && halign == GraphicsUtil.H_RIGHT) {
-      // right bar, center pivot
-      g.drawLine(left, top, left, bot);
-      g.drawLine(left, top+hgt/2, focus.getX(), focus.getY());
-    } else if (valign == GraphicsUtil.V_CENTER && halign == GraphicsUtil.H_CENTER) {
+      if (focus.getX() > right && top - focus.getY() < focus.getX() - right && focus.getY() - bot < focus.getX() - right)
+        p = p4;
+      else if (focus.getY() <= top + hgt/2)
+        p = p3;
+      else
+        p = p5;
+    } else {
       // auto bar, auto pivot
+      if (focus.getX() < left && top - focus.getY() < left - focus.getX() && focus.getY() - bot < left - focus.getX())
+        p = p8;
+      else if (focus.getX() > right && top - focus.getY() < focus.getX() - right && focus.getY() - bot < focus.getX() - right)
+        p = p4;
+      else if (focus.getY() <= top + hgt/2)
+        p = p2;
+      else 
+        p = p6;
     }
+
+    g.drawLine(p.getX(), p.getY(), focus.getX(), focus.getY());
+    if (valign == GraphicsUtil.V_TOP || p == p2) g.drawLine(left, top, right, top);
+    else if (valign == GraphicsUtil.V_BOTTOM || p == p6) g.drawLine(left, bot, right, bot);
+    else if (halign == GraphicsUtil.H_RIGHT || p == p4) g.drawLine(right, top, right, bot);
+    else g.drawLine(left, top, left, bot);
 
     if (border) {
       g.setColor(Color.LIGHT_GRAY);
@@ -247,46 +249,34 @@ public class Callout extends Text {
     Bounds box = tbds.translate(loc.getX(), loc.getY());
     g.drawRect(box.getX(), box.getY(), box.getWidth(), box.getHeight());
     painter.drawHandles();
-    // int dx = attrs.getDx();
-    // int dy = attrs.getDy();
-    // Location focus = loc.translate(dx, dy);
-    // context.drawHandle(focus);
   }
 
-  private /*static*/ class CalloutReshaper implements Reshapable {
-    Instance instance;
-    CalloutReshaper(Instance i) { instance = i; }
+  @Override
+  public Collection<Location> getReshapeHandles(Component comp) {
+    CalloutAttributes attrs = (CalloutAttributes)comp.getAttributeSet();
+    int dx = attrs.getDx();
+    int dy = attrs.getDy();
+    Location loc = comp.getLocation();
+    Location focus = loc.translate(dx, dy);
+    return Collections.singletonList(focus);
+  }
 
-    @Override
-    public Collection<Location> getReshapeHandles() {
-      CalloutAttributes attrs = (CalloutAttributes) instance.getAttributeSet();
-      int dx = attrs.getDx();
-      int dy = attrs.getDy();
-      Location loc = instance.getLocation();
-      Location focus = loc.translate(dx, dy);
-      return Collections.singletonList(focus);
-    }
-    @Override
-    public void drawReshaping(InstancePainter painter, 
-        Location handle, int rdx, int rdy) {
-      Callout.this.drawReshaping(painter, handle, rdx, rdy);
-    }
-    public void doReshapeAction(Project proj, Circuit circ, Component comp,
-        Location handle, int rdx, int rdy) {
-      CalloutAttributes attrs = (CalloutAttributes)comp.getAttributeSet();
-      int dx = attrs.getDx();
-      int dy = attrs.getDy();
-      SetAttributeAction act = new SetAttributeAction(circ, S.getter("calloutReshape"));
-      act.set(comp, ATTR_DX, dx + rdx);
-      act.set(comp, ATTR_DY, dy + rdy);
-      proj.doAction(act);
-    }
+  @Override
+  public void doReshapeAction(Project proj, Circuit circ, Component comp,
+      Location handle, int rdx, int rdy) {
+    CalloutAttributes attrs = (CalloutAttributes)comp.getAttributeSet();
+    int dx = attrs.getDx();
+    int dy = attrs.getDy();
+    SetAttributeAction act = new SetAttributeAction(circ, S.getter("calloutReshape"));
+    act.set(comp, ATTR_DX, dx + rdx);
+    act.set(comp, ATTR_DY, dy + rdy);
+    proj.doAction(act);
   }
 
   @Override
   public Object getInstanceFeature(Instance instance, Object key) {
     if (key == Reshapable.class)
-      return new CalloutReshaper(instance);
+      return this;
     else
       return super.getInstanceFeature(instance, key);
   }

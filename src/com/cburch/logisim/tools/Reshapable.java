@@ -34,15 +34,17 @@ import java.util.Collection;
 
 import com.cburch.logisim.circuit.Circuit;
 import com.cburch.logisim.comp.Component;
-import com.cburch.logisim.comp.ComponentUserEvent;
 import com.cburch.logisim.data.Location;
 import com.cburch.logisim.instance.InstancePainter;
 import com.cburch.logisim.proj.Project;
 
 public interface Reshapable {
-  // public Caret getReshapeCaret(ComponentUserEvent event);
-  public Collection<Location> getReshapeHandles();
-  public void drawReshaping(InstancePainter painter, Location handle, int dx, int dy);
+
+  public Collection<Location> getReshapeHandles(Component comp);
+
+  public void drawReshaping(InstancePainter painter,
+      Location handle, int dx, int dy);
+
   public void doReshapeAction(Project proj, Circuit circuit,
       Component comp, Location handle, int dx, int dy);
 }

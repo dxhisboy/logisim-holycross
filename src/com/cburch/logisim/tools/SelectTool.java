@@ -254,7 +254,7 @@ public final class SelectTool extends Tool {
           Math.max(0, bds.width-1), Math.max(0, bds.height-1));
     } else if (state == RESHAPING) {
       Component c = canvas.getSelection().getComponents().iterator().next();
-      Reshapable handler = (Reshapable)c.getFeature(Reshapable.class);
+      Reshapable handler = canvas.getSelection().getReshapeHandler();
       Graphics gBase = context.getGraphics();
       Graphics gDup = gBase.create();
       context.setGraphics(gDup);
@@ -539,8 +539,8 @@ public final class SelectTool extends Tool {
       int dy = curDy = e.getY() - start.getY();
       if (dx != 0 || dy != 0) {
         Component c = proj.getSelection().getComponents().iterator().next();
+        Reshapable handler = proj.getSelection().getReshapeHandler();
         Circuit circuit = canvas.getCircuit();
-        Reshapable handler = (Reshapable)c.getFeature(Reshapable.class);
         handler.doReshapeAction(proj, circuit, c, start, dx, dy);
       }
       proj.repaintCanvas();
