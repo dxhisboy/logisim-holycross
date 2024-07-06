@@ -54,11 +54,15 @@ class ToolbarOptions extends OptionsPanel {
   private class Listener
     implements ProjectExplorer.Listener, ActionListener, ListSelectionListener {
     public void actionPerformed(ActionEvent event) {
+      ToolbarData data = getOptions().getToolbarData();
       Object src = event.getSource();
       if (src == addTool) {
         doAddTool(explorer.getSelectedTool().cloneTool());
       } else if (src == addSeparator) {
-        getOptions().getToolbarData().addSeparator();
+        int index = list.getSelectedIndex();
+        if (index < 0)
+          index = list.getModel().getSize() - 1;
+        getProject().doAction(ToolbarActions.addSeparator(data, index+1));
       } else if (src == moveUp) {
         doMove(-1);
       } else if (src == moveDown) {
@@ -66,9 +70,10 @@ class ToolbarOptions extends OptionsPanel {
       } else if (src == remove) {
         int index = list.getSelectedIndex();
         if (index >= 0) {
-          getProject().doAction(
-              ToolbarActions.removeTool(getOptions()
-                .getToolbarData(), index));
+          if (data.get(index) == null)
+            getProject().doAction(ToolbarActions.removeSeparator(data, index));
+          else
+            getProject().doAction(ToolbarActions.removeTool(data, index));
           list.clearSelection();
         }
       }
@@ -85,9 +90,11 @@ class ToolbarOptions extends OptionsPanel {
 
     private void doAddTool(Tool tool) {
       if (tool != null) {
-        getProject().doAction(
-            ToolbarActions.addTool(getOptions().getToolbarData(),
-              tool));
+        ToolbarData data = getOptions().getToolbarData();
+        int index = list.getSelectedIndex();
+        if (index < 0)
+          index = list.getModel().getSize() - 1;
+        getProject().doAction(ToolbarActions.addTool(data, tool, index + 1));
       }
     }
 
