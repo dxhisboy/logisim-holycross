@@ -61,14 +61,6 @@ public class MouseMappings {
     listeners.add(l);
   }
 
-  public boolean containsSelectTool() {
-    for (Tool tool : map.values()) {
-      if (tool instanceof SelectTool)
-        return true;
-    }
-    return false;
-  }
-
   public void copyFrom(MouseMappings other, LogisimFile file) {
     if (this == other)
       return;
