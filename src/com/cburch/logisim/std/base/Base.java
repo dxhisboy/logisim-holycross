@@ -81,10 +81,6 @@ public class Base extends Library {
     });
   }
 
-  public boolean isDeprecatedTool(String name) {
-    return name.equals("Text");
-  }
-
   @Override
   public String getDisplayName() {
     return S.get("baseLibrary");
@@ -100,8 +96,4 @@ public class Base extends Library {
     return tools;
   }
 
-  @Override
-  public boolean displayInToolbox() {
-    return false;
-  }
 }

@@ -199,10 +199,6 @@ public abstract class Library {
     return getName();
   }
 
-  public boolean displayInToolbox() {
-    return true;
-  }
-  
   public static final DragDrop dnd = Main.headless ? null : new DragDrop(
       Library.class, LayoutClipboard.mimeTypeLibraryClip);
 
