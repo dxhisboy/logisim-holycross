@@ -243,15 +243,6 @@ class SelectionBase {
     fireSelectionChanged();
   }
 
-  void anchorAll(CircuitMutation xn) {
-    if (!lifted.isEmpty()) {
-      xn.addAll(lifted);
-      selected.addAll(lifted);
-      lifted.clear();
-    }
-    // FIXME: why no fireSelectionChanged() here?
-  }
-
   void duplicateHelper(CircuitMutation xn) {
     HashSet<Component> oldSelected = new HashSet<Component>(selected);
     oldSelected.addAll(lifted);

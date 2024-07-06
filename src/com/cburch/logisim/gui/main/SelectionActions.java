@@ -135,26 +135,6 @@ public class SelectionActions {
 
   }
 
-  private static class Anchor extends SelectionAnchoringAction {
-    // Anchor makes all floating elements become anchored, but keeps them in the
-    // selection.
-
-    Anchor(Selection sel, int count) {
-      super(sel, count);
-    }
-
-    @Override
-    public String getName() {
-      return count == 1 ? S.get("anchorComponentAction") : S.get("anchorComponentsAction");
-    }
-
-    @Override
-    protected void doIt(Project proj, Circuit circ, CircuitMutation xn) {
-      sel.anchorAll(xn);
-    }
-
-  }
-
   private static class Delete extends Action {
     private Selection sel;
     private CircuitTransaction xnReverse;
@@ -682,16 +662,6 @@ public class SelectionActions {
    * Code taken from Cornell's version of Logisim:
    * http://www.cs.cornell.edu/courses/cs3410/2015sp/
    */
-
-  // anchors all floating elements, keeping elements in selection
-  public static Action anchorAll(Selection sel) {
-    int numAnchor = sel.getFloatingComponents().size();
-    if (numAnchor == 0) {
-      return null;
-    } else {
-      return new Anchor(sel, numAnchor);
-    }
-  }
 
   // anchor all floating elements, clearing selection
   public static Action clear(Selection sel) {
