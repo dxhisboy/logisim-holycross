@@ -79,13 +79,12 @@ class SelectionBase {
   static final Set<Component> NO_COMPONENTS = Collections.emptySet();
 
   Project proj;
-  private ArrayList<Selection.Listener> listeners = new ArrayList<Selection.Listener>();
-  final HashSet<Component> selected = new HashSet<Component>(); // of selected Components in circuit
-  final HashSet<Component> lifted = new HashSet<Component>(); // of selected Components removed
+  private ArrayList<Selection.Listener> listeners = new ArrayList<>();
+  final HashSet<Component> selected = new HashSet<>(); // of selected Components in circuit
+  final HashSet<Component> lifted = new HashSet<>(); // of selected Components removed
 
-  final HashSet<Component> suppressHandles = new HashSet<Component>(); // of Components
-  final Set<Component> unionSet = CollectionUtil.createUnmodifiableSetUnion(
-      selected, lifted);
+  final HashSet<Component> suppressHandles = new HashSet<>(); // of wires being edited
+  final Set<Component> unionSet = CollectionUtil.createUnmodifiableSetUnion(selected, lifted);
   
   ArrayList<Location> reshapeHandles = new ArrayList<>();
   Reshapable reshapeHandler = null;
@@ -377,8 +376,6 @@ class SelectionBase {
     }
 
     if (removed) {
-      if (shouldSnapComponent(comp)) // FIXME: del; happens in fireSelectionChanged
-        computeShouldSnap();
       fireSelectionChanged();
     }
   }
