@@ -39,6 +39,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -398,6 +399,38 @@ public final class SelectTool extends Tool {
     }
   }
 
+  private Component highestPriority(Graphics g, Location loc, Component c1, Component c2) {
+    Bounds b1 = c1.getVisibleBounds(g);
+    Bounds b2 = c2.getVisibleBounds(g);
+    int a1 = b1.getWidth() * b1.getHeight();
+    int a2 = b2.getWidth() * b2.getHeight();
+    if (a1 < a2) return c1;
+    else if (a2 < a1) return c2;
+    int x1 = b1.getCenterX();
+    int y1 = b1.getCenterY();
+    int x2 = b2.getCenterX();
+    int y2 = b2.getCenterY();
+    int d1 = (loc.getX() - x1) * (loc.getX() - x1) + (loc.getY() - y1) * (loc.getY() - y1);
+    int d2 = (loc.getX() - x2) * (loc.getX() - x2) + (loc.getY() - y2) * (loc.getY() - y2);
+    if (d1 <= d2) return c1;
+    else return c2;
+  }
+
+  // Pick a single component from comps: the smallest one, with ties broken by
+  // distance from loc to center.
+  private Component highestPriority(Graphics g, Location loc, Collection<Component> comps, Collection<Component> disqualify) {
+      Component target = null;
+      for (Component comp : comps) {
+        if (disqualify == null || !disqualify.contains(comp)) {
+          if (target == null)
+            target = comp;
+          else
+            target = highestPriority(g, start, target, comp);
+        }
+      }
+      return target;
+  }
+
   @Override
   public void mousePressed(Canvas canvas, Graphics g, MouseEvent e) {
     canvas.requestFocusInWindow();
@@ -423,8 +456,7 @@ public final class SelectTool extends Tool {
       }
     }
 
-    // if the user clicks into the selection,
-    // selection is being modified
+    // If user clicks into the selection, selection is being modified
     Collection<Component> in_sel = sel.getComponentsContaining(start, g);
     if (!in_sel.isEmpty()) {
       if ((e.getModifiersEx() & InputEvent.SHIFT_DOWN_MASK) == 0) {
@@ -432,9 +464,12 @@ public final class SelectTool extends Tool {
         proj.repaintCanvas();
         return;
       } else {
-        Action act = SelectionActions.drop(sel, in_sel);
-        if (act != null) {
-          proj.doAction(act);
+        // fixme: this drops all components clicked, should only drop one?
+        Component target = highestPriority(g, start, in_sel, null);
+        if (target != null) {
+          Action act = SelectionActions.drop(sel, Collections.singletonList(target));
+          if (act != null)
+            proj.doAction(act);
         }
       }
     }
@@ -451,10 +486,12 @@ public final class SelectTool extends Tool {
           }
         }
       }
-      for (Component comp : clicked) {
-        if (!in_sel.contains(comp)) {
-          sel.add(comp);
-        }
+      // Old behavior: click on stacked components will select all of them.
+      // New behavior: sort by size, take only the smallest. A z-order would be
+      // nicer, but we don't maintain that.
+      Component target = highestPriority(g, start, clicked, in_sel);
+      if (target != null) {
+        sel.add(target);
       }
       setState(proj, MOVING);
       proj.repaintCanvas();
@@ -465,9 +502,8 @@ public final class SelectTool extends Tool {
     // selection (maybe with the shift key down).
     if ((e.getModifiersEx() & InputEvent.SHIFT_DOWN_MASK) == 0) {
       Action act = SelectionActions.dropAll(sel);
-      if (act != null) {
+      if (act != null)
         proj.doAction(act);
-      }
     }
     setState(proj, RECT_SELECT);
     proj.repaintCanvas();
