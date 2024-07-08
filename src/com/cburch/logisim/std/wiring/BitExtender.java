@@ -146,7 +146,7 @@ public class BitExtender extends InstanceFactory {
     else
       s0 = "???"; // should never happen
     String s1 = S.get("extenderMainLabel");
-    Bounds bds = painter.getBounds();
+    Bounds bds = painter.getNominalBounds();
     int x = bds.getX() + bds.getWidth() / 2;
     int y0 = bds.getY() + (bds.getHeight() / 2 + asc) / 2;
     int y1 = bds.getY() + (3 * bds.getHeight() / 2 + asc) / 2;

@@ -107,8 +107,8 @@ public class TransmissionGate extends InstanceFactory {
   }
 
   @Override
-  public boolean contains(Location loc, AttributeSet attrs) {
-    if (super.contains(loc, attrs)) {
+  public boolean nominallyContains(Location loc, AttributeSet attrs) {
+    if (super.nominallyContains(loc, attrs)) {
       Direction facing = attrs.getValue(StdAttr.FACING);
       Location center = Location.create(0, 0).translate(facing, -20);
       return center.manhattanDistanceTo(loc) < 24;
@@ -118,7 +118,7 @@ public class TransmissionGate extends InstanceFactory {
   }
 
   private void drawInstance(InstancePainter painter, boolean isGhost) {
-    Bounds bds = painter.getBounds();
+    Bounds bds = painter.getNominalBounds();
     Object powerLoc = painter.getAttributeValue(Analog.ATTR_GATE);
     Direction facing = painter.getAttributeValue(StdAttr.FACING);
     boolean flip = (facing == Direction.SOUTH || facing == Direction.WEST) == (powerLoc == Analog.GATE_TOP_LEFT);

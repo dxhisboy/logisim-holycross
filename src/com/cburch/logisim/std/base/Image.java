@@ -337,7 +337,7 @@ public class Image extends InstanceFactory {
   private void paint(InstancePainter painter, boolean border) {
     Image.ImageContent content = painter.getAttributeValue(ATTR_IMAGE_CONTENT);
     BufferedImage img = content == null ? null : content.getImage();
-    Bounds bds = painter.getBounds();
+    Bounds bds = painter.getNominalBounds();
     Graphics g = painter.getGraphics();
 
     int x = bds.getX();

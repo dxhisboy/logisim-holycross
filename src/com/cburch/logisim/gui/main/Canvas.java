@@ -47,6 +47,7 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -918,7 +919,7 @@ public class Canvas extends JPanel
       Canvas.snapToGrid(event);
       Location loc = Location.create(event.getX(), event.getY());
       ComponentUserEvent e = null;
-      for (Component comp : getCircuit().getAllContaining(loc)) {
+      for (Component comp : getCircuit().getAllVisiblyContaining(loc, getGraphics())) {
         Object makerObj = comp.getFeature(ToolTipMaker.class);
         if (makerObj != null && makerObj instanceof ToolTipMaker) {
           ToolTipMaker maker = (ToolTipMaker) makerObj;

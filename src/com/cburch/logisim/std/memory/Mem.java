@@ -121,7 +121,7 @@ public abstract class Mem extends InstanceFactory {
   @Override
   protected void configureNewInstance(Instance instance) {
     configurePorts(instance);
-    Bounds bds = instance.getBounds();
+    Bounds bds = instance.getNominalBounds();
     int x = bds.getX() + bds.getWidth() / 2;
     int y = bds.getY() - 2;
     int halign = GraphicsUtil.H_CENTER;
@@ -217,7 +217,7 @@ public abstract class Mem extends InstanceFactory {
 
   public void DrawMemClassic(InstancePainter painter) {
     Graphics g = painter.getGraphics();
-    Bounds bds = painter.getBounds();
+    Bounds bds = painter.getNominalBounds();
 
     // draw boundary and label
     painter.drawBounds();

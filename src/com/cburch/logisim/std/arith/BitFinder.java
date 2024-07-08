@@ -148,7 +148,7 @@ public class BitFinder extends InstanceFactory {
       bot = "1";
     }
 
-    Bounds bds = painter.getBounds();
+    Bounds bds = painter.getNominalBounds();
     int x = bds.getX() + bds.getWidth() / 2;
     int y0 = bds.getY();
     GraphicsUtil.drawCenteredText(g, top, x, y0 + 8);

@@ -101,7 +101,7 @@ public class RegisterPoker extends InstancePoker {
 
   @Override
   public void paint(InstancePainter painter) {
-    Bounds bds = painter.getBounds();
+    Bounds bds = painter.getNominalBounds();
     BitWidth dataWidth = painter.getAttributeValue(StdAttr.WIDTH);
     int width = dataWidth == null ? 8 : dataWidth.getWidth();
     int len = (width + 3) / 4;

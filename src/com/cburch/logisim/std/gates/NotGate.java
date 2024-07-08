@@ -67,7 +67,7 @@ class NotGate extends InstanceFactory {
   static void configureLabel(Instance instance, boolean isRectangular,
       Location control) {
     Object facing = instance.getAttributeValue(StdAttr.FACING);
-    Bounds bds = instance.getBounds();
+    Bounds bds = instance.getNominalBounds();
     int x;
     int y;
     int halign;

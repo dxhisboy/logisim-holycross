@@ -61,7 +61,7 @@ public class SevenSegment extends InstanceFactory implements DynamicElementProvi
     Boolean active = painter.getAttributeValue(Io.ATTR_ACTIVE);
     int desired = active == null || active.booleanValue() ? 1 : 0;
 
-    Bounds bds = painter.getBounds();
+    Bounds bds = painter.getNominalBounds();
     int x = bds.getX() + 5;
     int y = bds.getY();
 

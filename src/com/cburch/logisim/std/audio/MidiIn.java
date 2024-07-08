@@ -336,7 +336,7 @@ public class MidiIn extends InstanceFactory {
     for (int i = 1; i < numPorts; i++)
       painter.drawPort(i);
 
-    Bounds bds = painter.getBounds();
+    Bounds bds = painter.getNominalBounds();
     Graphics g = painter.getGraphics();
 
     int x = bds.x + (bds.width-24)/2;

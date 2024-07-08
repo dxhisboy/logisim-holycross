@@ -169,9 +169,9 @@ abstract class AbstractGate extends InstanceFactory {
   }
 
   @Override
-  public boolean contains(Location loc, AttributeSet attrsBase) {
+  public boolean nominallyContains(Location loc, AttributeSet attrsBase) {
     GateAttributes attrs = (GateAttributes) attrsBase;
-    if (super.contains(loc, attrs)) {
+    if (super.nominallyContains(loc, attrs)) {
       if (attrs.negated == 0) {
         return true;
       } else {
@@ -419,7 +419,7 @@ abstract class AbstractGate extends InstanceFactory {
 
     Object shape = painter.getGateShape();
     Location loc = painter.getLocation();
-    Bounds bds = painter.getOffsetBounds();
+    Bounds bds = painter.getNominalOffsetBounds();
     int width = bds.getWidth();
     int height = bds.getHeight();
     if (facing == Direction.NORTH || facing == Direction.SOUTH) {

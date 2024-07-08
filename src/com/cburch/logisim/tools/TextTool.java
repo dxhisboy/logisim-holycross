@@ -309,7 +309,7 @@ public final class TextTool extends Tool {
 
     // Then search in circuit
     if (caret == null) {
-      for (Component comp : circ.getAllContaining(loc, g)) {
+      for (Component comp : circ.getAllVisiblyContaining(loc, g)) {
         TextEditable editable = (TextEditable) comp.getFeature(TextEditable.class);
         if (editable != null) {
           caret = editable.getTextCaret(event);

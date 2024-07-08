@@ -37,7 +37,6 @@ import java.util.List;
 import com.cburch.logisim.data.AbstractAttributeSet;
 import com.cburch.logisim.data.Attribute;
 import com.cburch.logisim.data.AttributeOption;
-import com.cburch.logisim.data.Bounds;
 import com.cburch.logisim.instance.StdAttr;
 
 class TextAttributes extends AbstractAttributeSet {
@@ -49,14 +48,12 @@ class TextAttributes extends AbstractAttributeSet {
   private Font font;
   private AttributeOption halign;
   private AttributeOption valign;
-  private Bounds offsetBounds;
 
   public TextAttributes() {
     text = "text";
     font = StdAttr.DEFAULT_LABEL_FONT;
     halign = Text.ATTR_HALIGN.parse("center");
     valign = Text.ATTR_VALIGN.parse("base");
-    offsetBounds = null;
   }
 
   @Override
@@ -75,10 +72,6 @@ class TextAttributes extends AbstractAttributeSet {
 
   int getHorizontalAlign() {
     return ((Integer) halign.getValue()).intValue();
-  }
-
-  Bounds getOffsetBounds() {
-    return offsetBounds;
   }
 
   String getText() {
@@ -103,15 +96,6 @@ class TextAttributes extends AbstractAttributeSet {
     return ((Integer) valign.getValue()).intValue();
   }
 
-  boolean setOffsetBounds(Bounds value) {
-    Bounds old = offsetBounds;
-    boolean same = old == null ? value == null : old.equals(value);
-    if (!same) {
-      offsetBounds = value;
-    }
-    return !same;
-  }
-
   @Override
   public <V> void updateAttr(Attribute<V> attr, V value) {
     if (attr == Text.ATTR_TEXT) {
@@ -125,7 +109,6 @@ class TextAttributes extends AbstractAttributeSet {
       halign = (AttributeOption) value;
     else if (attr == Text.ATTR_VALIGN)
       valign = (AttributeOption) value;
-    offsetBounds = null;
   }
 
 }

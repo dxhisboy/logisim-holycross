@@ -59,7 +59,7 @@ public class Keyboard extends InstanceFactory {
     @Override
     public void paint(InstancePainter painter) {
       KeyboardData data = getKeyboardState(painter);
-      Bounds bds = painter.getInstance().getBounds();
+      Bounds bds = painter.getInstance().getNominalBounds();
       Graphics g = painter.getGraphics();
       FontMetrics fm = g.getFontMetrics(DEFAULT_FONT);
 
@@ -356,7 +356,7 @@ public class Keyboard extends InstanceFactory {
   public void paintInstance(InstancePainter painter) {
     boolean showState = painter.getShowState();
     Graphics g = painter.getGraphics();
-    Bounds bds = painter.getBounds();
+    Bounds bds = painter.getNominalBounds();
     painter.drawClock(CK, Direction.EAST);
     painter.drawBounds();
     painter.drawPort(CLR);

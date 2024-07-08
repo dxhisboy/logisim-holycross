@@ -131,7 +131,7 @@ public final class Wire
   public void addComponentWeakListener(Object owner, ComponentListener e) {
   }
 
-  public boolean contains(Location q) {
+  public boolean nominallyContains(Location q) {
     if (is_x_equal)
       return e0.x - 2 <= q.x && q.x <= e1.x + 2
           && e0.y - 0 <= q.y && q.y <= e1.y + 0;
@@ -140,8 +140,8 @@ public final class Wire
           && e0.y - 2 <= q.y && q.y <= e1.y + 2;
   }
 
-  public boolean contains(Location pt, Graphics g) {
-    return contains(pt);
+  public boolean visiblyContains(Location pt, Graphics g) {
+    return nominallyContains(pt);
   }
 
   public void draw(ComponentDrawContext context) {
@@ -178,13 +178,13 @@ public final class Wire
     return this;
   }
 
-  public Bounds getBounds() {
+  public Bounds getNominalBounds() {
     return Bounds.create(e0.x - 2, e0.y - 2,
         e1.x - e0.x + 5, e1.y - e0.y + 5);
   }
 
-  public Bounds getBounds(Graphics g) {
-    return getBounds();
+  public Bounds getVisibleBounds(Graphics g) {
+    return getNominalBounds();
   }
 
   public EndData getEnd(int index) {

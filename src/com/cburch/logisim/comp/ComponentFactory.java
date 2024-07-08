@@ -48,7 +48,27 @@ import com.cburch.logisim.util.StringGetter;
  * Represents a category of components that appear in a circuit. This class and
  * <code>Component</code> share the same sort of relationship as the relation
  * between <em>classes</em> and <em>instances</em> in Java. Normally, there is
- * only one ComponentFactory created for any particular category.
+ * only one ComponentFactory instance created for any particular category. There
+ * are many subclasses of ComponentFactory.
+ *
+ * See Component.java for more details.
+ *
+ *                  interface ComponentFactory
+ *                              |
+ *                              |
+ *                   AbstractComponentFactory
+ *                              |
+ *        ______________________|________________________
+ *       |              |               |                |
+ *  WireFactory  SplitterFactory  Video$Factory   InstanceFactory
+ *                                                       |
+ *              _________________________________________|___________
+ *             |              |             |         |       |      |
+ *    SubcircuitFactory  Multiplexer  AbstractGate  Adder  Shifter  etc.
+ *                                          |
+ *                      ____________________|_____________
+ *                      |        |        |        |      |
+ *                   AndGate  OrGate  NandGate  XorGate  etc.
  */
 public interface ComponentFactory extends AttributeDefaultProvider {
   public static final Object SHOULD_SNAP = new Object();
@@ -101,11 +121,16 @@ public interface ComponentFactory extends AttributeDefaultProvider {
 
   public String getName();
 
-  public Bounds getOffsetBounds(AttributeSet attrs);
+  // See Component.java for details on the difference between nominal and
+  // visible bounding boxes. The same applies here for offset bounds.
+  // - getOffsetBounds() returns the nominal offset bounds, not including any
+  //   label, centered at location (0, 0). This is not graphics-sensitive, and
+  //   for Text and Callout is is only approximate.
+  public Bounds getOffsetBounds(AttributeSet attrs); // nominal
 
-  public default Bounds getOffsetBounds(AttributeSet attrs, Graphics g) {
-    return getOffsetBounds(attrs);
-  }
+  // public default Bounds getVisibleOffsetBounds(AttributeSet attrs, Graphics g) { // visible
+  //   return getOffsetBounds(attrs);
+  // }
 
   public boolean HasThreeStateDrivers(AttributeSet attrs);
 

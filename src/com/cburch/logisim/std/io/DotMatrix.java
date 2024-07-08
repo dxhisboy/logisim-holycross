@@ -260,7 +260,7 @@ public class DotMatrix extends InstanceFactory {
 
     State data = getState(painter);
     long ticks = painter.getTickCount();
-    Bounds bds = painter.getBounds();
+    Bounds bds = painter.getNominalBounds();
     boolean showState = painter.getShowState();
     Graphics g = painter.getGraphics();
     int rows = data.rows;

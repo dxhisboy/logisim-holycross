@@ -404,7 +404,7 @@ public class FileViewer extends InstanceFactory {
   @Override
   public void paintInstance(InstancePainter painter) {
     State data = getState(painter);
-    Bounds bds = painter.getBounds();
+    Bounds bds = painter.getNominalBounds();
     boolean showState = painter.getShowState();
     Graphics g = painter.getGraphics();
     int lines = data.lines;

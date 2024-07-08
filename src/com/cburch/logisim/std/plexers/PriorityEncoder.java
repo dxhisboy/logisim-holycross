@@ -118,7 +118,7 @@ public class PriorityEncoder extends InstanceFactory {
     Direction facing = painter.getAttributeValue(StdAttr.FACING);
 
     painter.drawBounds();
-    Bounds bds = painter.getBounds();
+    Bounds bds = painter.getNominalBounds();
     g.setColor(Color.GRAY);
     int x0;
     int y0;

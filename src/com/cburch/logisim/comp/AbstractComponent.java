@@ -37,22 +37,19 @@ import com.cburch.logisim.circuit.CircuitState;
 import com.cburch.logisim.data.Bounds;
 import com.cburch.logisim.data.Location;
 
+// Used only by ManagedComponent, hence used only by Video and Splitter.
 public abstract class AbstractComponent implements Component {
-  protected AbstractComponent() {
-  }
+  protected AbstractComponent() { }
 
-  public boolean contains(Location pt) {
-    Bounds bds = getBounds();
+  public boolean nominallyContains(Location pt) {
+    Bounds bds = getNominalBounds();
     if (bds == null)
       return false;
     return bds.contains(pt, 1);
   }
 
-  public boolean contains(Location pt, Graphics g) {
-    Bounds bds = getBounds(g);
-    if (bds == null)
-      return false;
-    return bds.contains(pt, 1);
+  public boolean visiblyContains(Location pt, Graphics g) {
+    return nominallyContains(pt);
   }
 
   public boolean endsAt(Location pt) {
@@ -63,30 +60,10 @@ public abstract class AbstractComponent implements Component {
     return false;
   }
 
-  public abstract Bounds getBounds();
+  public abstract Bounds getNominalBounds();
 
-  public Bounds getBounds(Graphics g) {
-    return getBounds();
+  public Bounds getVisibleBounds(Graphics g) {
+    return getNominalBounds();
   }
 
-  public EndData getEnd(int index) {
-    return getEnds().get(index);
-  }
-
-  //
-  // propagation methods
-  //
-  public abstract List<EndData> getEnds();
-
-  //
-  // basic information methods
-  //
-  public abstract ComponentFactory getFactory();
-
-  //
-  // location/extent methods
-  //
-  public abstract Location getLocation();
-
-  public abstract void propagate(CircuitState state);
 }

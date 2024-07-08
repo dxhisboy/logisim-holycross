@@ -95,7 +95,7 @@ public class ShiftRegister extends InstanceFactory {
     BitWidth widthObj = instance.getAttributeValue(StdAttr.WIDTH);
     int width = widthObj.getWidth();
     Boolean parallelObj = instance.getAttributeValue(ATTR_LOAD);
-    Bounds bds = instance.getBounds();
+    Bounds bds = instance.getNominalBounds();
     Port[] ps;
     Integer lenObj = instance.getAttributeValue(ATTR_LENGTH);
     int len = lenObj == null ? 8 : lenObj.intValue();
@@ -444,7 +444,7 @@ public class ShiftRegister extends InstanceFactory {
       if (painter.getShowState()) {
         if (wid <= 4) {
           ShiftRegisterData data = getData(painter);
-          Bounds bds = painter.getBounds();
+          Bounds bds = painter.getNominalBounds();
           int x = bds.getX() + 20;
           int y = bds.getY();
           Object label = painter.getAttributeValue(StdAttr.LABEL);
@@ -463,7 +463,7 @@ public class ShiftRegister extends InstanceFactory {
           }
         }
       } else {
-        Bounds bds = painter.getBounds();
+        Bounds bds = painter.getNominalBounds();
         int x = bds.getX() + bds.getWidth() / 2;
         int y = bds.getY();
         int h = bds.getHeight();

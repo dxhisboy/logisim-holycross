@@ -41,6 +41,7 @@ import com.cburch.logisim.data.Bounds;
 import com.cburch.logisim.data.Location;
 import com.cburch.logisim.util.EventSourceWeakSupport;
 
+// Used only by Splitter and Video.
 public abstract class ManagedComponent extends AbstractComponent {
   private EventSourceWeakSupport<ComponentListener> listeners = new EventSourceWeakSupport<ComponentListener>();
   private Location loc;
@@ -68,10 +69,9 @@ public abstract class ManagedComponent extends AbstractComponent {
   }
 
   public void expose(ComponentDrawContext context) {
-    Bounds bounds = getBounds();
-    java.awt.Component dest = context.getDestination();
+    Bounds bounds = getNominalBounds(); // getVisibleBounds(context.getGraphics());
     if (bounds != null) {
-      dest.repaint(bounds.getX() - 5, bounds.getY() - 5,
+      context.getDestination().repaint(bounds.getX() - 5, bounds.getY() - 5,
           bounds.getWidth() + 10, bounds.getHeight() + 10);
     }
   }
@@ -113,7 +113,7 @@ public abstract class ManagedComponent extends AbstractComponent {
   }
 
   @Override
-  public Bounds getBounds() {
+  public Bounds getNominalBounds() {
     if (bounds == null) {
       Location loc = getLocation();
       Bounds offBounds = getFactory().getOffsetBounds(getAttributeSet());
@@ -135,9 +135,6 @@ public abstract class ManagedComponent extends AbstractComponent {
     return endsView;
   }
 
-  //
-  // abstract AbstractComponent methods
-  //
   @Override
   public abstract ComponentFactory getFactory();
 

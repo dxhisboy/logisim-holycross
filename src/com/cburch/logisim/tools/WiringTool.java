@@ -131,7 +131,7 @@ public final class WiringTool extends Tool {
       cand = Location.create(end.x + delta, end.y);
 
     for (Component comp : canvas.getCircuit().getNonWires(cand)) {
-      if (comp.getBounds().contains(end, REPAIR_RADIUS)) {
+      if (comp.getNominalBounds().contains(end, REPAIR_RADIUS)) {
         WireRepair repair = (WireRepair) comp.getFeature(WireRepair.class);
         if (repair != null
             && repair.shouldRepairWire(new WireRepairData(w, cand))) {
@@ -433,7 +433,7 @@ public final class WiringTool extends Tool {
 
     if (wires.isEmpty() && !candidates.isEmpty() && !cur.equals(origin)) {
       for (Wire w : candidates) {
-        if (!w.contains(cur))
+        if (!w.nominallyContains(cur))
           continue;
         extraWireFromSplitting = null;
         if (!splitCandidate) {

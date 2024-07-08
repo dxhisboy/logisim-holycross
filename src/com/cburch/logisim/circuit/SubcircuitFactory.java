@@ -147,7 +147,7 @@ public class SubcircuitFactory extends InstanceFactory {
   }
 
   private void configureLabel(Instance instance) {
-    Bounds bds = instance.getBounds();
+    Bounds bds = instance.getNominalBounds();
     Object loc = instance.getAttributeValue(StdAttr.LABEL_LOC);
 
     int x = bds.getX() + bds.getWidth() / 2;
@@ -192,8 +192,8 @@ public class SubcircuitFactory extends InstanceFactory {
    * http://www.cs.cornell.edu/courses/cs3410/2015sp/
    */
   @Override
-  public boolean contains(Location loc, AttributeSet attrs) {
-    if (super.contains(loc, attrs)) {
+  public boolean nominallyContains(Location loc, AttributeSet attrs) {
+    if (super.nominallyContains(loc, attrs)) {
       Direction facing = attrs.getValue(StdAttr.FACING);
       Direction defaultFacing = source.getAppearance().getFacing();
       Location query;

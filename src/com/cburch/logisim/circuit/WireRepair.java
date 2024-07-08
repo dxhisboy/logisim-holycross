@@ -224,7 +224,7 @@ class WireRepair extends CircuitTransaction {
       Location w1 = w.getEnd1();
       ArrayList<Location> splits = null;
       for (Location loc : allLocs) {
-        if (w.contains(loc) && !loc.equals(w0) && !loc.equals(w1)) {
+        if (w.nominallyContains(loc) && !loc.equals(w0) && !loc.equals(w1)) {
           if (splits == null)
             splits = new ArrayList<>();
           splits.add(loc);

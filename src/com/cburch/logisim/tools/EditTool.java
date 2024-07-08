@@ -251,7 +251,7 @@ public final class EditTool extends Tool {
         for (Component c : sel) {
           if (c instanceof Wire) {
             Wire w = (Wire) c;
-            if (w.contains(loc) && !w.endsAt(loc))
+            if (w.nominallyContains(loc) && !w.endsAt(loc))
               return select;
           }
         }
@@ -264,7 +264,7 @@ public final class EditTool extends Tool {
       return wiring;
 
     for (Wire w : circ.getWires()) {
-      if (w.contains(loc)) {
+      if (w.nominallyContains(loc)) {
         return wiring;
       }
     }
@@ -380,7 +380,7 @@ public final class EditTool extends Tool {
       ArrayList<Component> suppress = null;
       for (Wire w : circ.getWires()) {
         if (selected.contains(w)) {
-          if (w.contains(oldWireLoc)) {
+          if (w.nominallyContains(oldWireLoc)) {
             if (suppress == null)
               suppress = new ArrayList<Component>();
             suppress.add(w);

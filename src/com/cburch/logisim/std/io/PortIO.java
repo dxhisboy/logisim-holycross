@@ -288,7 +288,7 @@ public class PortIO extends InstanceFactory {
   public void paintInstance(InstancePainter painter) {
     Direction facing = painter.getAttributeValue(StdAttr.FACING);
 
-    Bounds bds = painter.getBounds().rotate(Direction.EAST, facing, 0, 0);
+    Bounds bds = painter.getNominalBounds().rotate(Direction.EAST, facing, 0, 0);
     int w = bds.getWidth();
     int h = bds.getHeight();
     int x = painter.getLocation().getX();

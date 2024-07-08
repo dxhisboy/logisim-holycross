@@ -81,11 +81,10 @@ public class bcd2sevenseg extends InstanceFactory {
 	@Override
 	public void paintInstance(InstancePainter painter) {
 		Graphics g = painter.getGraphics();
-		Bounds MyBounds = painter.getBounds();
+		Bounds MyBounds = painter.getNominalBounds();
 		g.setColor(Color.BLUE);
 		painter.drawRectangle(MyBounds, "");
 		painter.drawPort(BCDin, "BCD", Direction.SOUTH);
-//		painter.drawBounds();
 		for (int i = 0 ; i < 7 ; i++)
 			painter.drawPort(i);
 		g.setColor(Color.BLACK);

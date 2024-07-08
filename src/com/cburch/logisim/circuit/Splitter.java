@@ -135,8 +135,8 @@ public class Splitter extends ManagedComponent
   }
 
   @Override
-  public boolean contains(Location loc) {
-    if (super.contains(loc)) {
+  public boolean nominallyContains(Location loc) {
+    if (super.nominallyContains(loc)) {
       Location myLoc = getLocation();
       Direction facing = getAttributeSet().getValue(StdAttr.FACING);
       if (facing == Direction.EAST || facing == Direction.WEST) {

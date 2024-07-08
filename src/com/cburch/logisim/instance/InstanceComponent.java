@@ -86,7 +86,7 @@ public /*final*/ class InstanceComponent
   private InstanceFactory factory;
   private Instance instance;
   private Location loc;
-  private Bounds bounds; // this is only approximate for std/base/Text
+  private Bounds nominalBounds;
   private List<Port> portList;
   private EndData[] endArray;
   private List<EndData> endList;
@@ -103,7 +103,7 @@ public /*final*/ class InstanceComponent
     this.factory = factory;
     this.instance = Instance.makeFor(this); // new Instance(this);
     this.loc = loc;
-    this.bounds = factory.getOffsetBounds(attrs).translate(loc.getX(), loc.getY());
+    this.nominalBounds = factory.getOffsetBounds(attrs).translate(loc);
     this.portList = factory.getPorts();
     this.endArray = null;
     this.hasToolTips = false;
@@ -209,18 +209,17 @@ public /*final*/ class InstanceComponent
     }
   }
 
-  public boolean contains(Location pt) {
+  public boolean nominallyContains(Location pt) {
     Location translated = pt.translate(-loc.getX(), -loc.getY());
-    InstanceFactory factory = instance.getFactory();
-    return factory.contains(translated, instance.getAttributeSet());
+    return factory.nominallyContains(translated, instance.getAttributeSet());
   }
 
-  public boolean contains(Location pt, Graphics g) {
+  public boolean visiblyContains(Location pt, Graphics g) { // note: for Text, this is wrong/ 
     InstanceTextField field = textField;
     if (field != null && field.getBounds(g).contains(pt))
       return true;
     else
-      return contains(pt);
+      return nominallyContains(pt);
   }
 
   //
@@ -248,9 +247,8 @@ public /*final*/ class InstanceComponent
   }
 
   public void expose(ComponentDrawContext context) {
-    Bounds b = bounds;
-    context.getDestination().repaint(b.getX(), b.getY(), b.getWidth(),
-        b.getHeight());
+    Bounds b = getVisibleBounds(context.getGraphics()); // nominalBounds; // fixme: why not visible bounds?
+    context.getDestination().repaint(b.getX(), b.getY(), b.getWidth(), b.getHeight());
   }
 
   private void fireEndsChanged(ArrayList<EndData> oldEnds,
@@ -283,12 +281,12 @@ public /*final*/ class InstanceComponent
     return attrs;
   }
 
-  public Bounds getBounds() {
-    return bounds;
+  public Bounds getNominalBounds() {
+    return nominalBounds;
   }
 
-  public Bounds getBounds(Graphics g) {
-    Bounds ret = bounds;
+  public Bounds getVisibleBounds(Graphics g) { // note: for Text, this is wrong
+    Bounds ret = nominalBounds;
     InstanceTextField field = textField;
     if (field != null)
       ret = ret.add(field.getBounds(g));
@@ -371,8 +369,7 @@ public /*final*/ class InstanceComponent
   }
 
   void recomputeBounds() {
-    Location p = loc;
-    bounds = factory.getOffsetBounds(attrs).translate(p.getX(), p.getY());
+    nominalBounds = factory.getOffsetBounds(attrs).translate(loc);
   }
 
   public void removeComponentWeakListener(Object owner, ComponentListener l) {

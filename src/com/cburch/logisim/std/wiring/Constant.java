@@ -267,18 +267,14 @@ public class Constant extends InstanceFactory {
 
   @Override
   public void paintInstance(InstancePainter painter) {
-    Bounds bds = painter.getOffsetBounds();
+    Bounds bds = painter.getComponent().getVisibleBounds(painter.getGraphics());
     BitWidth width = painter.getAttributeValue(StdAttr.WIDTH);
     ValueWithRadix v = painter.getAttributeValue(ATTR_VALUE);
-    Location loc = painter.getLocation();
-    int x = loc.getX();
-    int y = loc.getY();
 
     Graphics g = painter.getGraphics();
     if (painter.shouldDrawColor()) {
       g.setColor(BACKGROUND_COLOR);
-      g.fillRect(x + bds.getX(), y + bds.getY(), bds.getWidth(),
-          bds.getHeight());
+      g.fillRect(bds.getX(), bds.getY(), bds.getWidth(), bds.getHeight());
     }
     if (v.value.getWidth() <= 1 && painter.shouldDrawColor())
       g.setColor(v.value.getColor());
@@ -287,8 +283,8 @@ public class Constant extends InstanceFactory {
     g.setFont(DEFAULT_FONT);
     RadixOption radix = painter.getAttributeValue(RadixOption.ATTRIBUTE);
     GraphicsUtil.drawCenteredText(g, v.toUnadornedString(),
-        x + bds.getX() + bds.getWidth() / 2,
-        y + bds.getY() + bds.getHeight() / 2 - 2);
+        bds.getX() + bds.getWidth() / 2,
+        bds.getY() + bds.getHeight() / 2 - 2);
     painter.drawPorts();
   }
 

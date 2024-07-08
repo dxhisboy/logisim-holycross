@@ -162,7 +162,7 @@ public class RGBLed extends InstanceFactory implements DynamicElementProvider {
   @Override
   public void paintGhost(InstancePainter painter) {
     Graphics g = painter.getGraphics();
-    Bounds bds = painter.getBounds();
+    Bounds bds = painter.getNominalBounds();
     GraphicsUtil.switchToWidth(g, 2);
     g.drawOval(bds.getX() + 1, bds.getY() + 1, bds.getWidth() - 2,
         bds.getHeight() - 2);
@@ -172,7 +172,7 @@ public class RGBLed extends InstanceFactory implements DynamicElementProvider {
   public void paintInstance(InstancePainter painter) {
     InstanceDataSingleton data = (InstanceDataSingleton) painter.getData();
     int summ = (data == null ? 0 : ((Integer) data.getValue()).intValue());
-    Bounds bds = painter.getBounds().expand(-1);
+    Bounds bds = painter.getNominalBounds().expand(-1);
 
     Graphics g = painter.getGraphics();
     if (painter.getShowState()) {

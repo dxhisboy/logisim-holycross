@@ -116,7 +116,7 @@ public class Counter extends InstanceFactory implements DynamicElementProvider, 
   }
 
   private void configurePorts(Instance instance) {
-    Bounds bds = instance.getBounds();
+    Bounds bds = instance.getNominalBounds();
     BitWidth widthVal = instance.getAttributeValue(StdAttr.WIDTH);
     int width = widthVal == null ? 8 : widthVal.getWidth();
     Port[] ps = new Port[8];
@@ -380,7 +380,7 @@ public class Counter extends InstanceFactory implements DynamicElementProvider, 
 
   public void DrawCounterClassic(InstancePainter painter) {
     Graphics g = painter.getGraphics();
-    Bounds bds = painter.getBounds();
+    Bounds bds = painter.getNominalBounds();
     RegisterData state = (RegisterData) painter.getData();
     BitWidth widthVal = painter.getAttributeValue(StdAttr.WIDTH);
     int width = widthVal == null ? 8 : widthVal.getWidth();

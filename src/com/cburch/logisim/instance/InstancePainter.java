@@ -93,6 +93,10 @@ public class InstancePainter implements InstanceState {
       context.drawHandles(comp);
   }
 
+  // Note: drawLabel() only works when a Component is present,
+  // since it relies on a Component's textField. In particular, it doesn't work
+  // within drawGhost() or any other cases where we only have a Factory and
+  // AttributeSet, rather than a Component.
   public void drawLabel() {
     if (comp != null)
       comp.drawLabel(context);
@@ -136,16 +140,10 @@ public class InstancePainter implements InstanceState {
     return getAttributeSet().getValue(attr);
   }
   
-  public Bounds getBounds() {
+  public Bounds getNominalBounds() {
     return comp == null
         ? factory.getOffsetBounds(attrs)
-        : comp.getBounds();
-  }
-
-  public Bounds getBoundsWithText() {
-    return comp == null
-        ? factory.getOffsetBounds(attrs, context.getDestination().getGraphics())
-        : comp.getBounds(context.getDestination().getGraphics());
+        : comp.getNominalBounds();
   }
 
   public Circuit getCircuit() {
@@ -203,14 +201,23 @@ public class InstancePainter implements InstanceState {
     return comp == null ? Location.create(0, 0) : comp.getLocation();
   }
 
-  public Bounds getOffsetBounds() {
+  public Bounds getNominalOffsetBounds() {
     if (comp == null) {
       return factory.getOffsetBounds(attrs);
     } else {
       Location loc = comp.getLocation();
-      return comp.getBounds().translate(-loc.getX(), -loc.getY());
+      return comp.getNominalBounds().translate(-loc.getX(), -loc.getY());
     }
   }
+
+  // public Bounds getVisibleOffsetBounds() {
+  //   if (comp == null) {
+  //     return factory.getOffsetBounds(attrs, getGraphics());
+  //   } else {
+  //     Location loc = comp.getLocation();
+  //     return comp.getVisibleBounds(getGraphics()).translate(-loc.getX(), -loc.getY());
+  //   }
+  // }
 
   public Value getPortValue(int portIndex) {
     CircuitState s = context.getCircuitState();

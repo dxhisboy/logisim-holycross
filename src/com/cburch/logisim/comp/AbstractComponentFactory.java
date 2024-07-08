@@ -62,15 +62,12 @@ public abstract class AbstractComponentFactory implements ComponentFactory {
     return AttributeSets.EMPTY;
   }
 
-  public abstract Component createComponent(Location loc, AttributeSet attrs);
-
-  //
-  // user interface methods
-  //
   public void drawGhost(ComponentDrawContext context, Color color, int x,
       int y, AttributeSet attrs) {
     Graphics g = context.getGraphics();
-    Bounds bds = getOffsetBounds(attrs);
+    Bounds bds = getOffsetBounds(attrs); // Note: for Text this is wrong, but InstanceFactory
+                                         // overrides and does not call this due to
+                                         // Text.paintGhost implementation
     g.setColor(color);
     GraphicsUtil.switchToWidth(g, 2);
     g.drawRect(x + bds.getX(), y + bds.getY(), bds.getWidth(),
@@ -97,10 +94,6 @@ public abstract class AbstractComponentFactory implements ComponentFactory {
   public Object getFeature(Object key, AttributeSet attrs) {
     return null;
   }
-
-  public abstract String getName();
-
-  public abstract Bounds getOffsetBounds(AttributeSet attrs);
 
   public boolean HasThreeStateDrivers(AttributeSet attrs) {
     return false;

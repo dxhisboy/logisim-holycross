@@ -174,7 +174,7 @@ public class Octave extends InstanceFactory {
   @Override
   public void paintInstance(InstancePainter painter) {
     State data = (State) painter.getData();
-    Bounds bds = painter.getBounds();
+    Bounds bds = painter.getNominalBounds();
     Graphics g = painter.getGraphics();
     
     int x = bds.x;

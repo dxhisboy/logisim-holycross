@@ -99,8 +99,6 @@ public class Text extends InstanceFactory implements CustomHandles {
     }
   }
 
-
-
   public static Attribute<String> ATTR_TEXT = new MultilineAttribute("text",
       S.getter("textTextAttr"));
   public static Attribute<Font> ATTR_FONT = Attributes.forFont("font",
@@ -144,6 +142,9 @@ public class Text extends InstanceFactory implements CustomHandles {
     setShouldSnap(false);
   }
 
+  @Override
+  public void propagate(InstanceState state) { }
+
   protected void configureLabel(Instance instance) {
     TextAttributes attrs = (TextAttributes) instance.getAttributeSet();
     Location loc = instance.getLocation();
@@ -165,23 +166,16 @@ public class Text extends InstanceFactory implements CustomHandles {
   @Override
   public Component createComponent(Location loc, AttributeSet attrs) {
     InstanceComponent ret = new InstanceComponent(this, loc, attrs) {
+      // @Override
+      // public Bounds getNominalBounds() {
+      //   return getFactory().getOffsetBounds(getAttributeSet()).translate(getLocation()); // nomminal
+      // }
       @Override
-      public Bounds getBounds() {
-        // Can't properly compute without a graphics context.
-        // But this still gets called in some cases, e.g. while opening a file
-        // to check for overlap, and during some copy-paste operations.
-        return getBounds(null);
-        // return Bounds.EMPTY_BOUNDS.translate(p.getX(), p.getY());
-      }
-      @Override
-      public Bounds getBounds(Graphics g) {
-        Location p = getLocation();
-        return getFactory().getOffsetBounds(getAttributeSet(), g).translate(p.getX(), p.getY());
-      }
-      @Override
-      public void expose(ComponentDrawContext context) {
-        Bounds b = getBounds(context.getGraphics());
-        context.getDestination().repaint(b.getX(), b.getY(), b.getWidth(), b.getHeight());
+      public Bounds getVisibleBounds(Graphics g) {
+        // Note: textField.getBounds() would work here, if superclass provided
+        // access. But for consistency, call the factory instead since the
+        // factory must implement getOffsetBounds(attr, g) anyway.
+        return ((Text)getFactory()).getVisibleBounds(getLocation(), getAttributeSet(), g);
       }
     };
     configureNewInstance(ret.getInstance());
@@ -189,38 +183,39 @@ public class Text extends InstanceFactory implements CustomHandles {
   }
 
   @Override
-  public Bounds getOffsetBounds(AttributeSet attrsBase) {
-    // Can't properly compute without a graphics context.
-    // But this still gets called in some cases, e.g. while opening a file
-    // to check for overlap, and during some copy-paste operations.
-    // return Bounds.EMPTY_BOUNDS;
-    return getOffsetBounds(attrsBase, null);
+  public Bounds getOffsetBounds(AttributeSet attrsBase) { // nominal
+    // This is an estimate. We can't properly compute without a graphics
+    // context. But this still gets called in some cases, e.g. while opening a
+    // file to check for overlap, and during some copy-paste operations.
+    TextAttributes attrs = (TextAttributes)attrsBase;
+    String text = attrs.getText();
+    if (text == null || text.equals(""))
+      return Bounds.EMPTY_BOUNDS; // should never happen
+    int halign = attrs.getHorizontalAlign();
+    int valign = attrs.getVerticalAlign();
+    Font font = attrs.getFont();
+
+    // Note: don't expand by 4 as done below. Better to underestimate than overestimate.
+    return StringUtil.estimateBounds(text, font, halign, valign);
   }
 
-  @Override
-  public Bounds getOffsetBounds(AttributeSet attrsBase, Graphics g) {
+  public Bounds getTextOffsetBounds(AttributeSet attrsBase, Graphics g) { // visible
     TextAttributes attrs = (TextAttributes) attrsBase;
     String text = attrs.getText();
-    if (text == null || text.equals("")) {
-      return Bounds.EMPTY_BOUNDS;
-    } else {
-      Bounds bds = attrs.getOffsetBounds();
-      if (bds == null) {
-        int halign = attrs.getHorizontalAlign();
-        int valign = attrs.getVerticalAlign();
-        Font font = attrs.getFont();
-        if (g == null) {
-          // This should not happen in most (any) cases...
-          bds = StringUtil.estimateBounds(text, font, halign, valign);
-        } else {
-          String lines[] = text.split("\n");
-          Rectangle r = GraphicsUtil.getTextBounds(g, font, lines, 0, 0, halign, valign);
-          bds = Bounds.create(r).expand(4);
-          attrs.setOffsetBounds(bds);
-        }
-      }
-      return bds;
-    }
+    if (text == null || text.equals(""))
+      return Bounds.EMPTY_BOUNDS; // should never happen
+    int halign = attrs.getHorizontalAlign();
+    int valign = attrs.getVerticalAlign();
+    Font font = attrs.getFont();
+
+    String lines[] = text.split("\n");
+    Rectangle r = GraphicsUtil.getTextBounds(g, font, lines, 0, 0, halign, valign);
+
+    return Bounds.create(r).expand(4);
+  }
+
+  public Bounds getVisibleBounds(Location loc, AttributeSet attrsBase, Graphics g) { // visible
+    return getTextOffsetBounds(attrsBase, g).translate(loc);
   }
 
   @Override
@@ -228,9 +223,9 @@ public class Text extends InstanceFactory implements CustomHandles {
 
   @Override
   protected void instanceAttributeChanged(Instance instance, Attribute<?> attr) {
-    if (attr == ATTR_HALIGN || attr == ATTR_VALIGN) {
+    if (attr == ATTR_HALIGN || attr == ATTR_VALIGN)
       configureLabel(instance);
-    }
+    instance.recomputeBounds(); // nominal
   }
 
   @Override
@@ -238,49 +233,33 @@ public class Text extends InstanceFactory implements CustomHandles {
     paint(painter, true);
   }
 
-  public void paint(InstancePainter painter, boolean border) {
-    TextAttributes attrs = (TextAttributes) painter.getAttributeSet();
-    String text = attrs.getText();
-    if (text == null || text.equals(""))
-      return;
-    int halign = attrs.getHorizontalAlign();
-    int valign = attrs.getVerticalAlign();
-    Font font = attrs.getFont();
-
-    Graphics g = painter.getGraphics();
-    Location loc = painter.getLocation();
-
-    String lines[] = text.split("\n");
-    Rectangle r = GraphicsUtil.getTextBounds(g, font, lines, 0, 0, halign, valign);
-    Bounds b = Bounds.create(r).expand(4);
-    if (attrs.setOffsetBounds(b)) {
-      Instance instance = painter.getInstance();
-      if (instance != null)
-        instance.recomputeBounds();
-    }
-
-    if (border) {
-      Bounds bds = painter.getBoundsWithText();
-      g.drawRect(bds.getX(), bds.getY(), bds.getWidth(), bds.getHeight());
-    }
-    GraphicsUtil.drawText(g, font, lines, loc.getX(), loc.getY(), halign, valign);
-  }
-
   @Override
   public void paintInstance(InstancePainter painter) {
-    painter.getGraphics().setColor(Color.BLACK);
     paint(painter, false);
   }
 
-  @Override
-  public void propagate(InstanceState state) {
-  }
-
-  @Override
-  public Object getInstanceFeature(Instance instance, Object key) {
-    if (key == CustomHandles.class)
-      return this;
-    return null;
+  public void paint(InstancePainter painter, boolean border) {
+    TextAttributes attrs = (TextAttributes)painter.getAttributeSet();
+    Location loc = painter.getLocation();
+    Graphics g = painter.getGraphics();
+    g.setColor(Color.BLACK);
+    if (border) {
+      Bounds bds = getVisibleBounds(loc, attrs, g);
+      g.drawRect(bds.getX(), bds.getY(), bds.getWidth(), bds.getHeight());
+    }
+    // Note: This next code is essentially identical to painter.drawLabel(),
+    // which draws by using TextFieldMultiline, which in turn uses GraphicsUtil.
+    // But painter.drawLabel() only works when there is a Component, not when
+    // there is only a Factory and AttributeSet, because the textField needed is
+    // within the Component. So we duplicate the code here.
+    String text = attrs.getText();
+    if (text == null || text.equals(""))
+      return; // should never happen
+    String[] lines = text.split("\n");
+    int halign = attrs.getHorizontalAlign();
+    int valign = attrs.getVerticalAlign();
+    Font font = attrs.getFont();
+    GraphicsUtil.drawText(g, font, lines, loc.getX(), loc.getY(), halign, valign);
   }
 
   @Override
@@ -288,9 +267,7 @@ public class Text extends InstanceFactory implements CustomHandles {
     Graphics g = context.getGraphics();
     g.setColor(Color.GRAY);
     InstancePainter painter = context.getInstancePainter();
-    Bounds bds = painter.getBoundsWithText();
-    TextAttributes attrs = (TextAttributes) painter.getAttributeSet();
-    String text = attrs.getText();
+    Bounds bds = getVisibleBounds(painter.getLocation(), painter.getAttributeSet(), g);
     g.drawRect(bds.getX(), bds.getY(), bds.getWidth(), bds.getHeight());
     painter.drawHandles();
   }

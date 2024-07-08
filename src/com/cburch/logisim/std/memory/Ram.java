@@ -715,7 +715,7 @@ public class Ram extends Mem {
       DrawRamClassic(painter);
     } else {
       Graphics g = painter.getGraphics();
-      Bounds bds = painter.getBounds();
+      Bounds bds = painter.getNominalBounds();
       int NrOfBits = painter.getAttributeValue(Mem.DATA_ATTR).getWidth();
 
       painter.drawLabel();

@@ -648,7 +648,7 @@ public class FindFrame extends LFrame.Dialog implements LocaleListener {
         proj.setCurrentCircuit(circ);
       Canvas canvas = proj.getFrame().getCanvas();
       canvas.setHaloedComponent(circ, leaf);
-      canvas.zoomScrollTo(leaf.getBounds().toRectangle());
+      canvas.zoomScrollTo(leaf.getNominalBounds().toRectangle());
     }
   }
 

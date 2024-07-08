@@ -293,7 +293,7 @@ public class Pin extends InstanceFactory implements DynamicValueProvider {
       if (width.getWidth() <= r) {
         return 0;
       } else {
-        Bounds bds = state.getInstance().getBounds(); // intentionally with no graphics object - we don't want label included
+        Bounds bds = state.getInstance().getNominalBounds(); // intentionally with no graphics object - we don't want label included
         int i = (bds.getX() + bds.getWidth() - e.getX() - 4) / (r == 1 ? 10 : 7);
         int j = (bds.getY() + bds.getHeight() - e.getY() - 2) / 14;
         int bit;
@@ -461,7 +461,7 @@ public class Pin extends InstanceFactory implements DynamicValueProvider {
           ? 4 : (radix == RadixOption.RADIX_8 ? 3 : 1));
       if (width.getWidth() <= r)
         return;
-      Bounds bds = painter.getBounds();
+      Bounds bds = painter.getNominalBounds();
       Graphics g = painter.getGraphics();
       GraphicsUtil.switchToWidth(g, 2);
       g.setColor(Color.RED);
@@ -677,7 +677,7 @@ public class Pin extends InstanceFactory implements DynamicValueProvider {
   public void paintGhost(InstancePainter painter) {
     PinAttributes attrs = (PinAttributes) painter.getAttributeSet();
     Location loc = painter.getLocation();
-    Bounds bds = painter.getOffsetBounds();
+    Bounds bds = painter.getNominalOffsetBounds();
     int x = loc.getX();
     int y = loc.getY();
     Graphics g = painter.getGraphics();
@@ -759,7 +759,7 @@ public class Pin extends InstanceFactory implements DynamicValueProvider {
   public void paintInstance(InstancePainter painter) {
     PinAttributes attrs = (PinAttributes) painter.getAttributeSet();
     Graphics g = painter.getGraphics();
-    Bounds bds = painter.getInstance().getBounds();
+    Bounds bds = painter.getInstance().getNominalBounds();
     int x = bds.getX();
     int y = bds.getY();
     GraphicsUtil.switchToWidth(g, 2);

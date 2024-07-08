@@ -175,7 +175,7 @@ public class Tty extends InstanceFactory {
   public void paintGhost(InstancePainter painter) {
     Graphics g = painter.getGraphics();
     GraphicsUtil.switchToWidth(g, 2);
-    Bounds bds = painter.getBounds();
+    Bounds bds = painter.getNominalBounds();
     g.drawRoundRect(bds.getX(), bds.getY(), bds.getWidth(),
         bds.getHeight(), 10, 10);
   }
@@ -184,7 +184,7 @@ public class Tty extends InstanceFactory {
   public void paintInstance(InstancePainter painter) {
     boolean showState = painter.getShowState();
     Graphics g = painter.getGraphics();
-    Bounds bds = painter.getBounds();
+    Bounds bds = painter.getNominalBounds();
     painter.drawClock(CK, Direction.EAST);
     if (painter.shouldDrawColor()) {
       g.setColor(painter.getAttributeValue(Io.ATTR_BACKGROUND));

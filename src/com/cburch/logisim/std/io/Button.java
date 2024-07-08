@@ -155,7 +155,7 @@ public class Button extends InstanceFactory {
 
   @Override
   public void paintInstance(InstancePainter painter) {
-    Bounds bds = painter.getBounds();
+    Bounds bds = painter.getNominalBounds();
     int x = bds.getX();
     int y = bds.getY();
     int w = bds.getWidth();

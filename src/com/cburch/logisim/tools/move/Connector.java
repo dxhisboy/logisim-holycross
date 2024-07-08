@@ -289,7 +289,7 @@ class Connector {
         if (found) { // existing wire will be removed
           repl.remove(w);
           avoid.unmarkWire(w, nextLoc, unmarkable);
-        } else if (w.contains(loc0)) { // wires after this will be removed
+        } else if (w.nominallyContains(loc0)) { // wires after this will be removed
           found = true;
           if (!loc0.equals(nextLoc)) {
             avoid.unmarkWire(w, nextLoc, unmarkable);
@@ -327,7 +327,7 @@ class Connector {
       if (avoid.get(dest) != null) {
         boolean isInPath = false;
         for (Wire w : pathWires) {
-          if (w.contains(dest)) {
+          if (w.nominallyContains(dest)) {
             isInPath = true;
             break;
           }

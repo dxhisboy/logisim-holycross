@@ -197,7 +197,7 @@ public class Slideshow extends InstanceFactory {
   @Override
   public void paintInstance(InstancePainter painter) {
     State data = getState(painter);
-    Bounds bds = painter.getBounds();
+    Bounds bds = painter.getNominalBounds();
     boolean showState = painter.getShowState();
     Graphics g = painter.getGraphics();
     AttributeOption fit = painter.getAttributeValue(ATTR_FIT);

@@ -146,7 +146,7 @@ class CanvasPainter implements PropertyChangeListener {
     boolean showHalo = AppPreferences.ATTRIBUTE_HALO.get();
     if (showHalo && haloedComponent != null && haloedCircuit == circ
         && !hidden.contains(haloedComponent)) {
-      Bounds bds = haloedComponent.getBounds(g).expand(5);
+      Bounds bds = haloedComponent.getVisibleBounds(g).expand(5);
       int x = bds.getX();
       int y = bds.getY();
       int w = bds.getWidth();
@@ -189,7 +189,7 @@ class CanvasPainter implements PropertyChangeListener {
     Component c = haloedComponent;
     if (c == null)
       return;
-    Bounds bds = c.getBounds(g).expand(8);
+    Bounds bds = c.getVisibleBounds(g).expand(8);
     int x = bds.getX();
     int y = bds.getY();
     int w = bds.getWidth();

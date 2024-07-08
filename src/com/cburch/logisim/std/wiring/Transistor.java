@@ -128,8 +128,8 @@ public class Transistor extends InstanceFactory {
   }
 
   @Override
-  public boolean contains(Location loc, AttributeSet attrs) {
-    if (super.contains(loc, attrs)) {
+  public boolean nominallyContains(Location loc, AttributeSet attrs) {
+    if (super.nominallyContains(loc, attrs)) {
       Direction facing = attrs.getValue(StdAttr.FACING);
       Location center = Location.create(0, 0).translate(facing, -20);
       return center.manhattanDistanceTo(loc) < 24;

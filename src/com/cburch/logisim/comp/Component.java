@@ -55,7 +55,9 @@ import com.cburch.logisim.instance.StdAttr;
 //     |               |                   |
 //    Wire     AbstractComponent   InstanceComponent <---> Instance
 //                     |                   |
-//              _______|_______     std.io.Text$innerclass 
+//              ManagedComponent    std.io.Text$innerclass 
+//                     |
+//              _______|_______
 //             |               |
 //          Splitter         Video
 //
@@ -64,9 +66,9 @@ public interface Component extends Location.At {
 
   public void addComponentWeakListener(Object owner, ComponentListener l);
 
-  public boolean contains(Location pt);
+  public boolean nominallyContains(Location pt);
 
-  public boolean contains(Location pt, Graphics g);
+  public boolean visiblyContains(Location pt, Graphics g);
 
   public void draw(ComponentDrawContext context);
 
@@ -78,11 +80,44 @@ public interface Component extends Location.At {
 
   public AttributeSet getAttributeSet();
 
-  public Bounds getBounds();
+  // getNominalBounds() returns the nominal bounding box for this component's
+  // visual representation, not including labels. This may be only approximate,
+  // but for nearly all components, these bounds are graphics-insensitive, so
+  // the visible size as drawn on screen will exactly match the nominal size.
+  // For Text and Callout components, the nominal size is only an approximation
+  // of the actual visible size.
+  // Uses:
+  //  - Many components use the nominal size for drawing, e.g. when making a
+  //    rectangular shape, or drawing ports, or determining where to place a
+  //    label. Text and Callout don't use the nominal size in this way, however,
+  //    as their visible size is graphics-sensitive.
+  //  - Copy/paste and xml sanity checks use the nominal size to check for
+  //    collisions or illegal placement of components. The slightly-incorrect
+  //    sizes for Text and Callout don't matter much here, as the effects aren't
+  //    too annoying. Text might be prevented from being placed very close to
+  //    the canvas edge, or might slightly overflow the canva edge.
+  //  - For components with ports, those ports should all be within the nominal
+  //    bounds.
+  public Bounds getNominalBounds(); 
 
-  public Bounds getBounds(Graphics g);
+  // getVisibleBounds() returns the accurate visible bounding box for this
+  // component's visual representation, including labels. This may be
+  // graphics-sensitive, because precise text metrics can't be determined
+  // without a Graphics object. For nearly all components, these bounds are
+  // simply the nomiminal bounds plus, if here is a non-empty label, whatever
+  // space the component's label occupies. For most components without labels,
+  // like Wire and Splitter, the visible and nominal sizes are identical. But
+  // for Text and Callout, the visible size is computed directly from the text
+  // and does not depend on the nominal bounding box.
+  // Uses:
+  //  - Text and Callout use the visible size for drawing.
+  //  - SelectTool uses the visible box for selecting components with the mouse.
+  //  - Selection handles are drawn using the visible size.
+  public Bounds getVisibleBounds(Graphics g);
 
-  public EndData getEnd(int index);
+  default public EndData getEnd(int index) {
+    return getEnds().get(index);
+  }
 
   public List<EndData> getEnds();
 

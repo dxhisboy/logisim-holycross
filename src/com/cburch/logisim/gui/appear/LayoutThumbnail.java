@@ -106,7 +106,7 @@ public class LayoutThumbnail extends JComponent {
         int width = Math.max(4, (int) ((2 / scale) + 0.5));
         GraphicsUtil.switchToWidth(gCopy, width);
         for (Instance port : ports) {
-          Bounds b = port.getBounds();
+          Bounds b = port.getNominalBounds();
           int x = b.getX();
           int y = b.getY();
           int w = b.getWidth();
@@ -127,7 +127,7 @@ public class LayoutThumbnail extends JComponent {
         int width = Math.max(4, (int) ((2 / scale) + 0.5));
         GraphicsUtil.switchToWidth(gCopy, width);
         for (Instance elt : elts) {
-          Bounds b = elt.getBounds();
+          Bounds b = elt.getNominalBounds();
           int x = b.getX();
           int y = b.getY();
           int w = b.getWidth();

@@ -71,7 +71,7 @@ public abstract class InstanceFactory extends AbstractComponentFactory {
   private Attribute<?>[] attrs;
   private Object[] defaults;
   private AttributeSet defaultSet;
-  private Bounds bounds;
+  private Bounds nominalBounds; // Note: for Text this is only an estimate
   private List<Port> portList;
   private Attribute<Direction> facingAttribute;
   private Boolean shouldSnap;
@@ -90,7 +90,7 @@ public abstract class InstanceFactory extends AbstractComponentFactory {
     this.icon = null;
     this.attrs = null;
     this.defaults = null;
-    this.bounds = Bounds.EMPTY_BOUNDS;
+    this.nominalBounds = Bounds.EMPTY_BOUNDS;
     this.portList = Collections.emptyList();
     this.keyConfigurator = null;
     this.facingAttribute = null;
@@ -101,12 +101,9 @@ public abstract class InstanceFactory extends AbstractComponentFactory {
   protected void configureNewInstance(Instance instance) {
   }
 
-  public boolean contains(Location loc, AttributeSet attrs) {
-    Bounds bds = getOffsetBounds(attrs);
-    if (bds == null) {
-      return false;
-    }
-    return bds.contains(loc, 1);
+  public boolean nominallyContains(Location loc, AttributeSet attrs) {
+    Bounds bds = getOffsetBounds(attrs); // nominal
+    return bds != null && bds.contains(loc, 1);
   }
 
   @Override
@@ -223,11 +220,11 @@ public abstract class InstanceFactory extends AbstractComponentFactory {
   }
 
   @Override
-  public Bounds getOffsetBounds(AttributeSet attrs) {
-    Bounds ret = bounds;
+  public Bounds getOffsetBounds(AttributeSet attrs) { // nominal
+    Bounds ret = nominalBounds;
     if (ret == null) {
       throw new RuntimeException("offset bounds unknown: "
-          + "use setOffsetBounds or override getOffsetBounds");
+          + "factory should call setOffsetBounds or override getOffsetBounds");
     }
     return ret;
   }
@@ -336,8 +333,8 @@ public abstract class InstanceFactory extends AbstractComponentFactory {
     keyConfigurator = value;
   }
 
-  public void setOffsetBounds(Bounds value) {
-    bounds = value;
+  public void setOffsetBounds(Bounds value) { // nominal
+    nominalBounds = value;
   }
 
   public void setPorts(List<Port> ports) {

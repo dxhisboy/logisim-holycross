@@ -231,7 +231,7 @@ public class DipSwitch extends InstanceFactory {
       ((Graphics2D) g).rotate(rotate);
     }
 
-    Bounds bds = painter.getBounds().expand(-1);
+    Bounds bds = painter.getNominalBounds().expand(-1);
     g.setColor(Color.darkGray);
     g.fillRect(1, 1, (n+1)*10-2, 40-2);
 

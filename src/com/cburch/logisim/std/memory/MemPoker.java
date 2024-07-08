@@ -44,9 +44,9 @@ import com.cburch.logisim.proj.Project;
 public class MemPoker extends InstancePoker {
   private static class AddrPoker extends MemPoker {
     @Override
-    public Bounds getBounds(InstancePainter painter) {
+    public Bounds getNominalBounds(InstancePainter painter) {
       MemState data = (MemState) painter.getData();
-      return data.getBounds(-1, painter.getBounds());
+      return data.getBounds(-1, painter.getNominalBounds());
     }
 
     @Override
@@ -96,7 +96,7 @@ public class MemPoker extends InstancePoker {
 
     @Override
     public void paint(InstancePainter painter) {
-      Bounds bds = getBounds(painter);
+      Bounds bds = getNominalBounds(painter);
       Graphics g = painter.getGraphics();
       g.setColor(Color.RED);
       g.drawRect(bds.getX(), bds.getY(), bds.getWidth(), bds.getHeight());
@@ -123,9 +123,9 @@ public class MemPoker extends InstancePoker {
     }
 
     @Override
-    public Bounds getBounds(InstancePainter painter) {
+    public Bounds getNominalBounds(InstancePainter painter) {
       MemState data = (MemState) painter.getData();
-      Bounds inBounds = painter.getInstance().getBounds();
+      Bounds inBounds = painter.getInstance().getNominalBounds();
       return data.getBounds(data.getCursor(), inBounds);
     }
 
@@ -188,7 +188,7 @@ public class MemPoker extends InstancePoker {
 
     @Override
     public void paint(InstancePainter painter) {
-      Bounds bds = getBounds(painter);
+      Bounds bds = getNominalBounds(painter);
       if (bds.isEmpty())
         return;
       Graphics g = painter.getGraphics();
@@ -207,13 +207,13 @@ public class MemPoker extends InstancePoker {
   private MemPoker sub;
 
   @Override
-  public Bounds getBounds(InstancePainter state) {
-    return sub.getBounds(state);
+  public Bounds getNominalBounds(InstancePainter state) {
+    return sub.getNominalBounds(state);
   }
 
   @Override
   public boolean init(InstanceState state, MouseEvent event) {
-    Bounds bds = state.getInstance().getBounds();
+    Bounds bds = state.getInstance().getNominalBounds();
     MemState data = (MemState) state.getData();
     long addr = data.getAddressAt(event.getX() - bds.getX(), event.getY()
         - bds.getY());

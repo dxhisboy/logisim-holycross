@@ -173,7 +173,7 @@ public class Multiplexer extends InstanceFactory {
     Object size = painter.getAttributeValue(Plexers.ATTR_SIZE);
     Direction facing = painter.getAttributeValue(StdAttr.FACING);
     BitWidth select = painter.getAttributeValue(Plexers.ATTR_SELECT);
-    Bounds bds = painter.getBounds();
+    Bounds bds = painter.getNominalBounds();
     int lean;
     if (select.getWidth() == 1)
       lean = (size == Plexers.SIZE_NARROW ? 7 : 10);
@@ -185,7 +185,7 @@ public class Multiplexer extends InstanceFactory {
   @Override
   public void paintInstance(InstancePainter painter) {
     Graphics g = painter.getGraphics();
-    Bounds bds = painter.getBounds();
+    Bounds bds = painter.getNominalBounds();
     Object size = painter.getAttributeValue(Plexers.ATTR_SIZE);
     boolean wide = size == Plexers.SIZE_WIDE;
     Direction facing = painter.getAttributeValue(StdAttr.FACING);

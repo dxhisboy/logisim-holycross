@@ -284,7 +284,7 @@ public final class MenuTool extends Tool {
     } else if (!selClicked.isEmpty()) {
       menu = menuFor(canvas, selClicked.iterator().next());
     } else {
-      Collection<Component> clicked = canvas.getCircuit().getAllContaining(pt, g);
+      Collection<Component> clicked = canvas.getCircuit().getAllVisiblyContaining(pt, g);
       if (!clicked.isEmpty())
         menu = menuFor(canvas, clicked.iterator().next());
       else

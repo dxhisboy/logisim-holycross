@@ -65,7 +65,8 @@ import com.cburch.logisim.util.GraphicsUtil;
 //   - [level 2] a java object of type Instance represents an instantiated
 //     component (e.g. like a mux) that has been placed at a specifc spot in a
 //     circuit. Each Instance object is created by an InstanceFactory. For
-//     example, some Instance
+//     example, some Instance might represent a specific 4-to-1 mux in a
+//     particular circuit.
 //   - [level 1] a java object of type InstanceFactory represents one type
 //     of component. For example, there will be one object (of type
 //     InstanceFactory) representing the multiplexor kind, another java object
@@ -132,8 +133,8 @@ public final class Instance implements Location.At {
     return comp.getAttributeSet().getValue(attr);
   }
 
-  public Bounds getBounds() {
-    return comp.getBounds();
+  public Bounds getNominalBounds() {
+    return comp.getNominalBounds();
   }
 
   public InstanceComponent getComponent() {
@@ -204,7 +205,7 @@ public final class Instance implements Location.At {
     }
     Object labelLoc = getAttributeValue(StdAttr.LABEL_LOC);
 
-    Bounds bds = getBounds();
+    Bounds bds = getNominalBounds();
     int x = bds.getX() + bds.getWidth() / 2;
     int y = bds.getY() + bds.getHeight() / 2;
     int halign = GraphicsUtil.H_CENTER;

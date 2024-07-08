@@ -121,7 +121,7 @@ class Video extends ManagedComponent implements ToolTipMaker, AttributeListener 
     public String getDisplayName() { return S.get("rgbVideoComponent"); }
     public AttributeSet createAttributeSet() { return new VideoAttributes(); }
     public Component createComponent(Location loc, AttributeSet attrs) { return new Video(loc, attrs); }
-    public Bounds getOffsetBounds(AttributeSet attrs) {
+    public Bounds getOffsetBounds(AttributeSet attrs) { // nominal and visible
       int s = attrs.getValue(SCALE_OPTION);
       int w = attrs.getValue(WIDTH_OPTION);
       int h = attrs.getValue(HEIGHT_OPTION);
@@ -205,7 +205,6 @@ class Video extends ManagedComponent implements ToolTipMaker, AttributeListener 
 
   public void draw(ComponentDrawContext context) {
     Location loc = getLocation();
-    int size = getBounds().getWidth();
     AttributeSet attrs = getAttributeSet();
     State state = getState(context.getCircuitState(), attrs);
     drawVideo(context, loc.getX(), loc.getY(), state);

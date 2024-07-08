@@ -41,6 +41,7 @@ import com.cburch.logisim.util.Cache;
  */
 public class Bounds {
   public static Bounds create(int x, int y, int width, int height) {
+    // if (width == 0 && height == 0 /* && EMPTY_BOUNDS != null */) return EMPTY_BOUNDS;
     if (width < 0) {
       width = -width;
       x -= width;
@@ -68,7 +69,7 @@ public class Bounds {
 
   private static final Cache<Bounds> cache = new Cache<>();
 
-  public static Bounds EMPTY_BOUNDS = create(0, 0, 0, 0);
+  public static Bounds EMPTY_BOUNDS = create(0, 0, 0, 0); // new Bounds(0, 0, 0, 0);
 
   public final int x;
   public final int y;
@@ -314,6 +315,14 @@ public class Bounds {
   @Override
   public String toString() {
     return "(" + x + "," + y + "): " + width + "x" + height;
+  }
+
+  public Bounds translate(Location pt) {
+    if (this == EMPTY_BOUNDS)
+      return this;
+    if (pt.getX() == 0 && pt.getY() == 0)
+      return this;
+    return create(x + pt.getX(), y + pt.getY(), width, height);
   }
 
   public Bounds translate(int dx, int dy) {

@@ -229,7 +229,7 @@ public class Random extends InstanceFactory {
   protected void configureNewInstance(Instance instance) {
     instance.addAttributeListener();
     updatePorts(instance);
-    Bounds bds = instance.getBounds();
+    Bounds bds = instance.getNominalBounds();
     instance.setTextField(StdAttr.LABEL, StdAttr.LABEL_FONT, bds.getX()
         + bds.getWidth() / 2, bds.getY() - 3, GraphicsUtil.H_CENTER,
         GraphicsUtil.V_BASELINE);
@@ -297,7 +297,7 @@ public class Random extends InstanceFactory {
 
   public void paintInstanceClassic(InstancePainter painter) {
     Graphics g = painter.getGraphics();
-    Bounds bds = painter.getBounds();
+    Bounds bds = painter.getNominalBounds();
     StateData state = (StateData) painter.getData();
     BitWidth widthVal = painter.getAttributeValue(StdAttr.WIDTH);
     int width = widthVal == null ? 8 : widthVal.getWidth();
@@ -349,7 +349,7 @@ public class Random extends InstanceFactory {
   }
 
   public void paintInstanceEvolution(InstancePainter painter) {
-    Bounds bds = painter.getBounds();
+    Bounds bds = painter.getNominalBounds();
     int x = bds.getX();
     int y = bds.getY();
     StateData state = (StateData) painter.getData();

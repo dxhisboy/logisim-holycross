@@ -71,10 +71,10 @@ public class DynamicClock extends InstanceFactory {
 		g.setColor(Color.BLACK);
 		painter.drawBounds();
 
-		Bounds bds = painter.getInstance().getBounds();
-                drawTicks(g, bds.getX() + 60, bds.getY() + 12, 1, 4, 5, 12);
-                drawTicks(g, bds.getX() + 60, bds.getY() + 30, 2, 8, 5, 6);
-                drawTicks(g, bds.getX() + 60, bds.getY() + 48, 3, 12, 5, 4);
+		Bounds bds = painter.getInstance().getNominalBounds();
+    drawTicks(g, bds.getX() + 60, bds.getY() + 12, 1, 4, 5, 12);
+    drawTicks(g, bds.getX() + 60, bds.getY() + 30, 2, 8, 5, 6);
+    drawTicks(g, bds.getX() + 60, bds.getY() + 48, 3, 12, 5, 4);
 
 		painter.drawPort(SPEED);
 	}

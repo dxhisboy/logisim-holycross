@@ -48,7 +48,7 @@ public class ShiftRegisterPoker extends InstancePoker {
 
   private int computeStage(InstanceState state, MouseEvent e) {
     BitWidth widObj = state.getAttributeValue(StdAttr.WIDTH);
-    Bounds bds = state.getInstance().getBounds();
+    Bounds bds = state.getInstance().getNominalBounds();
     if (state.getAttributeValue(StdAttr.APPEARANCE) == StdAttr.APPEAR_CLASSIC) {
       Integer lenObj = state.getAttributeValue(ShiftRegister.ATTR_LENGTH);
       Boolean loadObj = state.getAttributeValue(ShiftRegister.ATTR_LOAD);
@@ -183,7 +183,7 @@ public class ShiftRegisterPoker extends InstancePoker {
     if (loc < 0)
       return;
     BitWidth widObj = painter.getAttributeValue(StdAttr.WIDTH);
-    Bounds bds = painter.getInstance().getBounds();
+    Bounds bds = painter.getInstance().getNominalBounds();
     if (painter.getAttributeValue(StdAttr.APPEARANCE) == StdAttr.APPEAR_CLASSIC) {
       int x = bds.getX() + 15 + loc * 10;
       int y = bds.getY();

@@ -129,8 +129,7 @@ public class Probe extends InstanceFactory implements DynamicValueProvider {
 
   static void paintValue(InstancePainter painter, Value value) {
     Graphics g = painter.getGraphics();
-    Bounds bds = painter.getBounds(); // intentionally with no graphics
-    // object - we don't want label included
+    Bounds bds = painter.getNominalBounds(); // label not included
     g.setFont(DEFAULT_FONT);
 
     RadixOption radix = painter.getAttributeValue(RadixOption.ATTRIBUTE);
@@ -224,7 +223,7 @@ public class Probe extends InstanceFactory implements DynamicValueProvider {
   @Override
   public void paintGhost(InstancePainter painter) {
     Graphics g = painter.getGraphics();
-    Bounds bds = painter.getOffsetBounds();
+    Bounds bds = painter.getNominalOffsetBounds();
     g.drawOval(bds.getX() + 1, bds.getY() + 1, bds.getWidth() - 1,
         bds.getHeight() - 1);
   }
@@ -234,8 +233,7 @@ public class Probe extends InstanceFactory implements DynamicValueProvider {
     Value value = getValue(painter);
 
     Graphics g = painter.getGraphics();
-    Bounds bds = painter.getBounds(); // intentionally with no graphics
-    // object - we don't want label included
+    Bounds bds = painter.getNominalBounds(); // label not included
     int x = bds.getX();
     int y = bds.getY();
     Color back = new Color(0xff, 0xf0, 0x99);

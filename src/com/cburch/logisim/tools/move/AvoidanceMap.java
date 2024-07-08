@@ -78,7 +78,7 @@ class AvoidanceMap {
   public void markComponent(Component comp, int dx, int dy) {
     HashMap<Location, String> avoid = this.avoid;
     boolean translated = dx != 0 || dy != 0;
-    Bounds bds = comp.getBounds();
+    Bounds bds = comp.getNominalBounds();
     int x0 = bds.getX() + dx;
     int y0 = bds.getY() + dy;
     int x1 = x0 + bds.getWidth();
@@ -95,7 +95,7 @@ class AvoidanceMap {
         if (prev != Connector.ALLOW_NEITHER) {
           Location baseLoc = translated ? loc.translate(-dx, -dy)
               : loc;
-          if (!comp.contains(baseLoc)) {
+          if (!comp.nominallyContains(baseLoc)) {
             if (prev == null) {
               avoid.remove(loc);
             } else {

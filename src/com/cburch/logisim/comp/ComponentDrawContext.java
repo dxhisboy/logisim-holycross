@@ -81,13 +81,10 @@ public class ComponentDrawContext {
     this.instancePainter = new InstancePainter(this, null);
   }
 
-  //
-  // helper methods
-  //
   public void drawBounds(Component comp) {
     GraphicsUtil.switchToWidth(g, 2);
     g.setColor(Color.BLACK);
-    Bounds bds = comp.getBounds();
+    Bounds bds = comp.getNominalBounds(); // nominal, so as not to include label
     g.drawRect(bds.getX(), bds.getY(), bds.getWidth(), bds.getHeight());
     GraphicsUtil.switchToWidth(g, 1);
   }
@@ -154,7 +151,7 @@ public class ComponentDrawContext {
   }
 
   public void drawHandles(Component comp) {
-    Bounds b = comp.getBounds(g);
+    Bounds b = comp.getVisibleBounds(g);
     int left = b.getX();
     int right = left + b.getWidth();
     int top = b.getY();
@@ -226,39 +223,43 @@ public class ComponentDrawContext {
     g.setColor(curColor);
   }
 
-  public void drawRectangle(Component comp) {
-    drawRectangle(comp, "");
-  }
+  // never used
+  // public void drawRectangle(Component comp) {
+  //   drawRectangle(comp, "");
+  // }
 
-  public void drawRectangle(Component comp, String label) {
-    Bounds bds = comp.getBounds(g);
-    drawRectangle(bds.getX(), bds.getY(), bds.getWidth(), bds.getHeight(),
-        label);
-  }
+  // never used
+  // public void drawRectangle(Component comp, String label) {
+  //   Bounds bds = comp.getBounds(g);
+  //   drawRectangle(bds.getX(), bds.getY(), bds.getWidth(), bds.getHeight(),
+  //       label);
+  // }
 
-  public void drawRectangle(ComponentFactory source, int x, int y,
-      AttributeSet attrs, String label) {
-    Bounds bds = source.getOffsetBounds(attrs);
-    drawRectangle(source, x + bds.getX(), y + bds.getY(), bds.getWidth(),
-        bds.getHeight(), label);
-  }
+  // never used
+  // public void drawRectangle(ComponentFactory source, int x, int y,
+  //     AttributeSet attrs, String label) {
+  //   Bounds bds = source.getOffsetBounds(attrs);
+  //   drawRectangle(source, x + bds.getX(), y + bds.getY(), bds.getWidth(),
+  //       bds.getHeight(), label);
+  // }
 
-  public void drawRectangle(ComponentFactory source, int x, int y, int width,
-      int height, String label) {
-    GraphicsUtil.switchToWidth(g, 2);
-    g.drawRect(x + 1, y + 1, width - 1, height - 1);
-    if (label != null && !label.equals("")) {
-      FontMetrics fm = base.getFontMetrics(g.getFont());
-      int lwid = fm.stringWidth(label);
-      if (height > 20) { // centered at top edge
-        g.drawString(label, x + (width - lwid) / 2,
-            y + 2 + fm.getAscent());
-      } else { // centered overall
-        g.drawString(label, x + (width - lwid) / 2,
-            y + (height + fm.getAscent()) / 2 - 1);
-      }
-    }
-  }
+  // never used
+  // public void drawRectangle(ComponentFactory source, int x, int y, int width,
+  //     int height, String label) {
+  //   GraphicsUtil.switchToWidth(g, 2);
+  //   g.drawRect(x + 1, y + 1, width - 1, height - 1);
+  //   if (label != null && !label.equals("")) {
+  //     FontMetrics fm = base.getFontMetrics(g.getFont());
+  //     int lwid = fm.stringWidth(label);
+  //     if (height > 20) { // centered at top edge
+  //       g.drawString(label, x + (width - lwid) / 2,
+  //           y + 2 + fm.getAscent());
+  //     } else { // centered overall
+  //       g.drawString(label, x + (width - lwid) / 2,
+  //           y + (height + fm.getAscent()) / 2 - 1);
+  //     }
+  //   }
+  // }
 
   public void drawRectangle(int x, int y, int width, int height, String label) {
     GraphicsUtil.switchToWidth(g, 2);

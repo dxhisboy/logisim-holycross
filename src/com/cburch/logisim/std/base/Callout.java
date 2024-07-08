@@ -76,40 +76,16 @@ public class Callout extends Text implements Reshapable {
   }
 
   @Override
-  public Bounds getOffsetBounds(AttributeSet attrsBase, Graphics g) {
+  public Bounds getOffsetBounds(AttributeSet attrsBase) {
     CalloutAttributes attrs = (CalloutAttributes) attrsBase;
-    String text = attrs.getText();
-    if (text == null || text.equals("")) {
-      return Bounds.EMPTY_BOUNDS;
-    } else {
-      Bounds bds = attrs.getOffsetBounds();
-      if (bds == null) {
-        int halign = attrs.getHorizontalAlign();
-        int valign = attrs.getVerticalAlign();
-        Font font = attrs.getFont();
-        if (g == null) {
-          // This should not happen in most (any) cases...
-          Bounds tbds = StringUtil.estimateBounds(text, font, halign, valign);
-          bds = tbds.add(attrs.getDx(), attrs.getDy());
-        } else {
-          String lines[] = text.split("\n");
-          Rectangle r = GraphicsUtil.getTextBounds(g, font, lines, 0, 0, halign, valign);
-          Bounds tbds = Bounds.create(r).expand(4);
-          bds = tbds.add(attrs.getDx(), attrs.getDy());
-          attrs.setOffsetBounds(bds);
-        }
-      }
-      return bds;
-    }
+    return super.getOffsetBounds(attrsBase).add(attrs.getDx(), attrs.getDy());
   }
 
-  @Override
-  protected void instanceAttributeChanged(Instance instance, Attribute<?> attr) {
-    if (attr == ATTR_HALIGN || attr == ATTR_VALIGN) {
-      configureLabel(instance);
-    }
+  public Bounds getVisibleBounds(Location loc, AttributeSet attrsBase, Graphics g) {
+    CalloutAttributes attrs = (CalloutAttributes) attrsBase;
+    return super.getVisibleBounds(loc, attrsBase, g).add(loc.translate(attrs.getDx(), attrs.getDy()));
   }
-  
+
   @Override
   public void paint(InstancePainter painter, boolean border) {
     CalloutAttributes attrs = (CalloutAttributes) painter.getAttributeSet();
@@ -131,26 +107,13 @@ public class Callout extends Text implements Reshapable {
   }
 
   void paint(InstancePainter painter, boolean border, Location focus) {
+    super.paint(painter, border);
     CalloutAttributes attrs = (CalloutAttributes) painter.getAttributeSet();
-    String text = attrs.getText();
-    if (text == null || text.equals(""))
-      return;
     int halign = attrs.getHorizontalAlign();
     int valign = attrs.getVerticalAlign();
-    Font font = attrs.getFont();
-
     Graphics g = painter.getGraphics();
     Location loc = painter.getLocation();
-
-    String lines[] = text.split("\n");
-    Rectangle r = GraphicsUtil.getTextBounds(g, font, lines, 0, 0, halign, valign);
-    Bounds tbds = Bounds.create(r).expand(4);
-    Bounds bds = tbds.add(focus.getX() - loc.getX(), focus.getY() - loc.getY());
-    if (attrs.setOffsetBounds(bds)) {
-      Instance instance = painter.getInstance();
-      if (instance != null)
-        instance.recomputeBounds();
-    }
+    Bounds tbds = super.getVisibleBounds(loc, attrs, g);
 
     g.setColor(Color.BLACK);
    
@@ -167,9 +130,9 @@ public class Callout extends Text implements Reshapable {
 
     int wid = tbds.getWidth();
     int hgt = tbds.getHeight();
-    int left = loc.getX() + tbds.getX();
+    int left = tbds.getX();
     int right = left + wid;
-    int top = loc.getY() + tbds.getY();
+    int top = tbds.getY();
     int bot = top + hgt;
     Location p1 = Location.create(left, top);
     Location p2 = Location.create(left+wid/2, top);
@@ -221,43 +184,12 @@ public class Callout extends Text implements Reshapable {
     else if (valign == GraphicsUtil.V_BOTTOM || p == p6) g.drawLine(left, bot, right, bot);
     else if (halign == GraphicsUtil.H_RIGHT || p == p4) g.drawLine(right, top, right, bot);
     else g.drawLine(left, top, left, bot);
-
-    if (border) {
-      g.setColor(Color.LIGHT_GRAY);
-      g.setColor(Color.GREEN);
-      g.drawRect(left, top, wid, hgt);
-    }
-    g.setColor(Color.BLACK);
-    GraphicsUtil.drawText(g, font, lines, loc.getX(), loc.getY(), halign, valign);
-  }
-
-  /* FIXME: use text instead */
-  @Override
-  public void drawHandles(ComponentDrawContext context) {
-    Graphics g = context.getGraphics();
-    g.setColor(Color.GRAY);
-    InstancePainter painter = context.getInstancePainter();
-    CalloutAttributes attrs = (CalloutAttributes) painter.getAttributeSet();
-    String text = attrs.getText();
-    int halign = attrs.getHorizontalAlign();
-    int valign = attrs.getVerticalAlign();
-    Font font = attrs.getFont();
-    String lines[] = text.split("\n");
-    Rectangle r = GraphicsUtil.getTextBounds(g, font, lines, 0, 0, halign, valign);
-    Bounds tbds = Bounds.create(r).expand(4);
-    Location loc = painter.getLocation();
-    Bounds box = tbds.translate(loc.getX(), loc.getY());
-    g.drawRect(box.getX(), box.getY(), box.getWidth(), box.getHeight());
-    painter.drawHandles();
   }
 
   @Override
   public Collection<Location> getReshapeHandles(Component comp) {
     CalloutAttributes attrs = (CalloutAttributes)comp.getAttributeSet();
-    int dx = attrs.getDx();
-    int dy = attrs.getDy();
-    Location loc = comp.getLocation();
-    Location focus = loc.translate(dx, dy);
+    Location focus = comp.getLocation().translate(attrs.getDx(), attrs.getDy());
     return Collections.singletonList(focus);
   }
 
@@ -265,11 +197,9 @@ public class Callout extends Text implements Reshapable {
   public void doReshapeAction(Project proj, Circuit circ, Component comp,
       Location handle, int rdx, int rdy) {
     CalloutAttributes attrs = (CalloutAttributes)comp.getAttributeSet();
-    int dx = attrs.getDx();
-    int dy = attrs.getDy();
     SetAttributeAction act = new SetAttributeAction(circ, S.getter("calloutReshape"));
-    act.set(comp, ATTR_DX, dx + rdx);
-    act.set(comp, ATTR_DY, dy + rdy);
+    act.set(comp, ATTR_DX, attrs.getDx() + rdx);
+    act.set(comp, ATTR_DY, attrs.getDy() + rdy);
     proj.doAction(act);
   }
 

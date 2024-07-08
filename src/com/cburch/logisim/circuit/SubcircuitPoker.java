@@ -50,15 +50,15 @@ public class SubcircuitPoker extends InstancePoker {
   private boolean mouseDown;
 
   @Override
-  public Bounds getBounds(InstancePainter painter) {
-    Bounds bds = painter.getInstance().getBounds();
+  public Bounds getNominalBounds(InstancePainter painter) {
+    Bounds bds = painter.getInstance().getNominalBounds();
     int cx = bds.getX() + bds.getWidth() / 2;
     int cy = bds.getY() + bds.getHeight() / 2;
     return Bounds.create(cx - 5, cy - 5, 15, 15);
   }
 
   private boolean isWithin(InstanceState state, MouseEvent e) {
-    Bounds bds = state.getInstance().getBounds();
+    Bounds bds = state.getInstance().getNominalBounds();
     int cx = bds.getX() + bds.getWidth() / 2;
     int cy = bds.getY() + bds.getHeight() / 2;
     int dx = e.getX() - cx;
@@ -92,7 +92,7 @@ public class SubcircuitPoker extends InstancePoker {
   public void paint(InstancePainter painter) {
     if (painter.getDestination() instanceof Canvas
         && painter.getData() instanceof CircuitState) {
-      Bounds bds = painter.getInstance().getBounds();
+      Bounds bds = painter.getInstance().getNominalBounds();
       int cx = bds.getX() + bds.getWidth() / 2;
       int cy = bds.getY() + bds.getHeight() / 2;
 

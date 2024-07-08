@@ -346,37 +346,37 @@ public class Circuit implements AttributeDefaultProvider {
     fireEvent(CircuitEvent.ACTION_DISPLAY_CHANGE, null);
   }
 
-  public Collection<Component> getAllContaining(Location pt) {
+  public Collection<Component> getAllNominallyContaining(Location pt) {
     HashSet<Component> ret = new HashSet<>();
     for (Component comp : getComponents()) {
-      if (comp.contains(pt))
+      if (comp.nominallyContains(pt))
         ret.add(comp);
     }
     return ret;
   }
 
-  public Collection<Component> getAllContaining(Location pt, Graphics g) {
+  public Collection<Component> getAllVisiblyContaining(Location pt, Graphics g) {
     HashSet<Component> ret = new HashSet<>();
     for (Component comp : getComponents()) {
-      if (comp.contains(pt, g))
+      if (comp.visiblyContains(pt, g))
         ret.add(comp);
     }
     return ret;
   }
 
-  public Collection<Component> getAllWithin(Bounds bds) {
-    HashSet<Component> ret = new HashSet<>();
-    for (Component comp : getComponents()) {
-      if (bds.contains(comp.getBounds()))
-        ret.add(comp);
-    }
-    return ret;
-  }
+  // public Collection<Component> getAllNominallyWithin(Bounds bds) {
+  //   HashSet<Component> ret = new HashSet<>();
+  //   for (Component comp : getComponents()) {
+  //     if (bds.contains(comp.getNominalBounds()))
+  //       ret.add(comp);
+  //   }
+  //   return ret;
+  // }
 
-  public Collection<Component> getAllWithin(Bounds bds, Graphics g) {
+  public Collection<Component> getAllVisiblyWithin(Bounds bds, Graphics g) {
     HashSet<Component> ret = new HashSet<>();
     for (Component comp : getComponents()) {
-      if (bds.contains(comp.getBounds(g)))
+      if (bds.contains(comp.getVisibleBounds(g)))
         ret.add(comp);
     }
     return ret;
@@ -385,7 +385,7 @@ public class Circuit implements AttributeDefaultProvider {
   public Collection<Wire> getWiresIntersecting(Bounds bds) {
     HashSet<Wire> ret = new HashSet<>();
     for (Wire w: wires.getWires()) {
-      Bounds b = w.getBounds();
+      Bounds b = w.getNominalBounds();
       if (bds.overlaps(b)) // && !bds.contains(b)
         ret.add(w);
     }
@@ -397,19 +397,21 @@ public class Circuit implements AttributeDefaultProvider {
   }
 
   public Bounds getCircuitBounds(Graphics g) {
+    // Note: g may be null, e.g. if the Canvas superclass awt.Component isn't
+    // yet fully initialized. In that case, we use nominal sizes here.
     Bounds wireBounds = wires.getWireBounds();
     Iterator<Component> it = comps.iterator();
     if (!it.hasNext())
       return wireBounds;
     Component first = it.next();
-    Bounds firstBounds = g == null ? first.getBounds() : first.getBounds(g);
+    Bounds firstBounds = g == null ? first.getNominalBounds() : first.getVisibleBounds(g);
     int xMin = firstBounds.getX();
     int yMin = firstBounds.getY();
     int xMax = xMin + firstBounds.getWidth();
     int yMax = yMin + firstBounds.getHeight();
     while (it.hasNext()) {
       Component c = it.next();
-      Bounds bds = g == null ? c.getBounds() : c.getBounds(g);
+      Bounds bds = g == null ? c.getNominalBounds() : c.getVisibleBounds(g);
       int x0 = bds.getX();
       int x1 = x0 + bds.getWidth();
       int y0 = bds.getY();

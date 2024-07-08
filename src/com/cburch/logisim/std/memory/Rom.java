@@ -366,7 +366,7 @@ public class Rom extends Mem {
       DrawRomClassic(painter);
     } else {
       Graphics g = painter.getGraphics();
-      Bounds bds = painter.getBounds();
+      Bounds bds = painter.getNominalBounds();
 
       painter.drawLabel();
 

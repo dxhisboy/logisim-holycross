@@ -172,17 +172,13 @@ public final class SelectTool extends Tool {
   }
 
   private void computeDxDy(Project proj, MouseEvent e, Graphics g) {
-    Bounds bds = proj.getSelection().getBounds(g);
-    int dx;
-    int dy;
-    if (bds == Bounds.EMPTY_BOUNDS) {
-      dx = e.getX() - start.getX();
-      dy = e.getY() - start.getY();
-    } else {
-      dx = Math.max(e.getX() - start.getX(), -bds.getX());
-      dy = Math.max(e.getY() - start.getY(), -bds.getY());
+    int dx = e.getX() - start.getX();
+    int dy = e.getY() - start.getY();
+    Location topleft = proj.getSelection().getNominalTopLeftCorner();
+    if (topleft != null) {
+      dx = Math.max(dx, -topleft.getX());
+      dy = Math.max(dy, -topleft.getY());
     }
-
     Selection sel = proj.getSelection();
     if (sel.shouldSnap()) {
       dx = Canvas.snapXToGrid(dx);
@@ -239,7 +235,7 @@ public final class SelectTool extends Tool {
       }
 
       Circuit circ = canvas.getCircuit();
-      for (Component c : circ.getAllWithin(bds)) {
+      for (Component c : circ.getAllVisiblyWithin(bds, gBase)) {
         Location cloc = c.getLocation();
         Graphics gDup = gBase.create();
         context.setGraphics(gDup);
@@ -445,10 +441,10 @@ public final class SelectTool extends Tool {
 
     // if the user clicks into a component outside selection, user
     // wants to add/reset selection
-    Collection<Component> clicked = circuit.getAllContaining(start, g);
+    Collection<Component> clicked = circuit.getAllVisiblyContaining(start, g);
     if (!clicked.isEmpty()) {
       if ((e.getModifiersEx() & InputEvent.SHIFT_DOWN_MASK) == 0) {
-        if (sel.getComponentsContaining(start).isEmpty()) {
+        if (sel.getComponentsContaining(start, g).isEmpty()) {
           Action act = SelectionActions.dropAll(sel);
           if (act != null) {
             proj.doAction(act);
@@ -522,8 +518,8 @@ public final class SelectTool extends Tool {
       Bounds bds = Bounds.create(start.x, start.y, curDx, curDy);
       Circuit circuit = canvas.getCircuit();
       Selection sel = proj.getSelection();
-      Collection<Component> in_sel = sel.getComponentsWithin(bds, g);
-      for (Component comp : circuit.getAllWithin(bds, g)) {
+      Collection<Component> in_sel = sel.getComponentsVisiblyWithin(bds, g);
+      for (Component comp : circuit.getAllVisiblyWithin(bds, g)) {
         if (!in_sel.contains(comp))
           sel.add(comp);
       }

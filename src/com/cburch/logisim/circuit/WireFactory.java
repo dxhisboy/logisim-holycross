@@ -143,7 +143,7 @@ public class WireFactory extends AbstractComponentFactory {
   }
 
   @Override
-  public Bounds getOffsetBounds(AttributeSet attrs) {
+  public Bounds getOffsetBounds(AttributeSet attrs) { // nominal and visible
     Object dir = attrs.getValue(Wire.dir_attr);
     int len = attrs.getValue(Wire.len_attr).intValue();
 

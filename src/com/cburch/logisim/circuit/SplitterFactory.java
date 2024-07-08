@@ -131,7 +131,7 @@ public class SplitterFactory extends AbstractComponentFactory {
   }
 
   @Override
-  public Bounds getOffsetBounds(AttributeSet attrsBase) {
+  public Bounds getOffsetBounds(AttributeSet attrsBase) { // nominal and visible
     SplitterAttributes attrs = (SplitterAttributes) attrsBase;
     int fanout = attrs.fanout;
     SplitterParameters parms = attrs.getParameters();

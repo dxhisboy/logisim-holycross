@@ -73,7 +73,7 @@ public class Decoder extends InstanceFactory {
   }
 
   @Override
-  public boolean contains(Location loc, AttributeSet attrs) {
+  public boolean nominallyContains(Location loc, AttributeSet attrs) {
     Direction facing = attrs.getValue(StdAttr.FACING).reverse();
     return Plexers.contains(loc, getOffsetBounds(attrs), facing);
   }
@@ -139,7 +139,7 @@ public class Decoder extends InstanceFactory {
   public void paintGhost(InstancePainter painter) {
     Direction facing = painter.getAttributeValue(StdAttr.FACING);
     BitWidth select = painter.getAttributeValue(Plexers.ATTR_SELECT);
-    Bounds bds = painter.getBounds();
+    Bounds bds = painter.getNominalBounds();
 
     if (select.getWidth() == 1) {
       if (facing == Direction.EAST || facing == Direction.WEST) {
@@ -164,7 +164,7 @@ public class Decoder extends InstanceFactory {
   @Override
   public void paintInstance(InstancePainter painter) {
     Graphics g = painter.getGraphics();
-    Bounds bds = painter.getBounds();
+    Bounds bds = painter.getNominalBounds();
     Direction facing = painter.getAttributeValue(StdAttr.FACING);
     Object selectLoc = painter.getAttributeValue(Plexers.ATTR_SELECT_LOC);
     BitWidth select = painter.getAttributeValue(Plexers.ATTR_SELECT);

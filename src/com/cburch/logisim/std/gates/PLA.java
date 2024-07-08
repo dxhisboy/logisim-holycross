@@ -262,7 +262,7 @@ class PLA extends InstanceFactory {
 
   void paintInstance(InstancePainter painter, boolean ghost) {
     Graphics g = painter.getGraphics();
-    Bounds bds = painter.getBounds();
+    Bounds bds = painter.getNominalBounds();
     int x = bds.getX();
     int y = bds.getY();
     int w = bds.getWidth();

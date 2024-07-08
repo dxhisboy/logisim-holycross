@@ -233,7 +233,7 @@ public final class PokeTool extends Tool {
     if (pokeCaret == null) {
       ComponentUserEvent event = new ComponentUserEvent(canvas, x, y);
       Circuit circ = canvas.getCircuit();
-      for (Component c : circ.getAllContaining(loc, g)) {
+      for (Component c : circ.getAllVisiblyContaining(loc, g)) {
         if (pokeCaret != null)
           break;
 

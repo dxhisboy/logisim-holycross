@@ -86,7 +86,7 @@ class InstancePokerAdapter extends AbstractCaret implements Pokable {
     if (poker != null) {
       context.setGraphics(g);
       InstancePainter painter = new InstancePainter(context, comp);
-      return poker.getBounds(painter);
+      return poker.getNominalBounds(painter);
     } else {
       return Bounds.EMPTY_BOUNDS;
     }

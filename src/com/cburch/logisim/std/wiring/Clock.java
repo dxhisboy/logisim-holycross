@@ -89,7 +89,7 @@ public class Clock extends InstanceFactory {
     boolean isPressed = true;
 
     private boolean isInside(InstanceState state, MouseEvent e) {
-      Bounds bds = state.getInstance().getBounds();
+      Bounds bds = state.getInstance().getNominalBounds();
       return bds.contains(e.getX(), e.getY());
     }
 
@@ -255,7 +255,7 @@ public class Clock extends InstanceFactory {
   @Override
   public void paintInstance(InstancePainter painter) {
     java.awt.Graphics g = painter.getGraphics();
-    Bounds bds = painter.getInstance().getBounds(); // intentionally with no
+    Bounds bds = painter.getInstance().getNominalBounds(); // intentionally with no
     // graphics object - we don't want label included
     int x = bds.getX();
     int y = bds.getY();

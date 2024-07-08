@@ -109,7 +109,7 @@ class PropagationPoints {
       } else if (stateMap.containsKey(e.state)) {
         CircuitState substate = stateMap.get(e.state);
         Component subcirc = substate.getSubcircuit();
-        Bounds b = subcirc.getBounds();
+        Bounds b = subcirc.getNominalBounds();
         g.drawRect(b.getX(), b.getY(), b.getWidth(), b.getHeight());
       }
     }
@@ -135,7 +135,7 @@ class PropagationPoints {
         comp = stateMap.get(e.state).getSubcircuit();
       else
         continue;
-      Bounds b = comp.getBounds();
+      Bounds b = comp.getNominalBounds();
       g.drawRect(b.getX(), b.getY(), b.getWidth(), b.getHeight());
     }
 

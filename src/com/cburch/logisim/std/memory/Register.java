@@ -212,7 +212,7 @@ public class Register extends InstanceFactory implements DynamicElementProvider,
 
   public void DrawRegisterClassic(InstancePainter painter) {
     Graphics g = painter.getGraphics();
-    Bounds bds = painter.getBounds();
+    Bounds bds = painter.getNominalBounds();
     RegisterData state = (RegisterData) painter.getData();
     BitWidth widthVal = painter.getAttributeValue(StdAttr.WIDTH);
     int width = widthVal == null ? 8 : widthVal.getWidth();

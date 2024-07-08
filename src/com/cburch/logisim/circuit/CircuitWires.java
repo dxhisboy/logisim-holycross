@@ -1126,7 +1126,7 @@ public class CircuitWires {
   List<Wire> getWiresTouching(Location loc) {
     ArrayList<Wire> list = null;
     for (Wire w : wires) {
-      if (!w.contains(loc))
+      if (!w.nominallyContains(loc))
         continue;
       if (list == null)
         list = new ArrayList<>();

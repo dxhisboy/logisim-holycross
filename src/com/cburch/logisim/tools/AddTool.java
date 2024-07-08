@@ -495,14 +495,14 @@ public class AddTool extends Tool {
         return;
       }
 
-      Bounds bds = c.getBounds(g);
+      Bounds bds = c.getVisibleBounds(g);
       if (bds.getX() < 0 || bds.getY() < 0) {
         canvas.setErrorMessage(S.getter("negativeCoordError"));
         return;
       }
 
-      for (Component comp2 : circ.getAllContaining(loc)) {
-        Bounds b = comp2.getBounds();
+      for (Component comp2 : circ.getAllNominallyContaining(loc)) {
+        Bounds b = comp2.getNominalBounds();
         if (b.equals(bds)) {
           canvas.setErrorMessage(S.getter("overlapError"));
           return;

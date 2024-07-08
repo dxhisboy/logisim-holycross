@@ -202,7 +202,7 @@ public class XmlCircuitReader extends CircuitTransaction {
             if (comp == null)
               throw new XmlReaderException(S.fmt("compUnknownError", sub_elt.getAttribute("name")));
           }
-          Bounds bds = comp.getBounds();
+          Bounds bds = comp.getNominalBounds();
           if (bds.isEmpty()) {
             // For text components, don't even print a warning, since empty text
             // components have plagued many files, since there are still many
@@ -237,7 +237,7 @@ public class XmlCircuitReader extends CircuitTransaction {
       }
     }
     for (Component comp : overlapComponents) {
-      Bounds bds = comp.getBounds();
+      Bounds bds = comp.getNominalBounds();
       int d = 0;
       do {
         d += 10;
@@ -245,7 +245,7 @@ public class XmlCircuitReader extends CircuitTransaction {
       Location loc = comp.getLocation().translate(d, d);
       AttributeSet attrs = (AttributeSet) comp.getAttributeSet().clone();
       comp = comp.getFactory().createComponent(loc, attrs);
-      componentsAt.put(comp.getBounds(), comp);
+      componentsAt.put(comp.getNominalBounds(), comp);
       mutator.add(dest, comp);
     }
   }
