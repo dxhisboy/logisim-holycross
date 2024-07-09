@@ -648,7 +648,6 @@ public class Project {
   }
 
   public void setTool(Tool value) {
-    // System.out.println("set tool from " + tool + " to " + value + ", hdl="+hdlModel);
     if (tool == value || hdlModel != null)
       return;
     Tool old = tool;

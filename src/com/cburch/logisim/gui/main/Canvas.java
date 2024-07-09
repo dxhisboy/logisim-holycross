@@ -51,6 +51,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import java.awt.event.ActionEvent;
+import javax.swing.Timer;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollBar;
@@ -413,12 +415,22 @@ public class Canvas extends JPanel
         }
       } else if (act == ProjectEvent.ACTION_SET_TOOL) {
         viewport.setErrorMessage(null, null);
-
-        Tool t = event.getTool();
-        if (t == null) {
-          setCursor(Cursor.getDefaultCursor());
+        // Bug fix (7-July-2024): On MacOS, and perhaps other platforms, the
+        // cursor is incorrect on app startup, because setCursor() seemingly
+        // doesn't work very early during swing's startup. The wrong cursor is
+        // shown, and remains, until focus is lost and re-gained. If the Canvas
+        // isn't currently showing, delay the cursor change until 250ms later,
+        // which seems to work around the issue.
+        if (isShowing()) {
+          Tool t = event.getTool();
+          setCursor(t != null ? t.getCursor() : Cursor.getDefaultCursor());
         } else {
-          setCursor(t.getCursor());
+          Timer timer = new Timer(250, (ActionEvent ev) -> {
+            Tool t = proj.getTool();
+            setCursor(t != null ? t.getCursor() : Cursor.getDefaultCursor());
+          });
+          timer.setRepeats(false);
+          timer.start();
         }
       } else if (act == ProjectEvent.ACTION_SET_STATE) {
         CircuitState oldState = (CircuitState) event.getOldData();

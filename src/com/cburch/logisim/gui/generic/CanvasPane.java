@@ -54,21 +54,15 @@ import com.cburch.logisim.util.GestureUtilities;
 public class CanvasPane extends JScrollPane {
   private class Listener implements ComponentListener, PropertyChangeListener {
 
-    public void componentHidden(ComponentEvent e) {
-    }
+    public void componentHidden(ComponentEvent e) { }
 
-    public void componentMoved(ComponentEvent e) {
-    }
+    public void componentMoved(ComponentEvent e) { }
 
-    //
-    // ComponentListener methods
-    //
     public void componentResized(ComponentEvent e) {
       contents.recomputeSize();
     }
 
-    public void componentShown(ComponentEvent e) {
-    }
+    public void componentShown(ComponentEvent e) { }
 
     public void propertyChange(PropertyChangeEvent e) {
       String prop = e.getPropertyName();
