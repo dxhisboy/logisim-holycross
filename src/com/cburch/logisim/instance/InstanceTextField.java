@@ -39,6 +39,7 @@ import com.cburch.logisim.comp.Component;
 import com.cburch.logisim.comp.ComponentDrawContext;
 import com.cburch.logisim.comp.ComponentUserEvent;
 import com.cburch.logisim.comp.TextField;
+import com.cburch.logisim.comp.TextFieldCaret;
 import com.cburch.logisim.comp.TextFieldMultiline;
 import com.cburch.logisim.comp.TextFieldEvent;
 import com.cburch.logisim.comp.TextFieldListener;
@@ -125,10 +126,13 @@ public class InstanceTextField
     if (field == null)
       createField(comp.getAttributeSet(), "");
     String text = field.getText();
+    TextFieldCaret caret;
     if (text == null || text.equals(""))
-      return field.getCaret(g, 0);
+      caret = field.getCaret(g, 0);
     else
-      return field.getCaret(g, event.getX(), event.getY());
+      caret = field.getCaret(g, event.getX(), event.getY());
+    canvas.getProject().getFrame().setEditHandler(caret.getEditHandler());
+    return caret;
   }
 
   private boolean shouldRegister() {

@@ -77,7 +77,9 @@ public class LayoutEditHandler extends EditHandler
   @Override
   public void computeEnabled() {
     Project proj = frame.getProject();
-    
+   
+    enableUndoRedo(proj);
+
     // check if some components are selected
     Selection sel = proj == null ? null : proj.getSelection();
     boolean selComp = sel != null && !sel.isEmpty();
@@ -103,6 +105,11 @@ public class LayoutEditHandler extends EditHandler
         || selProjTool // copy circuit or vhdl from project
         || selLibTool // copy circuit or vhdl from library
         || selLib); // copy library from project
+    // System.out.println("paste: "
+    //     + "\n\t " + (modComp && !LayoutClipboard.forComponents.isEmpty()) // paste components
+    //     + "\n\t ||" + !LayoutClipboard.forCircuit.isEmpty() // paste circuit
+    //     + "\n\t ||" + !LayoutClipboard.forVhdl.isEmpty() // paste vhdl
+    //     + "\n\t ||" + !LayoutClipboard.forLibrary.isEmpty()); // paste library
     setEnabled(LogisimMenuBar.PASTE,
         (modComp && !LayoutClipboard.forComponents.isEmpty()) // paste components
         || !LayoutClipboard.forCircuit.isEmpty() // paste circuit
@@ -154,6 +161,18 @@ public class LayoutEditHandler extends EditHandler
       SelectionActions.doCopy(proj, lib);
       return;
     }
+  }
+
+  @Override
+  public void undo() {
+    Project proj = frame.getProject();
+    proj.undoAction();
+  }
+
+  @Override
+  public void redo() {
+    Project proj = frame.getProject();
+    proj.redoAction();
   }
 
   @Override
@@ -271,16 +290,17 @@ public class LayoutEditHandler extends EditHandler
   }
 
   public void projectChanged(ProjectEvent e) {
-    int action = e.getAction();
-    if (action == ProjectEvent.ACTION_SET_FILE) {
-      computeEnabled();
-    } else if (action == ProjectEvent.ACTION_SET_CURRENT) {
-      computeEnabled();
-    } else if (action == ProjectEvent.ACTION_SELECTION) {
-      computeEnabled();
-    } else if (action == ProjectEvent.ACTION_SET_TOOL) {
-      computeEnabled();
-    }
+    computeEnabled();
+    // int action = e.getAction();
+    // if (action == ProjectEvent.ACTION_SET_FILE) {
+    //   computeEnabled();
+    // } else if (action == ProjectEvent.ACTION_SET_CURRENT) {
+    //   computeEnabled();
+    // } else if (action == ProjectEvent.ACTION_SELECTION) {
+    //   computeEnabled();
+    // } else if (action == ProjectEvent.ACTION_SET_TOOL) {
+    //   computeEnabled();
+    // }
   }
 
   public void propertyChange(PropertyChangeEvent event) {

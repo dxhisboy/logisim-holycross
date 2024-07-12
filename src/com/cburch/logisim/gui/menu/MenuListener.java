@@ -53,6 +53,13 @@ public class MenuListener {
       }
     }
 
+    public void textChanged(EditHandler handler, LogisimMenuItem action, String value) {
+      if (handler == this.handler) {
+        menubar.setText(action, value);
+        // fireTextChanged();
+      }
+    }
+
     public void register() {
       for (LogisimMenuItem item: LogisimMenuBar.EDIT_ITEMS)
         menubar.addActionListener(item, this);

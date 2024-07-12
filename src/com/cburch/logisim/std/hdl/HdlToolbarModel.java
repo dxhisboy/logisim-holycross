@@ -112,6 +112,10 @@ class HdlToolbarModel extends AbstractToolbarModel implements HdlModelListener {
       return true;
   }
 
+  boolean isDirty() {
+    return validateEnabled;
+  }
+
   void setDirty(boolean dirty) {
     if (validateEnabled == dirty)
       return;

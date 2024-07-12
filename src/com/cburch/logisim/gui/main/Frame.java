@@ -80,6 +80,7 @@ import com.cburch.logisim.gui.generic.LFrame;
 import com.cburch.logisim.gui.generic.RegTabContent;
 import com.cburch.logisim.gui.generic.ZoomControl;
 import com.cburch.logisim.gui.generic.ZoomModel;
+import com.cburch.logisim.gui.menu.EditHandler;
 import com.cburch.logisim.prefs.AppPreferences;
 import com.cburch.logisim.proj.Project;
 import com.cburch.logisim.proj.ProjectActions;
@@ -655,6 +656,16 @@ public class Frame extends LFrame.MainWindow implements LocaleListener {
       viewAttributes(null, project.getTool(), true);
       mainPanel.setView(view);
       layoutCanvas.requestFocus();
+    }
+  }
+
+  public void setEditHandler(EditHandler handler) {
+    if (handler != null) {
+      menuListener.setEditHandler(handler);
+    } else if (getEditorView().equals(EDIT_APPEARANCE)) {
+      menuListener.setEditHandler(appearance.getEditHandler());
+    } else {
+      menuListener.setEditHandler(layoutEditHandler);
     }
   }
 

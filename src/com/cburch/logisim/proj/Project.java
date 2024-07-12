@@ -351,23 +351,11 @@ public class Project {
   }
 
   public Action getLastAction() {
-    if (undoLog.size() == 0) {
-      return null;
-    } else {
-      return undoLog.getLast().action;
-    }
+    return undoLog.isEmpty() ? null : undoLog.getLast().action;
   }
 
-  /**
-   * Returns the action of the last entry in the redo log
-   *
-   * @return last action in redo log
-   */
   public Action getLastRedoAction() {
-    if (redoLog.size() == 0)
-      return null;
-    else
-      return redoLog.getLast().action;
+    return redoLog.isEmpty() ? null : redoLog.getLast().action;
   }
 
   public LogFrame getLogFrame() {
@@ -437,6 +425,7 @@ public class Project {
    * Redo actions that were previously undone
    */
   public void redoAction() {
+    // showUndoRedoLogs("before redo");
     // If there ARE things to undo...
     if (redoLog != null && redoLog.size() > 0) {
       // Add the last element of the undo log to the redo log
@@ -460,10 +449,12 @@ public class Project {
 
       // Redo the action
       action.doIt(this);
+      file.setDirty(isFileDirty());
 
       // Complete the redo
       fireEvent(new ProjectEvent(ProjectEvent.REDO_COMPLETE, this, action));
     }
+    // showUndoRedoLogs("after redo");
   }
 
   public void removeCircuitWeakListener(/*Object owner,*/ CircuitListener value) {
@@ -666,12 +657,29 @@ public class Project {
     fireEvent(ProjectEvent.ACTION_SET_TOOL, old, tool);
   }
 
+  // void showUndoRedoLogs(String title) {
+  //   System.out.println(title);
+  //   int n;
+  //   n = undoLog.size();
+  //   if (n == 0) System.out.println("undo log: empty");
+  //   else System.out.println("undo log: " + n  + " actions");
+  //   for (int i = 0; i < n; i++)
+  //     System.out.println(" " + (i+1)+". " + undoLog.get(i).action.getName());
+  //   n = redoLog.size();
+  //   if (n == 0) System.out.println("redo log: empty");
+  //   else System.out.println("redo log: " + n  + " actions");
+  //   for (int i = 0; i < n; i++)
+  //     System.out.println(" " + (i+1)+". " + redoLog.get(i).action.getName());
+  // }
+
   public void undoAction() {
-    if (undoLog != null && undoLog.size() > 0) {
+    // showUndoRedoLogs("before undo");
+    if (undoLog.size() > 0) {
       redoLog.addLast(undoLog.getLast());
       ActionData data = undoLog.removeLast();
-      if (data.circuitState != null)
+      if (data.circuitState != null) {
         setCircuitState(data.circuitState);
+      }
       else if (data.hdlModel != null)
         setCurrentHdlModel(data.hdlModel);
       Action action = data.action;
@@ -681,6 +689,7 @@ public class Project {
       file.setDirty(isFileDirty());
       fireEvent(new ProjectEvent(ProjectEvent.UNDO_COMPLETE, this, action));
     }
+    // showUndoRedoLogs("after undo");
   }
 
 }

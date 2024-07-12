@@ -65,6 +65,8 @@ public class LogisimMenuBar extends JMenuBar {
   public static final LogisimMenuItem PRINT = new LogisimMenuItem("Print");
   public static final LogisimMenuItem EXPORT_IMAGE = new LogisimMenuItem( "ExportImage");
  
+  public static final LogisimMenuItem UNDO = new LogisimMenuItem("Undo");
+  public static final LogisimMenuItem REDO = new LogisimMenuItem("Redo");
   public static final LogisimMenuItem CUT = new LogisimMenuItem("Cut");
   public static final LogisimMenuItem COPY = new LogisimMenuItem("Copy");
   public static final LogisimMenuItem PASTE = new LogisimMenuItem("Paste");
@@ -79,7 +81,7 @@ public class LogisimMenuBar extends JMenuBar {
   public static final LogisimMenuItem ADD_CONTROL = new LogisimMenuItem("AddControl");
   public static final LogisimMenuItem REMOVE_CONTROL = new LogisimMenuItem("RemoveControl");
   public static final LogisimMenuItem[] EDIT_ITEMS = {
-    // UNDO, REDO,
+    UNDO, REDO,
     CUT, COPY, PASTE,
     DELETE, DUPLICATE, SELECT_ALL, SEARCH,
     RAISE, LOWER, RAISE_TOP, LOWER_BOTTOM,
@@ -223,6 +225,12 @@ public class LogisimMenuBar extends JMenuBar {
     MenuItem item = menuItems.get(which);
     if (item != null)
       item.setEnabled(value);
+  }
+
+  public void setText(LogisimMenuItem which, String value) {
+    MenuItem item = menuItems.get(which);
+    if (item != null)
+      item.setText(value);
   }
 
   public void setSimulateListener(SimulateListener l) {

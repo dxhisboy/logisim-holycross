@@ -48,5 +48,7 @@ interface MenuItem {
 
   public void setEnabled(boolean value);
 
+  public void setText(String value);
+
   public KeyStroke getAccelerator();
 }

@@ -76,6 +76,11 @@ public class AppearanceEditPopup extends PopupMenu
   }
 
   @Override
+  public void textChanged(EditHandler handler, LogisimMenuItem tag, String value) {
+    ; // text change only affects undo/redo, which this menu doesn't have
+  }
+
+  @Override
   protected boolean shouldShow(Object tag) {
     if (tag == LogisimMenuBar.ADD_CONTROL
         || tag == LogisimMenuBar.REMOVE_CONTROL) {

@@ -64,41 +64,47 @@ public class HdlContentView extends JPanel implements DocumentListener, HdlModel
 
   private class HdlEditAction extends Action {
     HdlModel model;
-    String original;
-    HdlEditAction(HdlModel model, String original) {
+    String original, revised;
+    boolean wasDirty;
+
+    HdlEditAction(HdlModel model) {
       this.model = model;
-      this.original = original;
+      this.original = model.getContent();
+      this.revised = editor.getText();
+      this.wasDirty = toolbar.isDirty();
     }
-    public void doIt(Project proj) { /* nop b/c already done */ }
-    public String getName() { return "VHDL edits"; }
-    public boolean shouldAppendTo(Action other) {
-      return (other instanceof HdlEditAction)
-          && ((HdlEditAction)other).model == model;
-    }
-    public void undo(Project proj) {
-      // JOptionPane.showMessageDialog(HdlContentView.this,
-      //         "Not yet implemented: use right-click undo instead.",
-      //         "undo error",
-      //         JOptionPane.ERROR_MESSAGE);
-      /* if (HdlContentView.this.model == model) {
-         editor.undoLastAction();
-         if (editor.canUndo()) {
-         project.doAction(this);
-         }
-         } else
-         */
-      setText(original);
-      model.setContent(original);
+
+    public void doIt(Project proj) {
+      // note: editor will have already been updated before action
+      model.setContent(revised);
       toolbar.setDirty(!model.isValid());
-      dirty = false;
+    }
+    public void redo(Project proj) {
+      model.setContent(revised);
+      toolbar.setDirty(!model.isValid());
       if (HdlContentView.this.model != model)
         setHdlModel(model);
+      else
+        setEditorText(revised);
     }
-    public Action append(Action other) {
-      return this;
+    public String getName() { return "VHDL edits"; }
+    public boolean shouldAppendTo(Action other) {
+      return false;
+      // return (other instanceof HdlEditAction)
+      //     && ((HdlEditAction)other).model == model;
     }
+    public void undo(Project proj) {
+      model.setContent(original);
+      toolbar.setDirty(!model.isValid());
+      if (HdlContentView.this.model != model)
+        setHdlModel(model);
+      else
+        setEditorText(original);
+    }
+    // public Action append(Action other) {
+    //   return this;
+    // }
   }
-
 
   @Override
   public void changedUpdate(DocumentEvent de) { }
@@ -112,15 +118,8 @@ public class HdlContentView extends JPanel implements DocumentListener, HdlModel
   void docChanged() {
     if (model == null)
       return;
-    model.setContent(editor.getText());
-    if (dirty || model == null)
-      return;
-    // toolbar.setDirty(!editor.getText().equals(model.getContent()));
-    toolbar.setDirty(true);
-    project.doAction(new HdlEditAction(model, model.getContent()));
-    dirty = true;
+    project.doAction(new HdlEditAction(model));
   }
-
 
   void doExport() {
     JFileChooser chooser = JFileChoosers.createSelected(getDefaultExportFile(null));
@@ -145,12 +144,11 @@ public class HdlContentView extends JPanel implements DocumentListener, HdlModel
         return;
     String vhdl = project.getLogisimFile().getLoader().vhdlImportChooser(HdlContentView.this);
     if (vhdl != null)
-      setText(vhdl);
+      setEditorText(vhdl);
   }
 
   void doValidate() {
     model.setContent(editor.getText());
-    dirty = false;
     toolbar.setDirty(!model.isValid());
     editor.forceReparsing(parser);
     if (!model.isValid())
@@ -275,29 +273,25 @@ public class HdlContentView extends JPanel implements DocumentListener, HdlModel
     return toolbar;
   }
 
-  boolean dirty = false;
-  public void setText(String content) {
-    dirty = true;
+  private void setEditorText(String content) {
     parser.enabled = false;
     scrollpane.getGutter().removeAllTrackingIcons();
     editor.setText(content == null ? "" : content);
     editor.discardAllEdits();
-    dirty = false;
     editor.setCaretPosition(0);
     parser.enabled = (content != null);
     if (parser.enabled)
       editor.forceReparsing(parser);
   }
 
-  public void clearHdlModel() {
+  private void clearHdlModel() {
     if (model == null)
       return;
     if (!editor.getText().equals(model.getContent()))
       model.setContent(editor.getText());
     model.removeHdlModelWeakListener(null, this);
     model = null;
-    setText(null);
-    dirty = false;
+    setEditorText(null);
   }
 
   @Override
@@ -305,8 +299,8 @@ public class HdlContentView extends JPanel implements DocumentListener, HdlModel
     if (model != source)
       return;
     if (!editor.getText().equals(model.getContent()))
-      setText(model.getContent());
-    dirty = false;
+      setEditorText(model.getContent());
+    toolbar.setDirty(!model.isValid());
   }
 
   @Override
@@ -315,7 +309,6 @@ public class HdlContentView extends JPanel implements DocumentListener, HdlModel
       return;
     if (!editor.getText().equals(model.getContent())) {
       model.setContent(editor.getText());
-      dirty = false;
       toolbar.setDirty(!model.isValid());
     }
   }
@@ -330,9 +323,9 @@ public class HdlContentView extends JPanel implements DocumentListener, HdlModel
     clearHdlModel();
     this.model = model;
     if (this.model != null) {
-      this.model.addHdlModelWeakListener(null, toolbar);
-      this.model.addHdlModelWeakListener(null, this);
-      setText(model.getContent());
+      model.addHdlModelWeakListener(null, toolbar);
+      model.addHdlModelWeakListener(null, this);
+      setEditorText(model.getContent());
       toolbar.setDirty(!model.isValid());
     }
   }

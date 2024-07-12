@@ -35,54 +35,17 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
-import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
 
 import com.cburch.logisim.Main;
-import com.cburch.logisim.proj.Action;
-import com.cburch.logisim.proj.Project;
-import com.cburch.logisim.proj.ProjectEvent;
-import com.cburch.logisim.proj.ProjectListener;
 
 class MenuEdit extends Menu {
-  private class MyListener implements ProjectListener, ActionListener {
-
-    public void actionPerformed(ActionEvent e) {
-      Object src = e.getSource();
-      Project proj = menubar.getSaveProject();
-      if (src == undo && proj != null)
-        proj.undoAction();
-      else if (src == redo && proj != null)
-        proj.redoAction();
-    }
-
-    public void projectChanged(ProjectEvent e) {
-      Project proj = menubar.getSaveProject();
-      Action last = proj == null ? null : proj.getLastAction();
-      if (last == null) {
-        undo.setText(S.get("editCantUndoItem"));
-        undo.setEnabled(false);
-      } else {
-        undo.setText(S.fmt("editUndoItem", last.getName()));
-        undo.setEnabled(true);
-      }
-
-      Action next = (proj == null || !proj.getCanRedo()) ? null : proj.getLastRedoAction();
-      if (next != null) {
-        redo.setText(S.fmt("editRedoItem", next.getName()));
-        redo.setEnabled(true);
-      } else {
-        redo.setText(S.get("editCantRedoItem"));
-        redo.setEnabled(false);
-      }
-    }
-  }
 
   private static final long serialVersionUID = 1L;
 
   private LogisimMenuBar menubar;
-  private JMenuItem undo = new JMenuItem();
-  private JMenuItem redo = new JMenuItem();
+  private MenuItemImpl undo = new MenuItemImpl(this, LogisimMenuBar.UNDO);
+  private MenuItemImpl redo = new MenuItemImpl(this, LogisimMenuBar.REDO);
   private MenuItemImpl cut = new MenuItemImpl(this, LogisimMenuBar.CUT);
   private MenuItemImpl copy = new MenuItemImpl(this, LogisimMenuBar.COPY);
   private MenuItemImpl paste = new MenuItemImpl(this, LogisimMenuBar.PASTE);
@@ -96,7 +59,6 @@ class MenuEdit extends Menu {
   private MenuItemImpl lowerBottom = new MenuItemImpl(this, LogisimMenuBar.LOWER_BOTTOM);
   private MenuItemImpl addCtrl = new MenuItemImpl(this, LogisimMenuBar.ADD_CONTROL);
   private MenuItemImpl remCtrl = new MenuItemImpl(this, LogisimMenuBar.REMOVE_CONTROL);
-  private MyListener myListener = new MyListener();
 
   public MenuEdit(LogisimMenuBar menubar) {
     this.menubar = menubar;
@@ -141,15 +103,8 @@ class MenuEdit extends Menu {
     add(addCtrl);
     add(remCtrl);
 
-    Project proj = menubar.getSaveProject();
-    if (proj != null) {
-      proj.addProjectWeakListener(null, myListener);
-      undo.addActionListener(myListener);
-      redo.addActionListener(myListener);
-    }
-
-    undo.setEnabled(false);
-    redo.setEnabled(false);
+    menubar.registerItem(LogisimMenuBar.UNDO, undo);
+    menubar.registerItem(LogisimMenuBar.REDO, redo);
     menubar.registerItem(LogisimMenuBar.CUT, cut);
     menubar.registerItem(LogisimMenuBar.COPY, copy);
     menubar.registerItem(LogisimMenuBar.PASTE, paste);
@@ -168,7 +123,8 @@ class MenuEdit extends Menu {
 
   @Override
   void computeEnabled() {
-    setEnabled(menubar.getSaveProject() != null || cut.hasListeners()
+    setEnabled(menubar.getSaveProject() != null || undo.hasListeners()
+        || redo.hasListeners() || cut.hasListeners()
         || copy.hasListeners() || paste.hasListeners()
         || delete.hasListeners() || dup.hasListeners()
         || selall.hasListeners() || search.hasListeners()
@@ -179,7 +135,8 @@ class MenuEdit extends Menu {
 
   public void localeChanged() {
     this.setText(S.get("editMenu"));
-    myListener.projectChanged(null);
+    undo.setText(S.get("editCantUndoItem"));
+    redo.setText(S.get("editCantRedoItem"));
     cut.setText(S.get("editCutItem"));
     copy.setText(S.get("editCopyItem"));
     paste.setText(S.get("editPasteItem"));

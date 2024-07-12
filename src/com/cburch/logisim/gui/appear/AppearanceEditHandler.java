@@ -134,6 +134,7 @@ public class AppearanceEditHandler extends EditHandler
       canRemCtrl = o.canDeleteHandle(handle.getLocation()) != null;
     }
 
+    enableUndoRedo(proj);
     setEnabled(LogisimMenuBar.CUT, selHasRemovable && canChange);
     setEnabled(LogisimMenuBar.COPY, !selEmpty);
     setEnabled(LogisimMenuBar.PASTE, canChange && clipExists);

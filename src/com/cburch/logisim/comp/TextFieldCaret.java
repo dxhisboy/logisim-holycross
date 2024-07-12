@@ -44,11 +44,14 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 
 import com.cburch.logisim.Main;
-import com.cburch.logisim.util.GraphicsUtil;
 import com.cburch.logisim.data.Bounds;
+import com.cburch.logisim.gui.menu.EditHandler;
+import com.cburch.logisim.gui.menu.LogisimMenuBar;
 import com.cburch.logisim.tools.Caret;
 import com.cburch.logisim.tools.CaretEvent;
 import com.cburch.logisim.tools.CaretListener;
+import com.cburch.logisim.util.GraphicsUtil;
+import com.cburch.logisim.util.UndoRedo;
 
 public class TextFieldCaret implements Caret, TextFieldListener {
 
@@ -62,17 +65,22 @@ public class TextFieldCaret implements Caret, TextFieldListener {
   protected String oldText;
   protected String curText;
   protected int pos, end;
+  protected TextFieldCaretEditHandler editMenuHandler;
+  protected UndoRedo log = new UndoRedo();
 
   public TextFieldCaret(TextField field, Graphics g, int pos) {
     this.field = field;
     this.g = g;
-    this.oldText = field.getText();
-    this.curText = field.getText();
+    this.oldText = this.curText = field.getText();
     this.pos = pos;
     this.end = pos;
 
+    editMenuHandler = new TextFieldCaretEditHandler();
+
     field.addTextFieldListener(this);
   }
+
+  public EditHandler getEditHandler() { return editMenuHandler; }
 
   public TextFieldCaret(TextField field, Graphics g, int x, int y) {
     this(field, g, 0);
@@ -86,18 +94,18 @@ public class TextFieldCaret implements Caret, TextFieldListener {
   public void cancelEditing() {
     CaretEvent e = new CaretEvent(this, oldText, oldText);
     curText = oldText;
-    pos = curText.length();
-    end = pos;
+    pos = end = curText.length();
     for (CaretListener l : new ArrayList<CaretListener>(listeners)) {
       l.editingCanceled(e);
     }
     field.removeTextFieldListener(this);
+    log.clear();
   }
 
   public void commitText(String text) {
     curText = text;
-    pos = curText.length();
-    end = pos;
+    pos = end = curText.length();
+    log.clear();
     field.setText(text);
   }
 
@@ -194,8 +202,44 @@ public class TextFieldCaret implements Caret, TextFieldListener {
     end = curText.length();
   }
 
+  void doCopy() {
+    if (end != pos) {
+      int pp = (pos < end ? pos : end);
+      int ee = (pos < end ? end : pos);
+      String s = curText.substring(pp, ee);
+      StringSelection sel = new StringSelection(s);
+      Toolkit.getDefaultToolkit().getSystemClipboard().setContents(sel, null);
+    }
+  }
+
+  void doCut() {
+    if (end != pos) {
+      doCopy();
+      log.doAction(new TextAction(""));
+    }
+  }
+
+  void doPaste() {
+    try {
+      String s = (String)Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor);
+      String cleaned = "";
+      boolean lastWasSpace = false;
+      for (int i = 0; i < s.length(); i++) {
+        char c = s.charAt(i);
+        if (!allowedCharacter(c)) {
+          if (lastWasSpace)
+            continue;
+          c = ' ';
+        }
+        lastWasSpace = (c == ' ');
+        cleaned += c;
+      }
+      log.doAction(new TextAction(cleaned));
+    } catch (Exception ex) {
+    }
+  }
+
   protected void menuShortcutKeyPressed(KeyEvent e, boolean shift) {
-    boolean cut = false;
     switch (e.getKeyCode()) {
     case KeyEvent.VK_A: // select all
       pos = 0;
@@ -204,49 +248,28 @@ public class TextFieldCaret implements Caret, TextFieldListener {
       break;
     case KeyEvent.VK_CUT:
     case KeyEvent.VK_X: // cut
-      cut = true;
-      // fall through
+      doCut();
+      e.consume();
+      break;
     case KeyEvent.VK_COPY:
     case KeyEvent.VK_C: // copy
-      if (end != pos) {
-        int pp = (pos < end ? pos : end);
-        int ee = (pos < end ? end : pos);
-        String s = curText.substring(pp, ee);
-        StringSelection sel = new StringSelection(s);
-        Toolkit.getDefaultToolkit().getSystemClipboard().setContents(sel, null);
-        if (cut) {
-          normalizeSelection();
-          curText = curText.substring(0, pos) + (end < curText.length() ? curText.substring(end) : "");
-          end = pos;
-        }
-      }
+      doCopy();
+      e.consume();
+      break;
+    case KeyEvent.VK_Z:
+      System.out.println("undo");
+      log.undoAction();
+      e.consume();
+      break;
+    case KeyEvent.VK_Y:
+      System.out.println("redo");
+      log.redoAction();
       e.consume();
       break;
     case KeyEvent.VK_INSERT:
     case KeyEvent.VK_PASTE:
     case KeyEvent.VK_V: // paste
-      try {
-        String s = (String)Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor);
-        boolean lastWasSpace = false;
-        for (int i = 0; i < s.length(); i++) {
-          char c = s.charAt(i);
-          if (!allowedCharacter(c)) {
-            if (lastWasSpace)
-              continue;
-            c = ' ';
-          }
-          lastWasSpace = (c == ' ');
-          normalizeSelection();
-          if (end < curText.length()) {
-            curText = curText.substring(0, pos) + c + curText.substring(end);
-          } else {
-            curText = curText.substring(0, pos) + c;
-          }
-          ++pos;
-          end = pos;
-        }
-      } catch (Exception ex) {
-      }
+      doPaste();
       e.consume();
       break;
     default:
@@ -385,8 +408,7 @@ public class TextFieldCaret implements Caret, TextFieldListener {
       e.consume();
       break;
     case KeyEvent.VK_CLEAR:
-      curText = "";
-      end = pos = 0;
+      log.doAction(new TextAction(0, curText.length(), ""));
       e.consume();
       break;
     case KeyEvent.VK_ESCAPE:
@@ -395,27 +417,19 @@ public class TextFieldCaret implements Caret, TextFieldListener {
       e.consume();
       break;
     case KeyEvent.VK_BACK_SPACE: // DELETE on MacOS?
-      normalizeSelection();
-      if (pos != end) {
-        curText = curText.substring(0, pos) + curText.substring(end);
-        end = pos;
-      } else if (pos > 0) {
-        curText = curText.substring(0, pos - 1)
-            + curText.substring(pos);
-        --pos;
-        end = pos;
-      }
+      System.out.println("backspace");
+      if (pos != end)
+        log.doAction(new TextAction(""));
+      else if (pos > 0)
+        log.doAction(new TextAction(pos-1, pos, ""));
       e.consume();
       break;
     case KeyEvent.VK_DELETE: // BACK_SPACE on MacOS?
       normalizeSelection();
-      if (pos != end) {
-        curText = curText.substring(0, pos) + (end < curText.length() ? curText.substring(end) : "");
-        end = pos;
-      } else if (pos < curText.length()) {
-        curText = curText.substring(0, pos)
-            + curText.substring(pos + 1);
-      }
+      if (pos != end)
+        log.doAction(new TextAction(""));
+      else if (pos < curText.length())
+        log.doAction(new TextAction(pos, pos+1, ""));
       e.consume();
       break;
     default:
@@ -433,14 +447,7 @@ public class TextFieldCaret implements Caret, TextFieldListener {
     e.consume();
     char c = e.getKeyChar();
     if (allowedCharacter(c)) {
-      normalizeSelection();
-      if (end < curText.length()) {
-        curText = curText.substring(0, pos) + c + curText.substring(end);
-      } else {
-        curText = curText.substring(0, pos) + c;
-      }
-      ++pos;
-      end = pos;
+      log.doAction(new TextAction("" + c));
     } else if (c == '\n') {
       stopEditing();
     }
@@ -488,9 +495,220 @@ public class TextFieldCaret implements Caret, TextFieldListener {
   }
 
   public void textChanged(TextFieldEvent e) {
+    System.out.println("text changed");
     curText = field.getText();
     oldText = curText;
     pos = curText.length();
     end = pos;
+    log.clear();
+  }
+
+  static final long MAX_SENTENCE_DELAY_NS = 10L*1000L*1000L*1000L; // 10 seconds
+  static final long MAX_KEYSTROKE_DELAY_NS = 500L*1000L*1000L; // 0.5 seconds
+
+  private class TextAction extends UndoRedo.Action {
+    long ts, te; // timestamps, in nanoseconds, of start and end of edit
+    int cursorPos; // cursor position before edit
+    int cursorEnd; // selection end before edit
+    int left, right; // range to be removed
+    String old; // text between left and right, to be removed
+    String repl; // text to be written into removed range
+    // note: old.length == right-left always
+    // note: repl.length == 0 means replacement is strictly deletion
+    // note: after edit, cursor will be at left + repl.length
+    //
+    // Example: Selecting "ORD" then typing "K" produces the following action.
+    //
+    //                      ,------------ left: 3
+    //                      |     ,------ right: 6
+    //                0 1 2 3 4 5 6 7 8 9 
+    // original text:  d i s O R D e r s      old: "ord"
+    //   edited text:  d i s K e r s         repl: "k"
+    //                0 1 2 3 4 5 6 7 8 9 
+
+    public TextAction(String repl) {
+      this(Math.min(pos, end), Math.max(pos, end), repl);
+    }
+
+    public TextAction(int left, int right, String repl) {
+      ts = te = System.nanoTime();
+      this.cursorPos = pos;
+      this.cursorEnd = end;
+      this.left = left;
+      this.right = right;
+      this.old = left < curText.length() ? curText.substring(left, right) : "";
+      this.repl = repl;
+    }
+    
+    @Override
+    public String getName() { return "Text Edit"; }
+
+    @Override
+    public boolean isEmpty() {
+      return old.isEmpty() && repl.isEmpty();
+    }
+
+    @Override
+    public boolean shouldAppendTo(UndoRedo.Action other) {
+      if (! (other instanceof TextAction))
+        return false;
+      TextAction prev = (TextAction)other;
+      if (this.repl.length() == 0) {
+        // now strictly deleting text, e.g. backspace, or selection-delete
+        if (right - left != 1)
+          return false; // erased multiple, e.g. selection-delete
+        else if (prev.repl.length() != 0)
+          return false; // previous was not strictly deleting text
+        else if (this.right != prev.left)
+          return false; // previous deletion was not right-adjacent to this deletion
+        else if (this.ts - prev.te > MAX_KEYSTROKE_DELAY_NS)
+          return false; // too large of a gap between actions
+        else if (this.te - prev.ts > MAX_SENTENCE_DELAY_NS)
+          return false; // too large of a total duration for actions
+        else if ((this.old.indexOf('\n') >= 0 || this.old.indexOf('\r') >= 0) &&
+          this.te - prev.ts > MAX_SENTENCE_DELAY_NS/2)
+          return false; // erased a newline and approaching duration limit
+        else if (this.old.isBlank() && this.te - prev.ts > MAX_SENTENCE_DELAY_NS*3/4)
+          return false; // erased whitespace and nearly at duration limit
+        else
+          return true;
+      } else {
+        // now adding text, e.g. typing or pasting, at cursor or over a selection
+        if (left != right)
+          return false; // overwriting a selection
+        else if (this.repl.length() != 1)
+          return false; // pasting
+        else if (prev.repl.length() == 0)
+          return false; // previous was strictly deleting text
+        else if (this.left != prev.left + prev.repl.length())
+          return false; // previous addition was not left-adjacent to this addition
+        else if (this.ts - prev.te > MAX_KEYSTROKE_DELAY_NS)
+          return false; // too large of a gap between actions
+        else if (this.te - prev.ts > MAX_SENTENCE_DELAY_NS)
+          return false; // too large of a total duration for actions
+        else if (!this.repl.startsWith("\n") && prev.repl.endsWith("\n")
+            && this.te - prev.ts > MAX_SENTENCE_DELAY_NS/2)
+          return false; // starting a new non-empty line and approaching duration limit
+        else if (!Character.isWhitespace(this.repl.charAt(0))
+            && Character.isWhitespace(prev.repl.charAt(prev.repl.length() - 1))
+            && this.te - prev.ts > MAX_SENTENCE_DELAY_NS*3/4)
+          return false; //  starting a new word and nearly at duration limit
+        else
+          return true;
+      }
+    }
+
+    @Override
+    public UndoRedo.Action append(UndoRedo.Action other) {
+      if (! (other instanceof TextAction))
+        return this; // should never happen
+      TextAction later = (TextAction)other;
+      this.te = later.te;
+      if (this.repl.length() != 0) {
+        this.right += (later.right - later.left);
+        this.old = this.old + later.old;
+        this.repl = this.repl + later.repl;
+      } else {
+        this.left = later.left;
+        this.old = later.old + this.old;
+        this.repl = later.repl + this.repl;
+      }
+      return this;
+    }
+
+    @Override
+    public void execute() {
+      if (right < curText.length())
+        curText = curText.substring(0, left) + repl + curText.substring(right);
+      else
+        curText = curText.substring(0, left) + repl;
+      pos = end = left + repl.length();
+    }
+
+    @Override
+    public void unexecute() {
+      if (left + repl.length() < curText.length())
+        curText = curText.substring(0, left) + old + curText.substring(left + repl.length());
+      else
+        curText = curText.substring(0, left) + old;
+      pos = cursorPos;
+      end = cursorEnd;
+    }
+
+  }
+
+  private class TextFieldCaretEditHandler extends EditHandler {
+    TextFieldCaretEditHandler() { }
+    @Override
+    public void addControlPoint() { }
+
+    @Override
+    public void computeEnabled() {
+      System.out.println("compute enabled!");
+      setEnabled(LogisimMenuBar.UNDO, log.getUndoAction() != null);
+      setEnabled(LogisimMenuBar.REDO, log.getRedoAction() != null);
+      setEnabled(LogisimMenuBar.CUT, pos != end);
+      setEnabled(LogisimMenuBar.COPY, pos != end);
+      setEnabled(LogisimMenuBar.PASTE, true); // todo: check clipboard for suitability?
+      setEnabled(LogisimMenuBar.DELETE, pos != end);
+      setEnabled(LogisimMenuBar.SELECT_ALL, true);
+      setEnabled(LogisimMenuBar.DUPLICATE, false);
+      setEnabled(LogisimMenuBar.SEARCH, true);
+      setEnabled(LogisimMenuBar.RAISE, false);
+      setEnabled(LogisimMenuBar.LOWER, false);
+      setEnabled(LogisimMenuBar.RAISE_TOP, false);
+      setEnabled(LogisimMenuBar.LOWER_BOTTOM, false);
+      setEnabled(LogisimMenuBar.ADD_CONTROL, false);
+      setEnabled(LogisimMenuBar.REMOVE_CONTROL, false);
+    }
+
+    @Override
+    public void undo() { System.out.println("undo!"); log.undoAction(); }
+
+    @Override
+    public void redo() { System.out.println("redo!"); log.redoAction(); }
+
+    @Override
+    public void copy() { System.out.println("copy!"); doCopy(); }
+
+    @Override
+    public void cut() { System.out.println("cut!"); doCut(); }
+
+    @Override
+    public void delete() { System.out.println("delete!"); 
+      log.doAction(new TextAction(""));
+    }
+
+    @Override
+    public void duplicate() { }
+
+    @Override
+    public void lower() { }
+
+    @Override
+    public void lowerBottom() { }
+
+    @Override
+    public void paste() { System.out.println("paste!"); doPaste(); }
+
+    @Override
+    public void raise() { }
+
+    @Override
+    public void raiseTop() { }
+
+    @Override
+    public void removeControlPoint() { }
+
+    @Override
+    public void selectAll() {
+      System.out.println("select all!");
+      pos = 0;
+      end = curText.length();
+    }
+
+    @Override
+    public void search() { }
+
   }
 }

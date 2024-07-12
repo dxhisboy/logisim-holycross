@@ -134,33 +134,36 @@ public class Selection {
         SelectionSave save = savedSelections.get(event.getOldData());
         savedSelections.put((Action) event.getData(), save);
       } else if (type == ProjectEvent.UNDO_COMPLETE) {
-        Circuit circ = event.getProject().getCurrentCircuit();
         Action act = (Action) event.getData();
-        SelectionSave save = savedSelections.get(act);
-        if (save != null) {
-          lifted.clear();
-          selected.clear();
-          for (int i = 0; i < 2; i++) {
-            Component[] cs;
-            if (i == 0)
-              cs = save.getFloatingComponents();
-            else
-              cs = save.getAnchoredComponents();
+        restore(savedSelections.get(act));
+      } else if (type == ProjectEvent.REDO_START) {
+        Action act = (Action) event.getData();
+        restore(savedSelections.get(act));
+      }
+    }
+  }
 
-            if (cs != null) {
-              for (Component c : cs) {
-                if (circ.contains(c)) {
-                  selected.add(c);
-                } else {
-                  lifted.add(c);
-                }
-              }
-            }
-          }
-          fireSelectionChanged();
+  private void restore(SelectionSave save) {
+    if (save == null)
+      return;
+    Circuit circ = proj.getCurrentCircuit();
+    lifted.clear();
+    selected.clear();
+    Component cs[][] = {
+        save.getFloatingComponents(),
+        save.getAnchoredComponents()
+    };
+    for (int i = 0; i < 2; i++) {
+      if (cs[i] != null) {
+        for (Component c : cs[i]) {
+          if (circ.contains(c))
+            selected.add(c);
+          else
+            lifted.add(c);
         }
       }
     }
+    fireSelectionChanged();
   }
 
   private MyListener myListener;

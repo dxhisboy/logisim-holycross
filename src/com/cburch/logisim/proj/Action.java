@@ -35,6 +35,9 @@ public abstract class Action {
     return new JoinedAction(this, other);
   }
 
+  // Note: if doIt(proj) depends on current selection, or current selected
+  // circuit, or similar non-action state, then redo() must be overriden to
+  // perform the action in way that does not depend on those transient things.
   public abstract void doIt(Project proj);
 
   public abstract String getName();
@@ -44,4 +47,8 @@ public abstract class Action {
   public boolean isEmpty() { return false; }
 
   public abstract void undo(Project proj);
+
+  public void redo(Project proj) {
+    doIt(proj);
+  }
 }

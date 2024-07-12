@@ -69,21 +69,29 @@ public class SelectionActions {
   private abstract static class SelectionAnchoringAction extends Action {
 
     protected Selection sel;
+    protected Circuit circuit;
     protected int count;
     protected SelectionSave before;
+    protected CircuitMutation xn;
     protected CircuitTransaction xnReverse;
 
     SelectionAnchoringAction(Selection sel, int count) {
       this.sel = sel;
+      this.circuit = sel.getProject().getCurrentCircuit();
       this.before = SelectionSave.create(sel);
       this.count = count;
     }
 
     @Override
     public void doIt(Project proj) {
-      Circuit circuit = proj.getCurrentCircuit();
-      CircuitMutation xn = new CircuitMutation(circuit);
+      xn = new CircuitMutation(circuit);
       doIt(proj, circuit, xn);
+      CircuitTransactionResult result = xn.execute();
+      xnReverse = result.getReverseTransaction();
+    }
+
+    @Override
+    public void redo(Project proj) {
       CircuitTransactionResult result = xn.execute();
       xnReverse = result.getReverseTransaction();
     }
@@ -138,15 +146,17 @@ public class SelectionActions {
   private static class Delete extends Action {
     private Selection sel;
     private CircuitTransaction xnReverse;
+    private Circuit circuit;
+    private CircuitMutation xn;
 
     Delete(Selection sel) {
+      this.circuit = sel.getProject().getCurrentCircuit();
       this.sel = sel;
     }
 
     @Override
     public void doIt(Project proj) {
-      Circuit circuit = proj.getCurrentCircuit();
-      CircuitMutation xn = new CircuitMutation(circuit);
+      xn = new CircuitMutation(circuit);
       sel.deleteAllHelper(xn);
       CircuitTransactionResult result = xn.execute();
       xnReverse = result.getReverseTransaction();
@@ -155,6 +165,12 @@ public class SelectionActions {
     @Override
     public String getName() {
       return S.get("deleteSelectionAction");
+    }
+
+    @Override
+    public void redo(Project proj) {
+      CircuitTransactionResult result = xn.execute();
+      xnReverse = result.getReverseTransaction();
     }
 
     @Override
@@ -194,15 +210,17 @@ public class SelectionActions {
     private Selection sel;
     private CircuitTransaction xnReverse;
     private SelectionSave after;
+    private Circuit circuit;
+    private CircuitMutation xn;
 
     Duplicate(Selection sel) {
+      this.circuit = sel.getProject().getCurrentCircuit();
       this.sel = sel;
     }
 
     @Override
     public void doIt(Project proj) {
-      Circuit circuit = proj.getCurrentCircuit();
-      CircuitMutation xn = new CircuitMutation(circuit);
+      xn = new CircuitMutation(circuit);
       sel.duplicateHelper(xn);
       CircuitTransactionResult result = xn.execute();
       xnReverse = result.getReverseTransaction();
@@ -212,6 +230,12 @@ public class SelectionActions {
     @Override
     public String getName() {
       return S.get("duplicateSelectionAction");
+    }
+
+    @Override
+    public void redo(Project proj) {
+      CircuitTransactionResult result = xn.execute();
+      xnReverse = result.getReverseTransaction();
     }
 
     @Override
@@ -251,8 +275,11 @@ public class SelectionActions {
     private CircuitTransaction xnReverse, cxnReverse;
     private SelectionSave after;
     private boolean validated;
+    private CircuitMutation xn;
+    private Circuit circuit;
 
     PasteComponents(Selection sel, LayoutClipboard.Clip<Collection<Component>> clip) {
+      circuit = sel.getProject().getCurrentCircuit();
       this.sel = sel;
       this.clip = clip;
     }
@@ -308,8 +335,6 @@ public class SelectionActions {
 
     @Override
     public void doIt(Project proj) {
-      Circuit circuit = proj.getCurrentCircuit();
-
       LogisimFile file = proj.getLogisimFile();
       for (Library lib : clip.libraries)
         file.addLibrary(lib);
@@ -324,11 +349,17 @@ public class SelectionActions {
         cxnReverse = null;
       }
 
-      CircuitMutation xn = new CircuitMutation(circuit);
+      xn = new CircuitMutation(circuit);
       sel.pasteHelper(xn, clip.selection);
       CircuitTransactionResult result = xn.execute();
       xnReverse = result.getReverseTransaction();
       after = SelectionSave.create(sel);
+    }
+
+    @Override
+    public void redo(Project proj) {
+      CircuitTransactionResult result = xn.execute();
+      xnReverse = result.getReverseTransaction();
     }
 
     @Override
@@ -429,7 +460,6 @@ public class SelectionActions {
 
     @Override
     public void doIt(Project proj) {
-
       LogisimFile file = proj.getLogisimFile();
 
       for (Library lib : clip.libraries)
@@ -486,12 +516,14 @@ public class SelectionActions {
     private int idx;
     private String title;
 
-    AddCircuit(LayoutClipboard.Clip<Circuit> clip, int idx, int reason) {
+    AddCircuit(Project proj, LayoutClipboard.Clip<Circuit> clip, int idx, int reason) {
       this.clip = clip;
       this.idx = idx;
       this.title = reason == DUPLICATE ? S.get("duplicateCircuitAction")
           : reason == PASTE ? S.get("pasteCircuitAction")
           : S.get("dragDropCircuitAction");
+      prevCircuit = proj.getCurrentCircuit();
+      prevHdl = proj.getCurrentHdl();
     }
 
     boolean valid(Project proj) {
@@ -525,10 +557,6 @@ public class SelectionActions {
 
     @Override
     public void doIt(Project proj) {
-
-      prevCircuit = proj.getCurrentCircuit();
-      prevHdl = proj.getCurrentHdl();
-
       LogisimFile file = proj.getLogisimFile();
       int pos = idx;
       if (pos < 0)
@@ -578,12 +606,14 @@ public class SelectionActions {
     private int idx;
     private String title;
 
-    AddVhdl(LayoutClipboard.Clip<VhdlContent> clip, int idx, int reason) {
+    AddVhdl(Project proj, LayoutClipboard.Clip<VhdlContent> clip, int idx, int reason) {
       this.clip = clip;
       this.idx = idx;
       this.title = reason == DUPLICATE ? S.get("duplicateVhdlAction")
           : reason == PASTE ? S.get("pasteVhdlAction")
           : S.get("dragDropVhdlAction");
+      prevCircuit = proj.getCurrentCircuit();
+      prevHdl = proj.getCurrentHdl();
     }
 
     boolean valid(Project proj) {
@@ -606,9 +636,6 @@ public class SelectionActions {
 
     @Override
     public void doIt(Project proj) {
-      prevCircuit = proj.getCurrentCircuit();
-      prevHdl = proj.getCurrentHdl();
-
       LogisimFile file = proj.getLogisimFile();
       int pos = idx;
       if (pos < 0)
@@ -839,7 +866,7 @@ public class SelectionActions {
   }
   
   private static boolean doAddCircuit(Project proj, LayoutClipboard.Clip<Circuit> clip, int idx, int reason) {
-    AddCircuit act = new AddCircuit(clip, idx, reason);
+    AddCircuit act = new AddCircuit(proj, clip, idx, reason);
     if (act.valid(proj)) {
       proj.doAction(act);
       return true;
@@ -853,7 +880,7 @@ public class SelectionActions {
   }
 
   private static boolean doAddVhdl(Project proj, LayoutClipboard.Clip<VhdlContent> clip, int idx, int reason) {
-    AddVhdl act = new AddVhdl(clip, idx, reason);
+    AddVhdl act = new AddVhdl(proj, clip, idx, reason);
     if (act.valid(proj)) {
       proj.doAction(act);
       return true;

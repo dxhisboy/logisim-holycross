@@ -29,10 +29,17 @@
  */
 
 package com.cburch.logisim.gui.menu;
+import static com.cburch.logisim.gui.menu.Strings.S;
 
 import java.awt.event.ActionEvent;
 
+import com.cburch.logisim.proj.Action;
+import com.cburch.logisim.proj.Project;
+
 public abstract class EditHandler {
+
+  public void undo() { }
+  public void redo() { }
 
   public void cut() { }
   public void copy() { }
@@ -53,6 +60,22 @@ public abstract class EditHandler {
 
   public abstract void computeEnabled();
 
+  public void enableUndoRedo(Project proj) {
+    Action last = proj == null ? null : proj.getLastAction();
+    setEnabled(LogisimMenuBar.UNDO, last != null);
+    if (last == null)
+      setText(LogisimMenuBar.UNDO, S.get("editCantUndoItem"));
+    else
+      setText(LogisimMenuBar.UNDO, S.fmt("editUndoItem", last.getName()));
+
+    Action next = proj == null ? null : proj.getLastRedoAction();
+    setEnabled(LogisimMenuBar.REDO, next != null);
+    if (next == null)
+      setText(LogisimMenuBar.REDO, S.get("editCantRedoItem"));
+    else
+      setText(LogisimMenuBar.REDO, S.fmt("editRedoItem", next.getName()));
+  }
+
   protected void setEnabled(LogisimMenuItem action, boolean value) {
     Listener l = listener;
     if (l != null) {
@@ -60,8 +83,16 @@ public abstract class EditHandler {
     }
   }
 
+  protected void setText(LogisimMenuItem action, String value) {
+    Listener l = listener;
+    if (l != null) {
+      l.textChanged(this, action, value);
+    }
+  }
+
   public static interface Listener {
     void enableChanged(EditHandler handler, LogisimMenuItem action, boolean value);
+    void textChanged(EditHandler handler, LogisimMenuItem action, String value);
   }
   
   private Listener listener;
@@ -72,7 +103,11 @@ public abstract class EditHandler {
 
   public void actionPerformed(ActionEvent e) {
     Object src = e.getSource();
-    if (src == LogisimMenuBar.CUT)
+    if (src == LogisimMenuBar.UNDO)
+      undo();
+    else if (src == LogisimMenuBar.REDO)
+      redo();
+    else if (src == LogisimMenuBar.CUT)
       cut();
     else if (src == LogisimMenuBar.COPY)
       copy();
