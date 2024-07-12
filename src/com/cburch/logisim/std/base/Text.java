@@ -235,6 +235,7 @@ public class Text extends InstanceFactory implements CustomHandles {
 
   @Override
   public void paintInstance(InstancePainter painter) {
+    painter.getGraphics().setColor(Color.BLACK);
     paint(painter, false);
   }
 
@@ -242,7 +243,6 @@ public class Text extends InstanceFactory implements CustomHandles {
     TextAttributes attrs = (TextAttributes)painter.getAttributeSet();
     Location loc = painter.getLocation();
     Graphics g = painter.getGraphics();
-    g.setColor(Color.BLACK);
     if (border) {
       Bounds bds = getVisibleBounds(loc, attrs, g);
       g.drawRect(bds.getX(), bds.getY(), bds.getWidth(), bds.getHeight());
