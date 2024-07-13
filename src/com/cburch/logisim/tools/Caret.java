@@ -35,9 +35,13 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
 import com.cburch.logisim.data.Bounds;
+import com.cburch.logisim.gui.menu.EditHandler;
 
 public interface Caret {
+
   public void addCaretListener(CaretListener e);
+
+  public default EditHandler getEditHandler() { return null; }
 
   public void cancelEditing();
 

@@ -34,6 +34,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 
 import com.cburch.logisim.data.Bounds;
+import com.cburch.logisim.gui.main.Canvas;
 import com.cburch.logisim.util.GraphicsUtil;
 
 public class TextFieldMultiline extends TextField {
@@ -56,12 +57,12 @@ public class TextFieldMultiline extends TextField {
     return Bounds.create(GraphicsUtil.getTextBounds(g, font, lines, x, y, halign, valign));
   }
 
-  public TextFieldCaret getCaret(Graphics g, int pos) {
-    return new TextFieldMultilineCaret(this, g, pos);
+  public TextFieldCaret getCaret(Canvas canvas, Graphics g, int pos) {
+    return new TextFieldMultilineCaret(canvas, this, g, pos);
   }
 
-  public TextFieldCaret getCaret(Graphics g, int x, int y) {
-    return new TextFieldMultilineCaret(this, g, x, y);
+  public TextFieldCaret getCaret(Canvas canvas, Graphics g, int x, int y) {
+    return new TextFieldMultilineCaret(canvas, this, g, x, y);
   }
 
   public void setText(String text) {

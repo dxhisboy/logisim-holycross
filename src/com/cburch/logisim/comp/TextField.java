@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 
 import com.cburch.logisim.data.Bounds;
+import com.cburch.logisim.gui.main.Canvas;
 import com.cburch.logisim.util.GraphicsUtil;
 
 public class TextField {
@@ -86,12 +87,12 @@ public class TextField {
     return Bounds.create(GraphicsUtil.getTextBounds(g, font, text, x, y, halign, valign));
   }
 
-  public TextFieldCaret getCaret(Graphics g, int pos) {
-    return new TextFieldCaret(this, g, pos);
+  public TextFieldCaret getCaret(Canvas canvas, Graphics g, int pos) {
+    return new TextFieldCaret(canvas, this, g, pos);
   }
 
-  public TextFieldCaret getCaret(Graphics g, int x, int y) {
-    return new TextFieldCaret(this, g, x, y);
+  public TextFieldCaret getCaret(Canvas canvas, Graphics g, int x, int y) {
+    return new TextFieldCaret(canvas, this, g, x, y);
   }
 
   public Font getFont() {

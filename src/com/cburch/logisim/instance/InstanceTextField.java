@@ -39,7 +39,6 @@ import com.cburch.logisim.comp.Component;
 import com.cburch.logisim.comp.ComponentDrawContext;
 import com.cburch.logisim.comp.ComponentUserEvent;
 import com.cburch.logisim.comp.TextField;
-import com.cburch.logisim.comp.TextFieldCaret;
 import com.cburch.logisim.comp.TextFieldMultiline;
 import com.cburch.logisim.comp.TextFieldEvent;
 import com.cburch.logisim.comp.TextFieldListener;
@@ -111,7 +110,7 @@ public class InstanceTextField
   }
 
   public Action getCommitAction(Circuit circuit, String oldText, String newText) {
-    SetAttributeAction act = new SetAttributeAction(circuit, S.getter("changeLabelAction"));
+    SetAttributeAction act = new SetAttributeAction(circuit, S.getter(multiline ? "changeTextAction" : "changeLabelAction"));
     if ((oldText == null) != (newText == null) || (newText != null && !newText.equals(oldText)))
       act.set(comp, labelAttr, newText);
     return act;
@@ -126,13 +125,10 @@ public class InstanceTextField
     if (field == null)
       createField(comp.getAttributeSet(), "");
     String text = field.getText();
-    TextFieldCaret caret;
     if (text == null || text.equals(""))
-      caret = field.getCaret(g, 0);
+      return field.getCaret(canvas, g, 0);
     else
-      caret = field.getCaret(g, event.getX(), event.getY());
-    canvas.getProject().getFrame().setEditHandler(caret.getEditHandler());
-    return caret;
+      return field.getCaret(canvas, g, event.getX(), event.getY());
   }
 
   private boolean shouldRegister() {

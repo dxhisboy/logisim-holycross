@@ -45,6 +45,7 @@ import java.awt.datatransfer.StringSelection;
 
 import com.cburch.logisim.Main;
 import com.cburch.logisim.data.Bounds;
+import com.cburch.logisim.gui.main.Canvas;
 import com.cburch.logisim.gui.menu.EditHandler;
 import com.cburch.logisim.gui.menu.LogisimMenuBar;
 import com.cburch.logisim.tools.Caret;
@@ -67,13 +68,15 @@ public class TextFieldCaret implements Caret, TextFieldListener {
   protected int cursor, anchor; // text between cursor and anchor is selected
   protected TextFieldCaretEditHandler editMenuHandler;
   protected UndoRedo log = new UndoRedo();
+  protected Canvas canvas;
 
   // used during mouse selection
   boolean selectByWord = false;
   boolean selectByLine = false;
   int selectOrigin = 0;
 
-  public TextFieldCaret(TextField field, Graphics g, int pos) {
+  public TextFieldCaret(Canvas canvas, TextField field, Graphics g, int pos) {
+    this.canvas = canvas;
     this.field = field;
     this.g = g;
     this.oldText = this.curText = field.getText();
@@ -86,8 +89,8 @@ public class TextFieldCaret implements Caret, TextFieldListener {
 
   public EditHandler getEditHandler() { return editMenuHandler; }
 
-  public TextFieldCaret(TextField field, Graphics g, int x, int y) {
-    this(field, g, 0);
+  public TextFieldCaret(Canvas canvas, TextField field, Graphics g, int x, int y) {
+    this(canvas, field, g, 0);
     cursor = anchor = findCaret(x, y);
   }
 
@@ -268,12 +271,10 @@ public class TextFieldCaret implements Caret, TextFieldListener {
       e.consume();
       break;
     case KeyEvent.VK_Z:
-      System.out.println("undo");
       log.undoAction();
       e.consume();
       break;
     case KeyEvent.VK_Y:
-      System.out.println("redo");
       log.redoAction();
       e.consume();
       break;
@@ -439,7 +440,6 @@ public class TextFieldCaret implements Caret, TextFieldListener {
       e.consume();
       break;
     case KeyEvent.VK_BACK_SPACE: // DELETE on MacOS?
-      System.out.println("backspace");
       if (cursor != anchor)
         log.doAction(new TextAction(""));
       else if (cursor > 0)
@@ -479,14 +479,18 @@ public class TextFieldCaret implements Caret, TextFieldListener {
     if (selectByLine) {
       if (p < selectOrigin) {
         cursor = selectOrigin;
-        moveCaret(+3, false);
+        moveCaret(+3, false); // will set anchor
+        if (anchor < curText.length() && curText.charAt(anchor) == '\n')
+          anchor++;
         cursor = p;
-        moveCaret(-3, true);
+        moveCaret(-3, true); // only sets cursor
       } else {
         cursor = selectOrigin;
-        moveCaret(-3, false);
+        moveCaret(-3, false); // will set anchor
         cursor = p;
-        moveCaret(+3, true);
+        moveCaret(+3, true); // only sets cursor
+        if (cursor < curText.length() && curText.charAt(cursor) == '\n')
+          cursor++;
       }
     } else if (selectByWord) {
       if (p < selectOrigin) {
@@ -546,6 +550,8 @@ public class TextFieldCaret implements Caret, TextFieldListener {
       moveCaret(-3, false); // will set anchor
       cursor = Math.max(selectOrigin, p);
       moveCaret(+3, true); // only sets cursor
+      if (cursor < curText.length() && curText.charAt(cursor) == '\n')
+        cursor++;
     } else if (n == 2) {
       // expand to entire word, or to whitespace between words
       selectByWord = true;
@@ -576,13 +582,7 @@ public class TextFieldCaret implements Caret, TextFieldListener {
     editMenuHandler.computeEnabled();
   }
 
-  public void mouseReleased(MouseEvent e) {
-    // int n = e.getClickCount();
-    // if (n == 1) {
-    //   anchor = findCaret(e.getX(), e.getY());
-    //   editMenuHandler.computeEnabled();
-    // }
-  }
+  public void mouseReleased(MouseEvent e) { }
 
   protected int findCaret(int x, int y) {
     x -= field.getX();
@@ -606,7 +606,6 @@ public class TextFieldCaret implements Caret, TextFieldListener {
   }
 
   public void textChanged(TextFieldEvent e) {
-    System.out.println("text changed");
     curText = field.getText();
     oldText = curText;
     cursor = anchor = curText.length();
@@ -751,13 +750,12 @@ public class TextFieldCaret implements Caret, TextFieldListener {
   }
 
   private class TextFieldCaretEditHandler extends EditHandler {
-    TextFieldCaretEditHandler() { }
-    @Override
-    public void addControlPoint() { }
 
     @Override
     public void computeEnabled() {
+      setText(LogisimMenuBar.UNDO, "Undo");
       setEnabled(LogisimMenuBar.UNDO, log.getUndoAction() != null);
+      setText(LogisimMenuBar.REDO, "Redo");
       setEnabled(LogisimMenuBar.REDO, log.getRedoAction() != null);
       setEnabled(LogisimMenuBar.CUT, cursor != anchor);
       setEnabled(LogisimMenuBar.COPY, cursor != anchor);
@@ -775,51 +773,47 @@ public class TextFieldCaret implements Caret, TextFieldListener {
     }
 
     @Override
-    public void undo() { System.out.println("undo!"); log.undoAction(); }
-
-    @Override
-    public void redo() { System.out.println("redo!"); log.redoAction(); }
-
-    @Override
-    public void copy() { System.out.println("copy!"); doCopy(); }
-
-    @Override
-    public void cut() { System.out.println("cut!"); doCut(); }
-
-    @Override
-    public void delete() { System.out.println("delete!"); log.doAction(new TextAction("")); }
-
-    @Override
-    public void duplicate() { }
-
-    @Override
-    public void lower() { }
-
-    @Override
-    public void lowerBottom() { }
-
-    @Override
-    public void paste() { System.out.println("paste!"); doPaste(); }
-
-    @Override
-    public void raise() { }
-
-    @Override
-    public void raiseTop() { }
-
-    @Override
-    public void removeControlPoint() { }
-
-    @Override
-    public void selectAll() {
-      System.out.println("select all!");
-      cursor = 0;
-      anchor = curText.length();
-      editMenuHandler.computeEnabled();
+    public void undo() {
+      log.undoAction();
+      canvas.getProject().repaintCanvas();
     }
 
     @Override
-    public void search() { }
+    public void redo() {
+      log.redoAction();
+      canvas.getProject().repaintCanvas();
+    }
 
+    @Override
+    public void copy() {
+      doCopy();
+    }
+
+    @Override
+    public void cut() {
+      doCut();
+      canvas.getProject().repaintCanvas();
+    }
+
+    @Override
+    public void delete() {
+      log.doAction(new TextAction(""));
+      canvas.getProject().repaintCanvas();
+    }
+
+    @Override
+    public void paste() {
+      doPaste();
+      canvas.getProject().repaintCanvas();
+    }
+
+    @Override
+    public void selectAll() {
+      cursor = 0;
+      anchor = curText.length();
+      editMenuHandler.computeEnabled();
+      canvas.getProject().repaintCanvas();
+    }
   }
+
 }

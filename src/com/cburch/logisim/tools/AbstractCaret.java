@@ -48,20 +48,15 @@ public class AbstractCaret implements Caret {
     listenersView = Collections.unmodifiableList(listeners);
   }
 
-  // listener methods
   public void addCaretListener(CaretListener e) {
     listeners.add(e);
   }
 
-  public void cancelEditing() {
-  }
+  public void cancelEditing() { }
 
-  // finishing
-  public void commitText(String text) {
-  }
+  public void commitText(String text) { }
 
-  public void draw(Graphics g) {
-  }
+  public void draw(Graphics g) { }
 
   public Bounds getBounds(Graphics g) {
     return bds;
@@ -71,39 +66,29 @@ public class AbstractCaret implements Caret {
     return listenersView;
   }
 
-  // query/Graphics methods
   public String getText() {
     return "";
   }
 
-  public void keyPressed(KeyEvent e) {
-  }
+  public void keyPressed(KeyEvent e) { }
 
-  public void keyReleased(KeyEvent e) {
-  }
+  public void keyReleased(KeyEvent e) { }
 
-  public void keyTyped(KeyEvent e) {
-  }
+  public void keyTyped(KeyEvent e) { }
 
-  public void mouseDragged(MouseEvent e) {
-  }
+  public void mouseDragged(MouseEvent e) { }
 
-  // events to handle
-  public void mousePressed(MouseEvent e) {
-  }
+  public void mousePressed(MouseEvent e) { }
 
-  public void mouseReleased(MouseEvent e) {
-  }
+  public void mouseReleased(MouseEvent e) { }
 
   public void removeCaretListener(CaretListener e) {
     listeners.remove(e);
   }
 
-  // configuration methods
   public void setBounds(Bounds value) {
     bds = value;
   }
 
-  public void stopEditing() {
-  }
+  public void stopEditing() { }
 }

@@ -36,20 +36,21 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 
-import com.cburch.logisim.util.GraphicsUtil;
-import com.cburch.logisim.data.Bounds;
 import com.cburch.draw.util.TextMetrics;
+import com.cburch.logisim.data.Bounds;
+import com.cburch.logisim.gui.main.Canvas;
+import com.cburch.logisim.util.GraphicsUtil;
 
 class TextFieldMultilineCaret extends TextFieldCaret {
   private TextFieldMultiline field;
 
-  public TextFieldMultilineCaret(TextFieldMultiline field, Graphics g, int pos) {
-    super(field, g, pos);
+  public TextFieldMultilineCaret(Canvas canvas, TextFieldMultiline field, Graphics g, int pos) {
+    super(canvas, field, g, pos);
     this.field = field;
   }
 
-  public TextFieldMultilineCaret(TextFieldMultiline field, Graphics g, int x, int y) {
-    this(field, g, 0);
+  public TextFieldMultilineCaret(Canvas canvas, TextFieldMultiline field, Graphics g, int x, int y) {
+    this(canvas, field, g, 0);
     cursor = anchor = findCaret(x, y);
   }
 

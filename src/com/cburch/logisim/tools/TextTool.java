@@ -85,6 +85,7 @@ public final class TextTool extends Tool {
       caretComponent = null;
       caretCreatingText = false;
       caret = null;
+      caretCanvas.getProject().getFrame().setEditHandler(null);
     }
 
     public void editingStopped(CaretEvent e) {
@@ -135,6 +136,7 @@ public final class TextTool extends Tool {
       caretComponent = null;
       caretCreatingText = false;
       caret = null;
+      proj.getFrame().setEditHandler(null);
 
       if (a != null && !a.isEmpty())
         proj.doAction(a);
@@ -185,6 +187,7 @@ public final class TextTool extends Tool {
     if (caret != null) {
       caret.stopEditing();
       caret = null;
+      canvas.getProject().getFrame().setEditHandler(null);
     }
   }
 
@@ -343,6 +346,7 @@ public final class TextTool extends Tool {
       caretCircuit = canvas.getCircuit();
       caret.addCaretListener(listener);
       caretCircuit.addCircuitWeakListener(null, listener);
+      proj.getFrame().setEditHandler(caret.getEditHandler());
     }
     proj.repaintCanvas();
   }
