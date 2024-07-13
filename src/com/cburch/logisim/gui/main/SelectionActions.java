@@ -31,13 +31,17 @@
 package com.cburch.logisim.gui.main;
 import static com.cburch.logisim.gui.main.Strings.S;
 
+import java.awt.MouseInfo;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.datatransfer.Transferable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.awt.datatransfer.Transferable;
-
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
 import com.cburch.hdl.HdlModel;
 import com.cburch.logisim.circuit.Circuit;
@@ -48,6 +52,7 @@ import com.cburch.logisim.circuit.ReplacementMap;
 import com.cburch.logisim.circuit.SubcircuitFactory;
 import com.cburch.logisim.comp.Component;
 import com.cburch.logisim.comp.ComponentFactory;
+import com.cburch.logisim.data.Location;
 import com.cburch.logisim.file.LogisimFile;
 import com.cburch.logisim.file.LogisimFileActions;
 import com.cburch.logisim.gui.menu.ProjectCircuitActions;
@@ -56,8 +61,10 @@ import com.cburch.logisim.proj.Action;
 import com.cburch.logisim.proj.Dependencies;
 import com.cburch.logisim.proj.JoinedAction;
 import com.cburch.logisim.proj.Project;
+import com.cburch.logisim.std.base.Text;
 import com.cburch.logisim.std.hdl.VhdlContent;
 import com.cburch.logisim.tools.Library;
+import com.cburch.logisim.tools.TextTool;
 
 public class SelectionActions {
 
@@ -268,6 +275,62 @@ public class SelectionActions {
     return downstream;
   }
 
+  private static class PasteText extends Action {
+    private String clip;
+    private Selection sel;
+    private Circuit circuit;
+    private TextTool tool;
+    private Location loc;
+    private CircuitTransaction xnReverse;
+    private CircuitMutation xn;
+
+    PasteText(Project proj, String clip, Selection sel) {
+      this.clip = clip;
+      this.sel = sel;
+      this.circuit = proj.getCurrentCircuit();
+      this.tool = TextTool.getToolFromProject(proj);
+      if (proj.getFrame() == null)
+        return;
+      Canvas canvas = proj.getFrame().getCanvas();
+      if (canvas == null)
+        return;
+      Point pt = MouseInfo.getPointerInfo().getLocation();
+      SwingUtilities.convertPointFromScreen(pt, canvas);
+      double zoom = canvas.getZoomFactor();
+      Rectangle r = canvas.getViewableRect();
+      int x = Math.max(r.x+20, Math.min(r.x+r.width-20, (int)(pt.getX() / zoom)));
+      int y = Math.max(r.y+20, Math.min(r.y+r.height-20, (int)(pt.getY() / zoom)));
+      this.loc = Location.create(Canvas.snapXToGrid(x), Canvas.snapYToGrid(y));
+    }
+
+    boolean valid(Project proj) {
+      return clip != null && clip.length() != 0 && tool != null && loc != null;
+    }
+
+    @Override
+    public void doIt(Project proj) {
+      xn = new CircuitMutation(circuit);
+      sel.pasteHelper(xn, Collections.singletonList(tool.create(loc, clip)));
+      CircuitTransactionResult result = xn.execute();
+      xnReverse = result.getReverseTransaction();
+    }
+
+    @Override
+    public void redo(Project proj) {
+      CircuitTransactionResult result = xn.execute();
+      xnReverse = result.getReverseTransaction();
+    }
+
+    @Override
+    public String getName() {
+      return S.get("pasteTextAction");
+    }
+
+    @Override
+    public void undo(Project proj) {
+      xnReverse.execute();
+    }
+  }
 
   private static class PasteComponents extends Action {
     private Selection sel;
@@ -780,9 +843,22 @@ public class SelectionActions {
 
   public static boolean doPaste(Project proj, Selection sel) {
     return doPasteComponents(proj, sel)
+        || doPasteText(proj, sel)
         || doPasteCircuit(proj)
         || doPasteVhdl(proj)
         || doPasteLibrary(proj);
+  }
+
+  public static boolean doPasteText(Project proj, Selection sel) {
+    String clip = ExternalClipboard.forString.get(proj);
+    if (clip == null)
+      return false;
+    PasteText act = new PasteText(proj, clip, sel);
+    if (act.valid(proj)) {
+      proj.doAction(act);
+      return true;
+    }
+    return false;
   }
 
   public static boolean doPasteComponents(Project proj, Selection sel) {

@@ -65,6 +65,7 @@ public class LayoutEditHandler extends EditHandler
     LayoutClipboard.forCircuit.addPropertyChangeListener(LayoutClipboard.contentsProperty, this);
     LayoutClipboard.forVhdl.addPropertyChangeListener(LayoutClipboard.contentsProperty, this);
     LayoutClipboard.forLibrary.addPropertyChangeListener(LayoutClipboard.contentsProperty, this);
+    ExternalClipboard.forString.addPropertyChangeListener(ExternalClipboard.contentsProperty, this);
     proj.addProjectWeakListener(null, this);
     proj.addLibraryWeakListener(/*null,*/ this);
   }
@@ -105,13 +106,9 @@ public class LayoutEditHandler extends EditHandler
         || selProjTool // copy circuit or vhdl from project
         || selLibTool // copy circuit or vhdl from library
         || selLib); // copy library from project
-    // System.out.println("paste: "
-    //     + "\n\t " + (modComp && !LayoutClipboard.forComponents.isEmpty()) // paste components
-    //     + "\n\t ||" + !LayoutClipboard.forCircuit.isEmpty() // paste circuit
-    //     + "\n\t ||" + !LayoutClipboard.forVhdl.isEmpty() // paste vhdl
-    //     + "\n\t ||" + !LayoutClipboard.forLibrary.isEmpty()); // paste library
     setEnabled(LogisimMenuBar.PASTE,
         (modComp && !LayoutClipboard.forComponents.isEmpty()) // paste components
+        || (modComp && !ExternalClipboard.forString.isEmpty()) // paste Text
         || !LayoutClipboard.forCircuit.isEmpty() // paste circuit
         || !LayoutClipboard.forVhdl.isEmpty() // paste vhdl
         || !LayoutClipboard.forLibrary.isEmpty()); // paste library

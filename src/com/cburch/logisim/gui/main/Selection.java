@@ -285,9 +285,16 @@ public class Selection {
     if (reshapeHandler != null)
       reshapeHandles.addAll(reshapeHandler.getReshapeHandles(comp));
   }
+  
+  public static HashMap<Component, Component> copyComponents(Project proj,
+      Circuit circuit, Collection<Component> components) {
+    Selection sel = proj.getSelection();
+    HashSet<Component> oldLifted = new HashSet<Component>(sel.lifted);
+    return copyComponents(circuit, oldLifted, components);
+  }
 
   public static HashMap<Component, Component> copyComponents(Circuit circuit,
-      Collection<Component> components) {
+      Collection<Component> oldLifted, Collection<Component> components) {
     // determine translation offset where we can legally place the clipboard
     int dx, dy;
     Location topleft = computeNominalTopLeftCorner(components);
@@ -324,7 +331,8 @@ public class Selection {
 
       if (topleft.getX() + dx >= 0 && topleft.getY() + dy >= 0
           && !hasConflictTranslated(circuit, components, dx, dy, true)
-          && !hasOverlapTranslated(circuit, components, dx, dy, true)) {
+          && !hasOverlapTranslated(circuit, components, dx, dy, true)
+          && !hasOverlapTranslated(oldLifted, components, dx, dy, true)) {
         return copyComponents(components, dx, dy);
       }
     }
@@ -419,6 +427,21 @@ public class Selection {
     return false;
   }
 
+  private static boolean hasOverlapTranslated(Collection<Component> existing,
+      Collection<Component> components, int dx, int dy, boolean selfConflicts) {
+    for (Component comp : components) {
+      if ((comp instanceof Wire))
+        continue;
+      Bounds newBounds = comp.getNominalBounds().translate(dx, dy);
+      for (Component comp2 : existing) {
+        Bounds bds = comp2.getNominalBounds();
+        if (bds.equals(newBounds) && (selfConflicts || !components.contains(comp2)))
+          return true;
+      }
+    }
+    return false;
+  }
+
   public boolean hasConflictWhenMoved(int dx, int dy) {
     Circuit circuit = proj.getCurrentCircuit();
     return hasConflictTranslated(circuit, unionSet, dx, dy, false);
@@ -430,10 +453,11 @@ public class Selection {
   }
 
   void pasteHelper(CircuitMutation xn, Collection<Component> comps) {
+    HashSet<Component> oldLifted = new HashSet<Component>(lifted);
     clear(xn);
 
     Circuit circuit = proj.getCurrentCircuit();
-    Map<Component, Component> newLifted = copyComponents(circuit, comps);
+    Map<Component, Component> newLifted = copyComponents(circuit, oldLifted, comps);
     lifted.addAll(newLifted.values());
     fireSelectionChanged();
   }

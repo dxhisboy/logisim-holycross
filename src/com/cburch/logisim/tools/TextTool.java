@@ -388,4 +388,21 @@ public final class TextTool extends Tool {
       g.fillPolygon(xp, yp, xp.length);
     }
   }
+
+  public Component create(Location loc, String text) {
+    AttributeSet copy = (AttributeSet) attrs.clone();
+    Component comp = Text.FACTORY.createComponent(loc, copy);
+    comp.getAttributeSet().setAttr(Text.ATTR_TEXT, text);
+    return comp;
+  }
+
+  public static TextTool getToolFromProject(Project proj) {
+    Library base = proj.getLogisimFile().getLibrary("Base");
+    if (base == null)
+      return null;
+    Tool tool = base.getTool("Text Tool");
+    if (tool instanceof TextTool)
+      return (TextTool)tool;
+    return null;
+  }
 }

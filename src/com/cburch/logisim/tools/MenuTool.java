@@ -115,7 +115,7 @@ public final class MenuTool extends Tool {
         proj.doAction(xn.toAction(S.getter(
                 "removeComponentAction", comp.getFactory().getDisplayGetter())));
       } else if (src == dup) {
-        Map<Component, Component> m = Selection.copyComponents(circ, comps);
+        Map<Component, Component> m = Selection.copyComponents(proj, circ, comps);
         Component newComp = m.get(comp);
         xn.add(newComp);
         proj.doAction(xn.toAction(S.getter(
