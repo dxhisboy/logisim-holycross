@@ -92,7 +92,7 @@ public class ExternalClipboard
       value = null;
     current = value;
     if (current != null)
-      sysclip.setContents(new StringSelection(current), null); 
+      sysclip.setContents(new StringSelection(current), this); 
   }
 
   public String get(Project proj) {

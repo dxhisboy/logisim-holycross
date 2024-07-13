@@ -45,8 +45,9 @@ import java.awt.desktop.QuitResponse;
 import java.awt.desktop.QuitStrategy;
 import java.awt.GraphicsEnvironment;
 
-import javax.swing.UIManager;
+import javax.swing.SwingUtilities;
 import javax.swing.UIDefaults;
+import javax.swing.UIManager;
 
 import com.cburch.logisim.Main;
 import com.cburch.logisim.file.LoadCanceledByUser;
@@ -647,12 +648,22 @@ public class Startup {
     // use that as the file to open now.
     initialized = true;
 
+    // check for stray auto-backup files
+    if (!Main.headless) {
+      try {
+        SwingUtilities.invokeAndWait(() -> Loader.checkForAutoBackups(monitor));
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+
     // load file
     if (filesToOpen.isEmpty()) {
       Project proj = ProjectActions.doNew(monitor);
       proj.setStartupScreen(true);
       if (showSplash)
         monitor.close();
+      monitor = null;
     } else {
       int numOpened = 0;
       boolean first = true;
@@ -692,13 +703,6 @@ public class Startup {
 
     if (exitAfterStartup)
       System.exit(0);
-
-    // check for stray auto-backup files
-    try {
-      Loader.checkForAutoBackups();
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
   }
 
   private static void fail(String msg) {

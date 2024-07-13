@@ -48,6 +48,7 @@ import javax.swing.filechooser.FileFilter;
 
 import com.cburch.hdl.HdlFile;
 import com.cburch.logisim.Main;
+import com.cburch.logisim.gui.start.SplashScreen;
 import com.cburch.logisim.proj.Project;
 import com.cburch.logisim.std.Builtin;
 import com.cburch.logisim.tools.AddTool;
@@ -215,7 +216,7 @@ public class Loader implements LibraryLoader {
     return bak;
   }
 
-  public static void checkForAutoBackups() throws Exception {
+  public static void checkForAutoBackups(SplashScreen monitor) {
     File home = new File(System.getProperty("user.home"));
     File save = new File(home, ".logisim-backups");
     if (!save.exists() || !save.isDirectory())
@@ -224,6 +225,9 @@ public class Loader implements LibraryLoader {
     int n = backups == null ? 0 : backups.length;
     if (n == 0)
       return;
+    if (monitor != null) {
+      monitor.close();
+    }
     String message = S.fmt("autobackupFilesFoundMessage", n, save);
     String[] options = {
       S.get("autobackupFilesDiscardOption"),
