@@ -64,16 +64,20 @@ public class TextFieldCaret implements Caret, TextFieldListener {
   protected Graphics g;
   protected String oldText;
   protected String curText;
-  protected int pos, end;
+  protected int cursor, anchor; // text between cursor and anchor is selected
   protected TextFieldCaretEditHandler editMenuHandler;
   protected UndoRedo log = new UndoRedo();
+
+  // used during mouse selection
+  boolean selectByWord = false;
+  boolean selectByLine = false;
+  int selectOrigin = 0;
 
   public TextFieldCaret(TextField field, Graphics g, int pos) {
     this.field = field;
     this.g = g;
     this.oldText = this.curText = field.getText();
-    this.pos = pos;
-    this.end = pos;
+    cursor = anchor = pos;
 
     editMenuHandler = new TextFieldCaretEditHandler();
 
@@ -84,7 +88,7 @@ public class TextFieldCaret implements Caret, TextFieldListener {
 
   public TextFieldCaret(TextField field, Graphics g, int x, int y) {
     this(field, g, 0);
-    pos = end = findCaret(x, y);
+    cursor = anchor = findCaret(x, y);
   }
 
   public void addCaretListener(CaretListener l) {
@@ -94,19 +98,21 @@ public class TextFieldCaret implements Caret, TextFieldListener {
   public void cancelEditing() {
     CaretEvent e = new CaretEvent(this, oldText, oldText);
     curText = oldText;
-    pos = end = curText.length();
+    cursor = anchor = curText.length();
     for (CaretListener l : new ArrayList<CaretListener>(listeners)) {
       l.editingCanceled(e);
     }
     field.removeTextFieldListener(this);
     log.clear();
+    editMenuHandler.computeEnabled();
   }
 
   public void commitText(String text) {
     curText = text;
-    pos = end = curText.length();
+    cursor = anchor = curText.length();
     log.clear();
     field.setText(text);
+    editMenuHandler.computeEnabled();
   }
 
   public void draw(Graphics g) {
@@ -126,10 +132,10 @@ public class TextFieldCaret implements Caret, TextFieldListener {
     g.drawRect(box.getX(), box.getY(), box.getWidth(), box.getHeight());
 
     // draw selection
-    if (pos != end) {
+    if (cursor != anchor) {
       g.setColor(SELECTION_BACKGROUND);
-      Rectangle p = GraphicsUtil.getTextCursor(g, font, curText, x, y, pos < end ? pos : end, halign, valign);
-      Rectangle e = GraphicsUtil.getTextCursor(g, font, curText, x, y, pos < end ? end : pos, halign, valign);
+      Rectangle p = GraphicsUtil.getTextCursor(g, font, curText, x, y, cursor < anchor ? cursor : anchor, halign, valign);
+      Rectangle e = GraphicsUtil.getTextCursor(g, font, curText, x, y, cursor < anchor ? anchor : cursor, halign, valign);
       g.fillRect(p.x, p.y - 1, e.x - p.x + 1, e.height + 2);
     }
 
@@ -138,8 +144,8 @@ public class TextFieldCaret implements Caret, TextFieldListener {
     GraphicsUtil.drawText(g, curText, x, y, halign, valign);
 
     // draw cursor
-    if (pos == end) {
-      Rectangle p = GraphicsUtil.getTextCursor(g, font, curText, x, y, pos, halign, valign);
+    if (cursor == anchor) {
+      Rectangle p = GraphicsUtil.getTextCursor(g, font, curText, x, y, cursor, halign, valign);
       g.drawLine(p.x, p.y, p.x, p.y + p.height);
     }
   }
@@ -186,11 +192,14 @@ public class TextFieldCaret implements Caret, TextFieldListener {
       normalKeyPressed(e, shift);
   }
 
-  protected boolean wordBoundary(int pos) {
-    return (pos <= 0)
-        || (pos >= curText.length())
-        || (Character.isWhitespace(curText.charAt(pos-1))
-          && !Character.isWhitespace(curText.charAt(pos)));
+  protected boolean wordBoundary(int i) {
+    return (i <= 0)
+        || (i >= curText.length())
+        || (whitespace(i-1) && !whitespace(i));
+  }
+
+  protected boolean whitespace(int i) {
+    return Character.isWhitespace(curText.charAt(i));
   }
 
   protected boolean allowedCharacter(char c) {
@@ -198,14 +207,15 @@ public class TextFieldCaret implements Caret, TextFieldListener {
   }
 
   public void selectAll() {
-    pos = 0;
-    end = curText.length();
+    cursor = 0;
+    anchor = curText.length();
+    editMenuHandler.computeEnabled();
   }
 
   void doCopy() {
-    if (end != pos) {
-      int pp = (pos < end ? pos : end);
-      int ee = (pos < end ? end : pos);
+    if (anchor != cursor) {
+      int pp = (cursor < anchor ? cursor : anchor);
+      int ee = (cursor < anchor ? anchor : cursor);
       String s = curText.substring(pp, ee);
       StringSelection sel = new StringSelection(s);
       Toolkit.getDefaultToolkit().getSystemClipboard().setContents(sel, null);
@@ -213,7 +223,7 @@ public class TextFieldCaret implements Caret, TextFieldListener {
   }
 
   void doCut() {
-    if (end != pos) {
+    if (anchor != cursor) {
       doCopy();
       log.doAction(new TextAction(""));
     }
@@ -242,8 +252,9 @@ public class TextFieldCaret implements Caret, TextFieldListener {
   protected void menuShortcutKeyPressed(KeyEvent e, boolean shift) {
     switch (e.getKeyCode()) {
     case KeyEvent.VK_A: // select all
-      pos = 0;
-      end = curText.length();
+      cursor = 0;
+      anchor = curText.length();
+      editMenuHandler.computeEnabled();
       e.consume();
       break;
     case KeyEvent.VK_CUT:
@@ -282,9 +293,9 @@ public class TextFieldCaret implements Caret, TextFieldListener {
   //    ______________________________________
   //   |(-5)                                  |   (+1) next char      (-1) prev char
   //   |                 (-4)                 |   (+2) next word      (-2) prev word
-  //   |(-3)    (-2)   (-1)I(+1)   (+2)   (+3)|   (+3) end of line    (-3) start of line
+  //   |(-3)    (-2)   (-1)I(+1)   (+2)   (+3)|   (+3) anchor of line    (-3) start of line
   //   |                 (+4)             ____|   (+4) down a line    (-4) up a line
-  //   |_____________________________(+5)|        (+5) end of text    (-5) start of text
+  //   |_____________________________(+5)|        (+5) anchor of text    (-5) start of text
   // 
   // When cursor is on first or last line, 4 degenerates to 5.
   // For a single-line text field the same holds except that 3, 4 and 5 are all equivalent.
@@ -297,23 +308,33 @@ public class TextFieldCaret implements Caret, TextFieldListener {
   //          left/right   command/menukey             +/- 5                +/- 3
   //          up/down      -                           +/- 5                +/- 4
   //          up/down      command/menukey             +/- 5                +/- 5
-  //          home/end     -                           +/- 5                +/- 5
+  //          home/anchor     -                           +/- 5                +/- 5
   //          pgup/pgdn    -                           +/- 5                +/- 5
   // Linux/Windows:
   //          left/right   -                           +/- 1                +/- 1            
   //          left/right   control/wordkey/menukey     +/- 2                +/- 2             
   //          up/down      -                           +/- 5                +/- 4
   //          up/down      control/wordkey/menukey     +/- 5                +/- 5
-  //          home/end     -                           +/- 5                +/- 3
-  //          home/end     control/wordkey/menukey     +/- 5                +/- 5
+  //          home/anchor     -                           +/- 5                +/- 3
+  //          home/anchor     control/wordkey/menukey     +/- 5                +/- 5
   //          pgup/pgdn    -                           +/- 5                +/- 5
   //
   // TODO: support for old style linux/apple movemet keys, like control-A / control-E ?
 
   protected void cancelSelection(int direction) {
     // selection is being canceled by left/right movement
-    if (direction < 0) end = pos;
-    else pos = end;
+    if (direction < 0) anchor = cursor;
+    else cursor = anchor;
+    editMenuHandler.computeEnabled();
+  }
+ 
+  // swap, if needed, so cursor <= anchor
+  protected void normalizeSelection() {
+    if (cursor > anchor) {
+      int t = anchor;
+      anchor = cursor;
+      cursor = t;
+    }
   }
 
   protected void moveCaret(int move, boolean shift) {
@@ -323,29 +344,30 @@ public class TextFieldCaret implements Caret, TextFieldListener {
     if (move < -5 || move == 0 || move > 5) { // invalid
       return;
     } else if (move <= -3) { // start of line, up a line, start of text
-      pos = 0;
-    } else if (move >= +3) { // end of line, down a line, end of text
-      pos = curText.length();
+      cursor = 0;
+    } else if (move >= +3) { // anchor of line, down a line, anchor of text
+      cursor = curText.length();
     } else { // next/prev char, next/prev word
       int dx = (move < 0 ? -1 : +1);
       boolean byword = (move == -2 || move == +2);
-      if (!shift && pos != end) {
+      if (!shift && cursor != anchor) {
         // selection is being canceled by left/right movement,
         // so we count the cancellation as the first step
         cancelSelection(move);
       } else {
         // move one char left/right as the first step, if possible
-        if (dx < 0 && pos > 0) pos--;
-        else if (dx > 0 && pos < curText.length()) pos++;
+        if (dx < 0 && cursor > 0) cursor--;
+        else if (dx > 0 && cursor < curText.length()) cursor++;
       }
       if (byword) {
-        while (!wordBoundary(pos))
-          pos += dx;
+        while (!wordBoundary(cursor))
+          cursor += dx;
       }
     }
 
     if (!shift)
-      end = pos;
+      anchor = cursor;
+    editMenuHandler.computeEnabled();
   }
   
   protected void processMovementKeys(KeyEvent e, boolean shift, boolean wordkey, boolean menukey) {
@@ -358,7 +380,7 @@ public class TextFieldCaret implements Caret, TextFieldListener {
     case KeyEvent.VK_RIGHT:
     case KeyEvent.VK_KP_RIGHT:
       if (menukey && !wordkey)
-        moveCaret(dir*3, shift); // MacOS start/end of line
+        moveCaret(dir*3, shift); // MacOS start/anchor of line
       else if (wordkey)
         moveCaret(dir*2, shift); // prev/next word
       else 
@@ -372,7 +394,7 @@ public class TextFieldCaret implements Caret, TextFieldListener {
     case KeyEvent.VK_DOWN:
     case KeyEvent.VK_KP_DOWN:
       if (menukey)
-        moveCaret(dir*5, shift); // start/end of text
+        moveCaret(dir*5, shift); // start/anchor of text
       else
         moveCaret(dir*4, shift); // up/down a line
       e.consume();
@@ -381,7 +403,7 @@ public class TextFieldCaret implements Caret, TextFieldListener {
       dir = -1;
       // fall through
     case KeyEvent.VK_PAGE_DOWN:
-      moveCaret(dir*5, shift); // start/end of text
+      moveCaret(dir*5, shift); // start/anchor of text
       e.consume();
       break;
     case KeyEvent.VK_HOME:
@@ -389,11 +411,11 @@ public class TextFieldCaret implements Caret, TextFieldListener {
       // fall through
     case KeyEvent.VK_END:
       if (Main.MacOS)
-        moveCaret(dir*5, shift); //  MacOS start/end of text
+        moveCaret(dir*5, shift); //  MacOS start/anchor of text
       else if (menukey)
-        moveCaret(dir*5, shift); // start/end of text
+        moveCaret(dir*5, shift); // start/anchor of text
       else 
-        moveCaret(dir*3, shift); // start/end of line
+        moveCaret(dir*3, shift); // start/anchor of line
       e.consume();
       break;
     default:
@@ -418,18 +440,17 @@ public class TextFieldCaret implements Caret, TextFieldListener {
       break;
     case KeyEvent.VK_BACK_SPACE: // DELETE on MacOS?
       System.out.println("backspace");
-      if (pos != end)
+      if (cursor != anchor)
         log.doAction(new TextAction(""));
-      else if (pos > 0)
-        log.doAction(new TextAction(pos-1, pos, ""));
+      else if (cursor > 0)
+        log.doAction(new TextAction(cursor-1, cursor, ""));
       e.consume();
       break;
     case KeyEvent.VK_DELETE: // BACK_SPACE on MacOS?
-      normalizeSelection();
-      if (pos != end)
+      if (cursor != anchor)
         log.doAction(new TextAction(""));
-      else if (pos < curText.length())
-        log.doAction(new TextAction(pos, pos+1, ""));
+      else if (cursor < curText.length())
+        log.doAction(new TextAction(cursor, cursor+1, ""));
       e.consume();
       break;
     default:
@@ -453,24 +474,114 @@ public class TextFieldCaret implements Caret, TextFieldListener {
     }
   }
 
-  protected void normalizeSelection() {
-    if (pos > end) {
-      int t = end;
-      end = pos;
-      pos = t;
+  public void mouseDragged(MouseEvent e) {
+    int p = findCaret(e.getX(), e.getY());
+    if (selectByLine) {
+      if (p < selectOrigin) {
+        cursor = selectOrigin;
+        moveCaret(+3, false);
+        cursor = p;
+        moveCaret(-3, true);
+      } else {
+        cursor = selectOrigin;
+        moveCaret(-3, false);
+        cursor = p;
+        moveCaret(+3, true);
+      }
+    } else if (selectByWord) {
+      if (p < selectOrigin) {
+        anchor = nextWordBoundary(selectOrigin);
+        cursor = prevWordBoundary(p);
+      } else {
+        anchor = prevWordBoundary(selectOrigin);
+        cursor = nextWordBoundary(p);
+      }
+    } else {
+      cursor = p;
     }
+    editMenuHandler.computeEnabled();
   }
 
-  public void mouseDragged(MouseEvent e) {
-    end = findCaret(e.getX(), e.getY());
+  int nextWordBoundary(int p) {
+    if (p < curText.length() && whitespace(p)) {
+      p++;
+      while (p < curText.length() && curText.charAt(p) != '\n' && whitespace(p))
+        p++;
+    } else if (p < curText.length()) {
+      p++;
+      while (p < curText.length() && !whitespace(p))
+        p++;
+    }
+    return p;
+  }
+
+  int prevWordBoundary(int p) {
+    if (p == curText.length())
+        p--;
+    if (curText.charAt(p) == '\n') {
+      ; // do nothing
+    } else if (whitespace(p)) {
+      while (p > 0 && curText.charAt(p-1) != '\n' && whitespace(p-1))
+        p--;
+    } else {
+      while (p > 0 && !whitespace(p-1))
+        p--;
+    }
+    return p;
   }
 
   public void mousePressed(MouseEvent e) {
-    pos = end = findCaret(e.getX(), e.getY());
+    int p = findCaret(e.getX(), e.getY());
+    boolean shift = ((e.getModifiersEx() & InputEvent.SHIFT_DOWN_MASK) != 0);
+    if (shift)
+      selectOrigin = (p <= (cursor+anchor)/2) ? Math.max(cursor, anchor) : Math.min(cursor, anchor);
+    else
+      selectOrigin = p;
+    int n = e.getClickCount();
+    if (n >= 3) {
+      // expand to entire line
+      selectByWord = false;
+      selectByLine = true;
+      cursor = Math.min(selectOrigin, p);
+      moveCaret(-3, false); // will set anchor
+      cursor = Math.max(selectOrigin, p);
+      moveCaret(+3, true); // only sets cursor
+    } else if (n == 2) {
+      // expand to entire word, or to whitespace between words
+      selectByWord = true;
+      selectByLine = false;
+      if (p == curText.length()) {
+        // select nothing, but drag may be coming
+        anchor = selectOrigin;
+        cursor = p;
+      } else if (curText.charAt(p) == '\n') {
+        // include just the newline (not visible) in selection
+        anchor = selectOrigin;
+        cursor = (selectOrigin <= p) ? p + 1 : p;
+      } else if (p > selectOrigin) {
+        // select word or whitespace, staying within this line
+        anchor = prevWordBoundary(selectOrigin);
+        cursor = nextWordBoundary(p);
+      } else {
+        // select word or whitespace, staying within this line
+        anchor = nextWordBoundary(selectOrigin);
+        cursor = prevWordBoundary(p);
+      }
+    } else {
+      selectByWord = false;
+      selectByLine = false;
+      anchor = selectOrigin;
+      cursor = p;
+    }
+    editMenuHandler.computeEnabled();
   }
 
   public void mouseReleased(MouseEvent e) {
-    end = findCaret(e.getX(), e.getY());
+    // int n = e.getClickCount();
+    // if (n == 1) {
+    //   anchor = findCaret(e.getX(), e.getY());
+    //   editMenuHandler.computeEnabled();
+    // }
   }
 
   protected int findCaret(int x, int y) {
@@ -498,18 +609,18 @@ public class TextFieldCaret implements Caret, TextFieldListener {
     System.out.println("text changed");
     curText = field.getText();
     oldText = curText;
-    pos = curText.length();
-    end = pos;
+    cursor = anchor = curText.length();
     log.clear();
+    editMenuHandler.computeEnabled();
   }
 
   static final long MAX_SENTENCE_DELAY_NS = 10L*1000L*1000L*1000L; // 10 seconds
   static final long MAX_KEYSTROKE_DELAY_NS = 500L*1000L*1000L; // 0.5 seconds
 
   private class TextAction extends UndoRedo.Action {
-    long ts, te; // timestamps, in nanoseconds, of start and end of edit
+    long ts, te; // timestamps, in nanoseconds, of start and anchor of edit
     int cursorPos; // cursor position before edit
-    int cursorEnd; // selection end before edit
+    int anchorPos; // selection anchor before edit
     int left, right; // range to be removed
     String old; // text between left and right, to be removed
     String repl; // text to be written into removed range
@@ -527,13 +638,13 @@ public class TextFieldCaret implements Caret, TextFieldListener {
     //                0 1 2 3 4 5 6 7 8 9 
 
     public TextAction(String repl) {
-      this(Math.min(pos, end), Math.max(pos, end), repl);
+      this(Math.min(cursor, anchor), Math.max(cursor, anchor), repl);
     }
 
     public TextAction(int left, int right, String repl) {
       ts = te = System.nanoTime();
-      this.cursorPos = pos;
-      this.cursorEnd = end;
+      this.cursorPos = cursor;
+      this.anchorPos = anchor;
       this.left = left;
       this.right = right;
       this.old = left < curText.length() ? curText.substring(left, right) : "";
@@ -622,7 +733,8 @@ public class TextFieldCaret implements Caret, TextFieldListener {
         curText = curText.substring(0, left) + repl + curText.substring(right);
       else
         curText = curText.substring(0, left) + repl;
-      pos = end = left + repl.length();
+      cursor = anchor = left + repl.length();
+      editMenuHandler.computeEnabled();
     }
 
     @Override
@@ -631,8 +743,9 @@ public class TextFieldCaret implements Caret, TextFieldListener {
         curText = curText.substring(0, left) + old + curText.substring(left + repl.length());
       else
         curText = curText.substring(0, left) + old;
-      pos = cursorPos;
-      end = cursorEnd;
+      cursor = cursorPos;
+      anchor = anchorPos;
+      editMenuHandler.computeEnabled();
     }
 
   }
@@ -644,13 +757,12 @@ public class TextFieldCaret implements Caret, TextFieldListener {
 
     @Override
     public void computeEnabled() {
-      System.out.println("compute enabled!");
       setEnabled(LogisimMenuBar.UNDO, log.getUndoAction() != null);
       setEnabled(LogisimMenuBar.REDO, log.getRedoAction() != null);
-      setEnabled(LogisimMenuBar.CUT, pos != end);
-      setEnabled(LogisimMenuBar.COPY, pos != end);
+      setEnabled(LogisimMenuBar.CUT, cursor != anchor);
+      setEnabled(LogisimMenuBar.COPY, cursor != anchor);
       setEnabled(LogisimMenuBar.PASTE, true); // todo: check clipboard for suitability?
-      setEnabled(LogisimMenuBar.DELETE, pos != end);
+      setEnabled(LogisimMenuBar.DELETE, cursor != anchor);
       setEnabled(LogisimMenuBar.SELECT_ALL, true);
       setEnabled(LogisimMenuBar.DUPLICATE, false);
       setEnabled(LogisimMenuBar.SEARCH, true);
@@ -675,9 +787,7 @@ public class TextFieldCaret implements Caret, TextFieldListener {
     public void cut() { System.out.println("cut!"); doCut(); }
 
     @Override
-    public void delete() { System.out.println("delete!"); 
-      log.doAction(new TextAction(""));
-    }
+    public void delete() { System.out.println("delete!"); log.doAction(new TextAction("")); }
 
     @Override
     public void duplicate() { }
@@ -703,8 +813,9 @@ public class TextFieldCaret implements Caret, TextFieldListener {
     @Override
     public void selectAll() {
       System.out.println("select all!");
-      pos = 0;
-      end = curText.length();
+      cursor = 0;
+      anchor = curText.length();
+      editMenuHandler.computeEnabled();
     }
 
     @Override

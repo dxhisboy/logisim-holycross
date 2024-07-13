@@ -50,7 +50,7 @@ class TextFieldMultilineCaret extends TextFieldCaret {
 
   public TextFieldMultilineCaret(TextFieldMultiline field, Graphics g, int x, int y) {
     this(field, g, 0);
-    pos = end = findCaret(x, y);
+    cursor = anchor = findCaret(x, y);
   }
 
   public void draw(Graphics g) {
@@ -71,10 +71,10 @@ class TextFieldMultilineCaret extends TextFieldCaret {
     g.drawRect(box.getX(), box.getY(), box.getWidth(), box.getHeight());
 
     // draw selection
-    if (pos != end) {
+    if (cursor != anchor) {
       g.setColor(SELECTION_BACKGROUND);
-      Rectangle p = GraphicsUtil.getTextCursor(g, font, lines, x, y, pos < end ? pos : end, halign, valign);
-      Rectangle e = GraphicsUtil.getTextCursor(g, font, lines, x, y, pos < end ? end : pos, halign, valign);
+      Rectangle p = GraphicsUtil.getTextCursor(g, font, lines, x, y, cursor < anchor ? cursor : anchor, halign, valign);
+      Rectangle e = GraphicsUtil.getTextCursor(g, font, lines, x, y, cursor < anchor ? anchor : cursor, halign, valign);
       if (p.y == e.y) {
         g.fillRect(p.x, p.y - 1, e.x - p.x + 1, e.height + 2);
       } else {
@@ -91,8 +91,8 @@ class TextFieldMultilineCaret extends TextFieldCaret {
     GraphicsUtil.drawText(g, lines, x, y, halign, valign);
 
     // draw cursor
-    if (pos == end) {
-      Rectangle p = GraphicsUtil.getTextCursor(g, font, lines, x, y, pos, halign, valign);
+    if (cursor == anchor) {
+      Rectangle p = GraphicsUtil.getTextCursor(g, font, lines, x, y, cursor, halign, valign);
       if (p != null)
         g.drawLine(p.x, p.y, p.x, p.y + p.height);
     }
@@ -115,40 +115,40 @@ class TextFieldMultilineCaret extends TextFieldCaret {
       normalizeSelection();
 
     if (move == -3 || move == +3) { // start/end of line
-      if (!shift && pos != end)
+      if (!shift && cursor != anchor)
         cancelSelection(move);
       if (move < 0) {
-        while (pos > 0 && curText.charAt(pos-1) != '\n')
-          pos--;
+        while (cursor > 0 && curText.charAt(cursor-1) != '\n')
+          cursor--;
       } else {
-        while (pos < curText.length() && curText.charAt(pos) != '\n')
-          pos++;
+        while (cursor < curText.length() && curText.charAt(cursor) != '\n')
+          cursor++;
       }
     } else if (move == -4 || move == +4) { // down/up a line
-      if (!shift && pos != end)
+      if (!shift && cursor != anchor)
         cancelSelection(move);
       int dy = move < 0 ? -1 : +1;
       String lines[] = curText.split("\n", -1); // keep blank lines at end
       TextMetrics tm = new TextMetrics(g);
       int halign = field.getHAlign();
       int valign = field.getVAlign();
-      Rectangle r = GraphicsUtil.getTextCursor(g, field.getFont(), lines, 0, 0, pos, halign, valign);
-      int newpos = pos;
+      Rectangle r = GraphicsUtil.getTextCursor(g, field.getFont(), lines, 0, 0, cursor, halign, valign);
+      int newpos = cursor;
       if (r != null) {
         newpos = GraphicsUtil.getTextPosition(g, field.getFont(), lines,
             r.x, r.y + tm.ascent/2 + dy * tm.height, halign, valign);
       }
-      if (newpos != pos)
-        pos = newpos;
+      if (newpos != cursor)
+        cursor = newpos;
       else
-        pos = dy < 0 ? 0 : curText.length();
+        cursor = dy < 0 ? 0 : curText.length();
     } else {
       super.moveCaret(move, shift);
       return;
     }
 
     if (!shift)
-      end = pos;
+      anchor = cursor;
   }
 
   protected void normalKeyPressed(KeyEvent e, boolean shift) {
