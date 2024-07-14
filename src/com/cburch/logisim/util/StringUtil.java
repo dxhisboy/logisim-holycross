@@ -88,6 +88,7 @@ public class StringUtil {
 
   // Note: For legacy reasons, vAlign is relative only to the first line of text.
   // See: std.base.Text for details.
+  // Also, std.base.Text, the only caller, now always uses the fixt text string "ABC".
   public static Bounds estimateAlignedBounds(String text, Font font, int hAlign, int vAlign) {
     // TODO - you can imagine being more clever here
     if (text == null || text.length() == 0)
