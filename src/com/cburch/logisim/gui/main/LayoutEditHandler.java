@@ -66,6 +66,7 @@ public class LayoutEditHandler extends EditHandler
     LayoutClipboard.forVhdl.addPropertyChangeListener(LayoutClipboard.contentsProperty, this);
     LayoutClipboard.forLibrary.addPropertyChangeListener(LayoutClipboard.contentsProperty, this);
     ExternalClipboard.forString.addPropertyChangeListener(ExternalClipboard.contentsProperty, this);
+    ExternalClipboard.forImage.addPropertyChangeListener(ExternalClipboard.contentsProperty, this);
     proj.addProjectWeakListener(null, this);
     proj.addLibraryWeakListener(/*null,*/ this);
   }
@@ -109,6 +110,7 @@ public class LayoutEditHandler extends EditHandler
     setEnabled(LogisimMenuBar.PASTE,
         (modComp && !LayoutClipboard.forComponents.isEmpty()) // paste components
         || (modComp && !ExternalClipboard.forString.isEmpty()) // paste Text
+        || (modComp && !ExternalClipboard.forImage.isEmpty()) // paste Image
         || !LayoutClipboard.forCircuit.isEmpty() // paste circuit
         || !LayoutClipboard.forVhdl.isEmpty() // paste vhdl
         || !LayoutClipboard.forLibrary.isEmpty()); // paste library
@@ -301,7 +303,9 @@ public class LayoutEditHandler extends EditHandler
   }
 
   public void propertyChange(PropertyChangeEvent event) {
-    if (event.getPropertyName().equals(LayoutClipboard.contentsProperty))
+    String prop = event.getPropertyName();
+    if (prop.equals(LayoutClipboard.contentsProperty)
+        || prop.equals(ExternalClipboard.contentsProperty))
       computeEnabled();
   }
 

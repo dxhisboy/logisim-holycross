@@ -196,7 +196,7 @@ public class LayoutClipboard<T>
     if (current != null)
       return decode(proj, current, extractor);
     else if (external) 
-      return decode(proj, sysclip.getContents(dnd.dataFlavor), extractor);
+      return decode(proj, sysclip.getContents(null), extractor);
     else
       return null;
   }

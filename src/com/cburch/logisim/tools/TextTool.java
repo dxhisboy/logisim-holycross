@@ -389,6 +389,10 @@ public final class TextTool extends Tool {
     }
   }
 
+  public static String getText(Component comp) {
+    return comp.getAttributeSet().getValue(Text.ATTR_TEXT);
+  }
+
   public Component create(Location loc, String text) {
     AttributeSet copy = (AttributeSet) attrs.clone();
     Component comp = Text.FACTORY.createComponent(loc, copy);

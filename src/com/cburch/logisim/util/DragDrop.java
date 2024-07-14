@@ -89,8 +89,10 @@ public class DragDrop {
           classes[0] = (Class)o;
         } else if (o instanceof String) {
           flavors[i] = new DataFlavor((String)o);
+        } else if (o instanceof DataFlavor) {
+          flavors[i] = (DataFlavor)o;
         } else {
-          throw new IllegalArgumentException("DragDrop data flavor must be stirng or class");
+          throw new IllegalArgumentException("DragDrop flavor must be stirng, class, or DataFlavor");
         }
       }
     } catch (Exception e) {

@@ -62,9 +62,11 @@ import com.cburch.logisim.proj.Dependencies;
 import com.cburch.logisim.proj.JoinedAction;
 import com.cburch.logisim.proj.Project;
 import com.cburch.logisim.std.base.Text;
+import com.cburch.logisim.std.base.Image;
 import com.cburch.logisim.std.hdl.VhdlContent;
 import com.cburch.logisim.tools.Library;
 import com.cburch.logisim.tools.TextTool;
+import com.cburch.logisim.tools.AddTool;
 
 public class SelectionActions {
 
@@ -275,6 +277,21 @@ public class SelectionActions {
     return downstream;
   }
 
+  static Location pasteLocationFromMouse(Project proj) {
+    if (proj == null || proj.getFrame() == null)
+      return null;
+    Canvas canvas = proj.getFrame().getCanvas();
+    if (canvas == null)
+      return null;
+    Point pt = MouseInfo.getPointerInfo().getLocation();
+    SwingUtilities.convertPointFromScreen(pt, canvas);
+    double zoom = canvas.getZoomFactor();
+    Rectangle r = canvas.getViewableRect();
+    int x = Math.max(r.x+20, Math.min(r.x+r.width-20, (int)(pt.getX() / zoom)));
+    int y = Math.max(r.y+20, Math.min(r.y+r.height-20, (int)(pt.getY() / zoom)));
+    return Location.create(Canvas.snapXToGrid(x), Canvas.snapYToGrid(y));
+  }
+
   private static class PasteText extends Action {
     private String clip;
     private Selection sel;
@@ -289,18 +306,7 @@ public class SelectionActions {
       this.sel = sel;
       this.circuit = proj.getCurrentCircuit();
       this.tool = TextTool.getToolFromProject(proj);
-      if (proj.getFrame() == null)
-        return;
-      Canvas canvas = proj.getFrame().getCanvas();
-      if (canvas == null)
-        return;
-      Point pt = MouseInfo.getPointerInfo().getLocation();
-      SwingUtilities.convertPointFromScreen(pt, canvas);
-      double zoom = canvas.getZoomFactor();
-      Rectangle r = canvas.getViewableRect();
-      int x = Math.max(r.x+20, Math.min(r.x+r.width-20, (int)(pt.getX() / zoom)));
-      int y = Math.max(r.y+20, Math.min(r.y+r.height-20, (int)(pt.getY() / zoom)));
-      this.loc = Location.create(Canvas.snapXToGrid(x), Canvas.snapYToGrid(y));
+      this.loc = pasteLocationFromMouse(proj);
     }
 
     boolean valid(Project proj) {
@@ -324,6 +330,52 @@ public class SelectionActions {
     @Override
     public String getName() {
       return S.get("pasteTextAction");
+    }
+
+    @Override
+    public void undo(Project proj) {
+      xnReverse.execute();
+    }
+  }
+
+  private static class PasteImage extends Action {
+    private java.awt.Image clip;
+    private Selection sel;
+    private Circuit circuit;
+    private AddTool tool;
+    private Location loc;
+    private CircuitTransaction xnReverse;
+    private CircuitMutation xn;
+
+    PasteImage(Project proj, java.awt.Image clip, Selection sel) {
+      this.clip = clip;
+      this.sel = sel;
+      this.circuit = proj.getCurrentCircuit();
+      this.tool = Image.getToolFromProject(proj);
+      this.loc = pasteLocationFromMouse(proj);
+    }
+
+    boolean valid(Project proj) {
+      return clip != null && tool != null && loc != null;
+    }
+
+    @Override
+    public void doIt(Project proj) {
+      xn = new CircuitMutation(circuit);
+      sel.pasteHelper(xn, Collections.singletonList(Image.create(tool, loc, clip)));
+      CircuitTransactionResult result = xn.execute();
+      xnReverse = result.getReverseTransaction();
+    }
+
+    @Override
+    public void redo(Project proj) {
+      CircuitTransactionResult result = xn.execute();
+      xnReverse = result.getReverseTransaction();
+    }
+
+    @Override
+    public String getName() {
+      return S.get("pasteImageAction");
     }
 
     @Override
@@ -769,7 +821,24 @@ public class SelectionActions {
   }
 
   public static void doCopy(Project proj, Selection sel) { // Note: copy is not an Action
-    LayoutClipboard.forComponents.set(proj, sel.getComponents());
+    // special case: selection is a single Text, or single Image
+    Collection<Component> comps = sel.getComponents();
+    if (comps.size() == 0) {
+      return;
+    } else if (comps.size() > 1) {
+      LayoutClipboard.forComponents.set(proj, comps);
+    } else {
+      Component comp = comps.iterator().next();
+      if (comp.getFactory() instanceof Text) {
+        String text = TextTool.getText(comp);
+        ExternalClipboard.forString.set(proj, comp, text);
+        return;
+      } else if (comp.getFactory() instanceof Image) {
+        java.awt.Image image = Image.getImage(comp);
+        ExternalClipboard.forImage.set(proj, comp, image);
+        return;
+      }
+    }
   }
 
   public static void doCopy(Project proj, Circuit sel) { // Note: copy is not an Action
@@ -786,7 +855,7 @@ public class SelectionActions {
 
   public static void doCut(Project proj, Selection sel) {
     if (!sel.isEmpty()) {
-      LayoutClipboard.forComponents.set(proj, sel.getComponents());
+      doCopy(proj, sel);
       proj.doAction(new Delete(sel));
     }
   }
@@ -844,6 +913,7 @@ public class SelectionActions {
   public static boolean doPaste(Project proj, Selection sel) {
     return doPasteComponents(proj, sel)
         || doPasteText(proj, sel)
+        || doPasteImage(proj, sel)
         || doPasteCircuit(proj)
         || doPasteVhdl(proj)
         || doPasteLibrary(proj);
@@ -854,6 +924,18 @@ public class SelectionActions {
     if (clip == null)
       return false;
     PasteText act = new PasteText(proj, clip, sel);
+    if (act.valid(proj)) {
+      proj.doAction(act);
+      return true;
+    }
+    return false;
+  }
+
+  public static boolean doPasteImage(Project proj, Selection sel) {
+    java.awt.Image clip = ExternalClipboard.forImage.get(proj);
+    if (clip == null)
+      return false;
+    PasteImage act = new PasteImage(proj, clip, sel);
     if (act.valid(proj)) {
       proj.doAction(act);
       return true;

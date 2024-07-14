@@ -46,6 +46,9 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.util.Base64;
 
+import java.awt.image.ImageObserver;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 
@@ -55,6 +58,7 @@ import com.cburch.logisim.data.AttributeSet;
 import com.cburch.logisim.data.Attributes;
 import com.cburch.logisim.data.Bounds;
 import com.cburch.logisim.data.Direction;
+import com.cburch.logisim.data.Location;
 import com.cburch.logisim.gui.main.ExportImage;
 import com.cburch.logisim.gui.main.Frame;
 import com.cburch.logisim.instance.Instance;
@@ -62,6 +66,10 @@ import com.cburch.logisim.instance.InstanceFactory;
 import com.cburch.logisim.instance.InstancePainter;
 import com.cburch.logisim.instance.InstanceState;
 import com.cburch.logisim.instance.StdAttr;
+import com.cburch.logisim.proj.Project;
+import com.cburch.logisim.tools.AddTool;
+import com.cburch.logisim.tools.Library;
+import com.cburch.logisim.tools.Tool;
 import com.cburch.logisim.util.Errors;
 import com.cburch.logisim.util.JInputDialog;
 import com.cburch.logisim.util.StringGetter;
@@ -204,10 +212,11 @@ public class Image extends InstanceFactory {
     public ImageContent parseFromFilesystem(File directory, String value) {
       if (value == null || value.equals(""))
         return null;
-      if (value.startsWith("file:")) {
+      String prefix = value.length() >= 5 ? value.substring(0, 5) : value;
+      if (prefix.equalsIgnoreCase("file:")) {
         return new ImageContent(ATTR_FILENAME_SINGLETON.parseFromFilesystem(directory, value.substring(5)));
-      } else if (value.startsWith("PNG:\n") || value.startsWith("JPG:\n")) {
-        String format = value.substring(0, 3);
+      } else if (prefix.equalsIgnoreCase("PNG:\n") || prefix.equalsIgnoreCase("JPG:\n")) {
+        String format = value.substring(0, 3).toUpperCase();
         try {
           byte[] bytes = value.getBytes("UTF-8");
           ByteArrayInputStream input = new ByteArrayInputStream(bytes, 5, bytes.length-5);
@@ -369,5 +378,105 @@ public class Image extends InstanceFactory {
 
   @Override
   public void propagate(InstanceState state) { }
+
+
+  // Adapted from https://stackoverflow.com/questions/41015956/
+  // Note: the observer code isn't tested, and may not be necessary, as
+  // this code is only used for pasting images.
+  public static BufferedImage toBufferedImage(java.awt.Image image) {
+    if (image instanceof BufferedImage)
+      return (BufferedImage)image;
+    ReentrantLock lock = new ReentrantLock();
+    Condition sizeReady = lock.newCondition();
+    Condition dataReady = lock.newCondition();
+    ImageObserver obs = (img, flags, x, y, width, height) -> {
+      lock.lock();
+      try {
+        if ((flags & ImageObserver.ALLBITS) != 0) {
+          sizeReady.signal();
+          dataReady.signal();
+          return false;
+        }
+        if ((flags & (ImageObserver.WIDTH|ImageObserver.HEIGHT)) != 0)
+          sizeReady.signal();
+        return true;
+      }
+      finally {
+        lock.unlock();
+      }
+    };
+    BufferedImage img;
+    lock.lock();
+    try {
+      int width = -1, height = -1;
+      while ((width = image.getWidth(obs)) < 0 || (height = image.getHeight(obs)) < 0 ) {
+        sizeReady.awaitUninterruptibly();
+      }
+      img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+      Graphics g = img.createGraphics();
+      try {
+        // g.setBackground(new Color(0, true));
+        // g.clearRect(0, 0, width, height);
+        while (!g.drawImage(image, 0, 0, obs)) {
+          dataReady.awaitUninterruptibly();
+        }
+      } finally {
+        g.dispose();
+      }
+    } finally {
+      lock.unlock();
+    }
+    return img;
+  }
+
+  // private static BufferedImage toBufferedImage(java.awt.Image image) {
+  //   if (image instanceof BufferedImage) {
+  //     return (BufferedImage)image;
+  //   }
+  //   int w = image.getWidth(null);
+  //   int h  = image.getHeight(null);
+  //   BufferedImage img = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+  //   Graphics g = img.createGraphics();
+  //   g.drawImage(image, 0, 0, null);
+  //   g.dispose();
+  //   return img;
+  // }
+
+  private static byte[] toByteArray(BufferedImage img, String format) {
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    try {
+      ImageIO.write(img, format, out);
+    } catch (IOException e) {
+      e.printStackTrace();
+      return null;
+    }
+    try { out.flush(); } catch (IOException e) { e.printStackTrace(); }
+    try { out.close(); } catch (IOException e) { e.printStackTrace(); }
+    return out.toByteArray();
+  }
+
+  public static Component create(AddTool imageTool, Location loc, java.awt.Image image) {
+    BufferedImage img = toBufferedImage(image);
+    byte[] imgData = toByteArray(img, "PNG");
+    AttributeSet copy = (AttributeSet) imageTool.getAttributeSet().clone();
+    Component comp = imageTool.getFactory().createComponent(loc, copy);
+    comp.getAttributeSet().setAttr(ATTR_IMAGE_CONTENT, new ImageContent("PNG", img, imgData));
+    return comp;
+  }
+
+  public static AddTool getToolFromProject(Project proj) {
+    Library base = proj.getLogisimFile().getLibrary("Base");
+    if (base == null)
+      return null;
+    Tool tool = base.getTool("Image");
+    if (tool instanceof AddTool && ((AddTool)tool).getFactory() instanceof Image)
+      return (AddTool)tool;
+    return null;
+  }
+
+  public static java.awt.Image getImage(Component comp) {
+    ImageContent content = comp.getAttributeSet().getValue(ATTR_IMAGE_CONTENT);
+    return content.getImage();
+  }
 
 }
