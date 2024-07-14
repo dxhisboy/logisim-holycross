@@ -36,6 +36,8 @@ import java.awt.GridBagLayout;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.awt.Toolkit;
+import java.awt.datatransfer.StringSelection;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -139,9 +141,13 @@ public class Errors {
       for (Throwable t: errs)
         t.printStackTrace(out);
 
+      String errstr = text + "\n" + errors.toString();
+
+      JButton copybtn = new JButton(S.get("fileErrorCopyDetail"));
+
       msg.setAlignmentX(0);
 
-      JTextArea textArea = new JTextArea(text + "\n" + errors.toString());
+      JTextArea textArea = new JTextArea(errstr);
       textArea.setEditable(false);
       textArea.setCaretPosition(0);
       JScrollPane errPane = new JScrollPane(textArea);
@@ -165,15 +171,28 @@ public class Errors {
       details.setLayout(gb);
       gc.anchor = GridBagConstraints.NORTHWEST;
       gc.weightx = 1;
+      gc.gridwidth = 2;
       gc.fill = GridBagConstraints.HORIZONTAL;
       gc.gridx = gc.gridy = 0;
       gb.setConstraints(msg, gc);
       details.add(msg);
+
       gc.fill = GridBagConstraints.NONE;
+      gc.gridwidth = 1;
       gc.weightx = 0;
-      gc.gridy = 1;
+      gc.gridy = 2;
       gb.setConstraints(button, gc);
       details.add(button);
+
+      gc.gridx = 1;
+      gb.setConstraints(copybtn, gc);
+      details.add(copybtn);
+
+      copybtn.addActionListener(e -> {
+        StringSelection sel = new StringSelection(errstr);
+        Toolkit.getDefaultToolkit().getSystemClipboard().setContents(sel, null);
+      });
+
       button.addActionListener(e -> {
         if (errPane.isShowing()) {
           button.setIcon(iconClosed);
@@ -182,7 +201,9 @@ public class Errors {
           button.setIcon(iconOpen);
           gc.fill = GridBagConstraints.BOTH;
           gc.weightx = gc.weighty = 1;
-          gc.gridy = 2;
+          gc.gridwidth = 2;
+          gc.gridx = 0;
+          gc.gridy = 3;
           gb.setConstraints(errPane, gc);
           details.add(errPane);
         }
