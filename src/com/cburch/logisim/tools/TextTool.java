@@ -278,8 +278,9 @@ public final class TextTool extends Tool {
       return;
     }
 
+    boolean hadCaret = caret != null;;
     // Maybe user is clicking within the current caret.
-    if (caret != null) {
+    if (hadCaret) {
       if (caret.getBounds(g).contains(e.getX(), e.getY())) { // Yes
         caret.mousePressed(e);
         proj.repaintCanvas();
@@ -326,9 +327,9 @@ public final class TextTool extends Tool {
       }
     }
 
-    // if nothing found, create a new Text component
+    // if nothing found, create a new Text component, if we didn't already have one
     if (caret == null) {
-      if (loc.getX() < 0 || loc.getY() < 0)
+      if (hadCaret || loc.getX() < 0 || loc.getY() < 0)
         return;
       AttributeSet copy = (AttributeSet) attrs.clone();
       caretComponent = Text.FACTORY.createComponent(loc, copy);

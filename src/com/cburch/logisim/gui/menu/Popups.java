@@ -47,6 +47,7 @@ import com.cburch.logisim.file.LoadedLibrary;
 import com.cburch.logisim.file.LogisimFile;
 import com.cburch.logisim.gui.generic.PopupMenu;
 import com.cburch.logisim.gui.main.Frame;
+import com.cburch.logisim.gui.main.ExternalClipboard;
 import com.cburch.logisim.gui.main.LayoutClipboard;
 import com.cburch.logisim.gui.main.Selection;
 import com.cburch.logisim.gui.main.SelectionActions;
@@ -120,7 +121,10 @@ public class Popups {
         return canChange && file.getCircuits().size() > 1
           && proj.getDependencies().canRemove(circuit);
       else if (tag == paste)
-        return canChange && !LayoutClipboard.forComponents.isEmpty();
+        return canChange &&
+          (LayoutClipboard.forComponents.isAvailable() ||
+           ExternalClipboard.forString.isAvailable() ||
+           ExternalClipboard.forImage.isAvailable());
       else if (tag == editAppearance)
         return !(circuit == proj.getCurrentCircuit() &&
             proj.getFrame().getEditorView().equals(Frame.EDIT_APPEARANCE));
@@ -290,18 +294,18 @@ public class Popups {
     @Override
     protected boolean shouldShow(Object tag) {
       if (tag == pasteCircuit)
-        return !LayoutClipboard.forCircuit.isEmpty();
+        return LayoutClipboard.forCircuit.isAvailable();
       else if (tag == pasteAsCircuit)
-        return !LayoutClipboard.forComponents.isEmpty();
+        return LayoutClipboard.forComponents.isAvailable();
       else if (tag == pasteVhdl)
-        return !LayoutClipboard.forVhdl.isEmpty();
+        return LayoutClipboard.forVhdl.isAvailable();
       else if (tag == pasteLibrary)
-        return !LayoutClipboard.forLibrary.isEmpty();
+        return LayoutClipboard.forLibrary.isAvailable();
       else if (tag == paste)
-        return LayoutClipboard.forCircuit.isEmpty()
-            && LayoutClipboard.forComponents.isEmpty()
-            && LayoutClipboard.forVhdl.isEmpty()
-            && LayoutClipboard.forLibrary.isEmpty();
+        return !LayoutClipboard.forCircuit.isAvailable()
+            && !LayoutClipboard.forComponents.isAvailable()
+            && !LayoutClipboard.forVhdl.isAvailable()
+            && !LayoutClipboard.forLibrary.isAvailable();
       else
         return true;
     }

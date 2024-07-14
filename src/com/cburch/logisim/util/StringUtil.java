@@ -83,10 +83,12 @@ public class StringUtil {
   }
 
   public static Bounds estimateBounds(String text, Font font) {
-    return estimateBounds(text, font, GraphicsUtil.H_LEFT, GraphicsUtil.V_TOP);
+    return estimateAlignedBounds(text, font, GraphicsUtil.H_LEFT, GraphicsUtil.V_TOP);
   }
 
-  public static Bounds estimateBounds(String text, Font font, int hAlign, int vAlign) {
+  // Note: For legacy reasons, vAlign is relative only to the first line of text.
+  // See: std.base.Text for details.
+  public static Bounds estimateAlignedBounds(String text, Font font, int hAlign, int vAlign) {
     // TODO - you can imagine being more clever here
     if (text == null || text.length() == 0)
       text = "X"; // return Bounds.EMPTY_BOUNDS;
@@ -108,11 +110,17 @@ public class StringUtil {
       n = (c > n ? c : n);
       lines++;
     }
-    int size = font.getSize();
-    int h = size * lines;
-    int w = size * n * 2 / 3; // assume approx monospace 12x8 aspect ratio
-    int x;
-    int y;
+    float size = font.getSize2D();
+    // A typical 12 pt height monospace font might be
+    //   8.5 pt ascent (baseline to top of most chars)
+    //   + 2.5 pt descent (baseline to bottom of most chars)
+    //   + 1 pt leading (inter-line space)
+    //   8 pt width (approx 2/3 aspect ratio)
+    float h = size * lines;
+    float w = size * n * 2.0f / 3.0f; // assume approx monospace 12x8 aspect ratio
+    float a  = size * 8.5f / 12.0f;
+    float x;
+    float y;
     if (hAlign == GraphicsUtil.H_LEFT) {
       x = 0;
     } else if (hAlign == GraphicsUtil.H_RIGHT) {
@@ -123,11 +131,17 @@ public class StringUtil {
     if (vAlign == GraphicsUtil.V_TOP) {
       y = 0;
     } else if (vAlign == GraphicsUtil.V_CENTER) {
-      y = -h / 2;
-    } else {
-      y = -h;
+      y = -a / 2; // center of first line ascent
+    } else if (vAlign == GraphicsUtil.V_CENTER_OVERALL) {
+      y = -h / 2; // center of all lines of text
+    } else if (vAlign == GraphicsUtil.V_BASELINE) {
+      y = -a; // ascent of first line of text
+    } else { // GraphicsUtil.V_BOTTOM
+      // y = -h; // bottom of all lines of text
+      y = -size; // bottom of first line of text
     }
-    return Bounds.create(x, y, w, h);
+    return Bounds.create((int)Math.round(x), (int)Math.round(y),
+        (int)Math.round(w), (int)Math.round(h));
   }
 
 }

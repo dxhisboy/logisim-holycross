@@ -115,6 +115,11 @@ public class Text extends InstanceFactory implements CustomHandles {
             new AttributeOption(Integer.valueOf(TextField.H_CENTER),
                 "center", S.getter("textHorzAlignCenterOpt")),
           });
+
+  // Note: For legacy reasons, all the vertical alignment options are relative
+  // to the first line of text. So V_BASELINE is the baseline of the first line
+  // of text, V_BOTTOM is the bottom of the first line, and V_CENTER is the center
+  // of the first line.
   public static Attribute<AttributeOption> ATTR_VALIGN = Attributes
       .forOption(
           "valign",
@@ -171,6 +176,10 @@ public class Text extends InstanceFactory implements CustomHandles {
       //   return getFactory().getOffsetBounds(getAttributeSet()).translate(getLocation()); // nomminal
       // }
       @Override
+      public boolean visiblyContains(Location pt, Graphics g) {
+        return getVisibleBounds(g).contains(pt);
+      }
+      @Override
       public Bounds getVisibleBounds(Graphics g) {
         // Note: textField.getBounds() would work here, if superclass provided
         // access. But for consistency, call the factory instead since the
@@ -188,15 +197,19 @@ public class Text extends InstanceFactory implements CustomHandles {
     // context. But this still gets called in some cases, e.g. while opening a
     // file to check for overlap, and during some copy-paste operations.
     TextAttributes attrs = (TextAttributes)attrsBase;
-    String text = attrs.getText();
-    if (text == null || text.equals(""))
-      return Bounds.EMPTY_BOUNDS; // should never happen
+    // String text = attrs.getText();
+    // if (text == null || text.equals(""))
+    //   return Bounds.EMPTY_BOUNDS; // should never happen
     int halign = attrs.getHorizontalAlign();
     int valign = attrs.getVerticalAlign();
     Font font = attrs.getFont();
 
     // Note: don't expand by 4 as done below. Better to underestimate than overestimate.
-    return StringUtil.estimateBounds(text, font, halign, valign);
+    String text = "ABC"; // note: we use a fixed, short string, because the
+                         // estimate string width is often very wrong, leading
+                         // to UI annoyances, e.g. inability to move a string
+                         // near the canvas left edge.
+    return StringUtil.estimateAlignedBounds(text, font, halign, valign);
   }
 
   public Bounds getTextOffsetBounds(AttributeSet attrsBase, Graphics g) { // visible
@@ -246,6 +259,14 @@ public class Text extends InstanceFactory implements CustomHandles {
     if (border) {
       Bounds bds = getVisibleBounds(loc, attrs, g);
       g.drawRect(bds.getX(), bds.getY(), bds.getWidth(), bds.getHeight());
+
+      Color c = g.getColor();
+      g.setColor(Color.CYAN);
+      Bounds b = getOffsetBounds(attrs).translate(loc);
+      g.drawRect(b.getX(), b.getY(), b.getWidth(), b.getHeight());
+      g.setColor(Color.MAGENTA);
+      g.fillRect(loc.getX()-5, loc.getY()-5, 10, 10);
+      g.setColor(c);
     }
     // Note: This next code is essentially identical to painter.drawLabel(),
     // which draws by using TextFieldMultiline, which in turn uses GraphicsUtil.

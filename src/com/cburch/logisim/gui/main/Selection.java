@@ -296,12 +296,12 @@ public class Selection {
   public static HashMap<Component, Component> copyComponents(Circuit circuit,
       Collection<Component> oldLifted, Collection<Component> components) {
     // determine translation offset where we can legally place the clipboard
-    int dx, dy;
+    int dx = 0, dy = 0;
     Location topleft = computeNominalTopLeftCorner(components);
-    for (int index = 0;; index++) {
+    for (int index = 0; index < 64; index++) { // give up after 64 tries
       // compute offset to try: We try points along successively larger
       // squares radiating outward from 0,0
-      if (index == 0) {
+      if (index == 0 || index == 64) {
         dx = 0;
         dy = 0;
       } else {
@@ -328,14 +328,14 @@ public class Selection {
         dx *= 10;
         dy *= 10;
       }
-
       if (topleft.getX() + dx >= 0 && topleft.getY() + dy >= 0
           && !hasConflictTranslated(circuit, components, dx, dy, true)
           && !hasOverlapTranslated(circuit, components, dx, dy, true)
           && !hasOverlapTranslated(oldLifted, components, dx, dy, true)) {
-        return copyComponents(components, dx, dy);
+        break;
       }
     }
+    return copyComponents(components, dx, dy);
   }
 
   private static HashMap<Component, Component> copyComponents(

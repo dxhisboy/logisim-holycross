@@ -61,12 +61,7 @@ public class LayoutEditHandler extends EditHandler
     this.frame = frame;
 
     Project proj = frame.getProject();
-    LayoutClipboard.forComponents.addPropertyChangeListener(LayoutClipboard.contentsProperty, this);
-    LayoutClipboard.forCircuit.addPropertyChangeListener(LayoutClipboard.contentsProperty, this);
-    LayoutClipboard.forVhdl.addPropertyChangeListener(LayoutClipboard.contentsProperty, this);
-    LayoutClipboard.forLibrary.addPropertyChangeListener(LayoutClipboard.contentsProperty, this);
-    ExternalClipboard.forString.addPropertyChangeListener(ExternalClipboard.contentsProperty, this);
-    ExternalClipboard.forImage.addPropertyChangeListener(ExternalClipboard.contentsProperty, this);
+    SystemClipboard.addPropertyChangeListener(this);
     proj.addProjectWeakListener(null, this);
     proj.addLibraryWeakListener(/*null,*/ this);
   }
@@ -108,12 +103,12 @@ public class LayoutEditHandler extends EditHandler
         || selLibTool // copy circuit or vhdl from library
         || selLib); // copy library from project
     setEnabled(LogisimMenuBar.PASTE,
-        (modComp && !LayoutClipboard.forComponents.isEmpty()) // paste components
-        || (modComp && !ExternalClipboard.forString.isEmpty()) // paste Text
-        || (modComp && !ExternalClipboard.forImage.isEmpty()) // paste Image
-        || !LayoutClipboard.forCircuit.isEmpty() // paste circuit
-        || !LayoutClipboard.forVhdl.isEmpty() // paste vhdl
-        || !LayoutClipboard.forLibrary.isEmpty()); // paste library
+        (modComp && LayoutClipboard.forComponents.isAvailable()) // paste components
+        || (modComp && ExternalClipboard.forString.isAvailable()) // paste Text
+        || (modComp && ExternalClipboard.forImage.isAvailable()) // paste Image
+        || LayoutClipboard.forCircuit.isAvailable() // paste circuit
+        || LayoutClipboard.forVhdl.isAvailable() // paste vhdl
+        || LayoutClipboard.forLibrary.isAvailable()); // paste library
     setEnabled(LogisimMenuBar.DELETE,
         (selComp && modComp) // delete components from project circuit
         || selProjTool // delete circuit or vhdl from project
@@ -303,10 +298,9 @@ public class LayoutEditHandler extends EditHandler
   }
 
   public void propertyChange(PropertyChangeEvent event) {
-    String prop = event.getPropertyName();
-    if (prop.equals(LayoutClipboard.contentsProperty)
-        || prop.equals(ExternalClipboard.contentsProperty))
-      computeEnabled();
+    if (!event.getPropertyName().equals(SystemClipboard.CONTENTS_PROPERTY))
+      System.out.println("huh?");
+    computeEnabled();
   }
 
   @Override

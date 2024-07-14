@@ -821,10 +821,13 @@ public class SelectionActions {
   }
 
   public static void doCopy(Project proj, Selection sel) { // Note: copy is not an Action
+    doCopy(proj, sel.getComponents());
+  }
+
+  public static void doCopy(Project proj, Collection<Component> comps) { // Note: copy is not an Action
     // special case: selection is a single Text, or single Image
-    Collection<Component> comps = sel.getComponents();
     if (comps.size() == 0) {
-      return;
+      System.out.println("nothing to copy");
     } else if (comps.size() > 1) {
       LayoutClipboard.forComponents.set(proj, comps);
     } else {
@@ -832,11 +835,11 @@ public class SelectionActions {
       if (comp.getFactory() instanceof Text) {
         String text = TextTool.getText(comp);
         ExternalClipboard.forString.set(proj, comp, text);
-        return;
       } else if (comp.getFactory() instanceof Image) {
         java.awt.Image image = Image.getImage(comp);
         ExternalClipboard.forImage.set(proj, comp, image);
-        return;
+      } else {
+        LayoutClipboard.forComponents.set(proj, comps);
       }
     }
   }
@@ -912,8 +915,6 @@ public class SelectionActions {
 
   public static boolean doPaste(Project proj, Selection sel) {
     return doPasteComponents(proj, sel)
-        || doPasteText(proj, sel)
-        || doPasteImage(proj, sel)
         || doPasteCircuit(proj)
         || doPasteVhdl(proj)
         || doPasteLibrary(proj);
@@ -945,14 +946,14 @@ public class SelectionActions {
 
   public static boolean doPasteComponents(Project proj, Selection sel) {
     LayoutClipboard.Clip<Collection<Component>> clip = LayoutClipboard.forComponents.get(proj);
-    if (clip == null)
-      return false;
-    PasteComponents act = new PasteComponents(sel, clip);
-    if (act.valid(proj)) {
-      proj.doAction(act);
-      return true;
+    if (clip != null) {
+      PasteComponents act = new PasteComponents(sel, clip);
+      if (act.valid(proj)) {
+        proj.doAction(act);
+        return true;
+      }
     }
-    return false;
+    return doPasteText(proj, sel) || doPasteImage(proj, sel);
   }
 
   public static boolean doPasteComponentsAsCircuit(Project proj) {

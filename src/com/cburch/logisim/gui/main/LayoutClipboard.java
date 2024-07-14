@@ -30,11 +30,8 @@
 
 package com.cburch.logisim.gui.main;
 
-import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.ClipboardOwner;
-import java.awt.datatransfer.FlavorEvent;
-import java.awt.datatransfer.FlavorListener;
 import java.awt.datatransfer.Transferable;
 import java.util.Collection;
 
@@ -49,10 +46,8 @@ import com.cburch.logisim.proj.Project;
 import com.cburch.logisim.std.hdl.VhdlContent;
 import com.cburch.logisim.tools.Library;
 import com.cburch.logisim.util.DragDrop;
-import com.cburch.logisim.util.PropertyChangeWeakSupport;
 
-public class LayoutClipboard<T>
-  implements ClipboardOwner, FlavorListener, PropertyChangeWeakSupport.Producer {
+public class LayoutClipboard<T> implements ClipboardOwner {
 
   // LayoutClipboard<T> holds an object of type T, which can be:
   //   Circuit, 
@@ -64,8 +59,6 @@ public class LayoutClipboard<T>
   // have any suitably-named circuits and the user wants to import them). And it
   // copies a list of any non-builtin library references (Jar or Logisim) used
   // by any of the components as well.
-
-  public static final String contentsProperty = "contents";
 
   public static class Clip<T> {
     public T selection;
@@ -100,6 +93,8 @@ public class LayoutClipboard<T>
 
   private Clip<T> decode(Project proj, Transferable incoming, XmlClipExtractor<T> x) {
     try {
+      if (incoming == null || !incoming.isDataFlavorSupported(dnd.dataFlavor))
+        return null;
       String xml = (String)incoming.getTransferData(dnd.dataFlavor);
       if (xml == null || xml.length() == 0)
         return null;
@@ -142,8 +137,6 @@ public class LayoutClipboard<T>
   public static final String mimeTypeLibraryClip =
       mimeTypeBase + ".library;class=java.lang.String";
 
-  public static final Clipboard sysclip = Toolkit.getDefaultToolkit().getSystemClipboard();
-
   public static final LayoutClipboard<Collection<Component>> forComponents =
       new LayoutClipboard<Collection<Component>>(mimeTypeComponentsClip,
           ctx -> ctx.getSelectedComponents().isEmpty() ? null : ctx.getSelectedComponents());
@@ -157,58 +150,36 @@ public class LayoutClipboard<T>
       new LayoutClipboard<>(mimeTypeLibraryClip,
           ctx -> ctx.getSelectedLibrary());
 
-  public final DragDrop dnd; // flavor of this clipboard
+  public final DragDrop dnd; // flavor of this clipboard manager
   private XmlClipExtractor<T> extractor;
-  private XmlData current; // the owned system clip, if any, for this flavor
-  private boolean external; // not owned, but system clip is compatible with this flavor
-  private boolean available; // current != null || external
+  private XmlData current; // the owned system clip, if any, for this manager (fixme: not necessary?)
 
   private LayoutClipboard(String mimeType, XmlClipExtractor<T> x) {
     dnd = new DragDrop(mimeType);
     extractor = x;
-    sysclip.addFlavorListener(this);
-    flavorsChanged(null);
-  }
-
-  public void flavorsChanged(FlavorEvent e) {
-    boolean oldAvail = available;
-    // wait a small amount of time until the clipboard is ready (avoid exception "cannot open system clipboard)
-    // see https://stackoverflow.com/questions/51797673/in-java-why-do-i-get-java-lang-illegalstateexception-cannot-open-system-clipboa
-    try { Thread.sleep(10); } catch (InterruptedException ex) { };
-    external = sysclip.isDataFlavorAvailable(dnd.dataFlavor);
-    available = current != null || external;
-    if (oldAvail != available)
-      LayoutClipboard.this.firePropertyChange(contentsProperty, oldAvail, available);
   }
 
   public void lostOwnership(Clipboard clipboard, Transferable contents) {
     current = null;
-    flavorsChanged(null);
   }
 
   public void set(Project proj, T value) {
     current = encode(proj, value);
     if (current != null)
-      sysclip.setContents(current, this); 
+      SystemClipboard.setContents(current, this); 
   }
 
   public Clip<T> get(Project proj) {
-    if (current != null)
-      return decode(proj, current, extractor);
-    else if (external) 
-      return decode(proj, sysclip.getContents(null), extractor);
-    else
-      return null;
+    // if (current != null)
+    //   return decode(proj, current, extractor);
+    return decode(proj, SystemClipboard.getContents(null), extractor);
   }
 
   public Clip<T> get(Project proj, Transferable t) {
     return decode(proj, t, extractor);
   }
 
-  public boolean isEmpty() {
-    return current == null && !external;
+  public boolean isAvailable() {
+    return SystemClipboard.isDataFlavorAvailable(dnd.dataFlavor);
   }
-
-  PropertyChangeWeakSupport propListeners = new PropertyChangeWeakSupport(LayoutClipboard.class);
-  public PropertyChangeWeakSupport getPropertyChangeListeners() { return propListeners; }
 }

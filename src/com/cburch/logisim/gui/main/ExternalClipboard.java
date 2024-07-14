@@ -31,95 +31,46 @@
 package com.cburch.logisim.gui.main;
 
 import java.awt.Image;
-import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.FlavorEvent;
-import java.awt.datatransfer.FlavorListener;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.util.Collection;
 import java.util.Collections;
 
-import com.cburch.logisim.circuit.Circuit;
-import com.cburch.logisim.circuit.CircuitTransaction;
 import com.cburch.logisim.comp.Component;
-import com.cburch.logisim.file.LoadCanceledByUser;
-import com.cburch.logisim.file.LogisimFile;
-import com.cburch.logisim.file.XmlClipReader;
 import com.cburch.logisim.file.XmlWriter;
 import com.cburch.logisim.proj.Project;
-import com.cburch.logisim.std.hdl.VhdlContent;
-import com.cburch.logisim.tools.Library;
 import com.cburch.logisim.util.DragDrop;
-import com.cburch.logisim.util.PropertyChangeWeakSupport;
 
-public class ExternalClipboard<T>
-  implements ClipboardOwner, FlavorListener, PropertyChangeWeakSupport.Producer {
-
-  public static final String contentsProperty = "contents";
-
-  public static final Clipboard sysclip = Toolkit.getDefaultToolkit().getSystemClipboard();
+public class ExternalClipboard<T> implements ClipboardOwner {
 
   public static final DataFlavor stringFlavor = DataFlavor.stringFlavor;
   public static final DataFlavor imageFlavor = DataFlavor.imageFlavor;
 
-  // private interface ClipExtractor<T> {
-  //   T extractSelection(Transferable xfer) throws Exception;
-  // }
-
   public static final ExternalClipboard<String> forString = new ExternalClipboard<>(stringFlavor);
-  //, xfer -> extractString(xfer)
 
   public static final ExternalClipboard<Image> forImage = new ExternalClipboard<>(imageFlavor);
-  // xfer -> extractImage(xfer)
 
-  private DataFlavor dataFlavor;
-  // ClipExtractor<T> extractor;
-  private T current; // the owned system clip, if any, for this flavor
-  private boolean external; // not owned, but system clip is compatible with this flavor
-  private boolean available; // current != null || external
+  private DataFlavor plainFlavor;
+  private T current; // the owned system clip, if any, for this manager (fixme: not necessary?)
   private DragDrop dnd;
 
-  private ExternalClipboard(DataFlavor baseFlavor /*, ClipExtractor<T> extractor */) {
-    this.dataFlavor = baseFlavor;
-    this.dnd = new DragDrop(LayoutClipboard.mimeTypeComponentsClip, baseFlavor);
-    // this.extractor = extractor;
-    sysclip.addFlavorListener(this);
-    flavorsChanged(null);
-  }
-
-  public void flavorsChanged(FlavorEvent e) {
-    boolean oldAvail = available;
-    // wait a small amount of time until the clipboard is ready (avoid exception "cannot open system clipboard)
-    // see https://stackoverflow.com/questions/51797673/in-java-why-do-i-get-java-lang-illegalstateexception-cannot-open-system-clipboa
-    try { Thread.sleep(10); } catch (InterruptedException ex) { };
-    external = sysclip.isDataFlavorAvailable(dataFlavor);
-    available = current != null || external;
-    if (oldAvail != available)
-      ExternalClipboard.this.firePropertyChange(contentsProperty, oldAvail, available);
+  private ExternalClipboard(DataFlavor plainFlavor) {
+    this.plainFlavor = plainFlavor;
+    this.dnd = new DragDrop(LayoutClipboard.mimeTypeComponentsClip, plainFlavor);
   }
 
   public void lostOwnership(Clipboard clipboard, Transferable contents) {
     current = null;
-    flavorsChanged(null);
   }
 
-  public boolean isEmpty() {
-    return current == null && !external;
+  public boolean isAvailable() {
+    return SystemClipboard.isDataFlavorAvailable(plainFlavor);
+    // Note, we don't check SystemClipboard.isDataFlavorAvailable(dnd.dataFlavor)
+    // as LayoutClipboard.forComponent.isAvailable() takes priority for that flavor.
   }
-
-  /*
-  public void set(T value) {
-    if (value != null && value.length() == 0)
-      value = null;
-    current = value;
-    if (current != null)
-      sysclip.setContents(new StringSelection(current), this); 
-  }
-  */
   
   public void set(Project proj, Component comp, T plain) {
     String xml = XmlWriter.encodeSelection(proj.getLogisimFile(), proj, Collections.singletonList(comp));
@@ -130,7 +81,7 @@ public class ExternalClipboard<T>
       xfer = new XmlAndPlainData(plain, xml);
     if (xfer != null) {
       current = plain;
-      sysclip.setContents(xfer, this); 
+      SystemClipboard.setContents(xfer, this); 
     }
   }
 
@@ -157,7 +108,7 @@ public class ExternalClipboard<T>
     public DragDrop getDragDrop() { return dnd; }
 
     public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException {
-      if (flavor.equals(dataFlavor))
+      if (flavor.equals(plainFlavor))
         return plain;
       else if (flavor.equals(dnd.dataFlavor))
         return xml;
@@ -188,27 +139,16 @@ public class ExternalClipboard<T>
   }
 
   public T get(Project proj) {
-    if (current != null)
-      return current;
+    // if (current != null)
+    //   return current;
     try {
-      Transferable xfer = sysclip.getContents(null);
-      if (xfer != null && xfer.isDataFlavorSupported(dataFlavor))
-        return (T)xfer.getTransferData(dataFlavor);
-        // return extractor.extractSelection(xfer);
+      Transferable xfer = SystemClipboard.getContents(null);
+      if (xfer != null && xfer.isDataFlavorSupported(plainFlavor))
+        return (T)xfer.getTransferData(plainFlavor);
     } catch (Exception e) {
       proj.showError("Error parsing clipboard data", e);
     }
     return null;
   }
 
-  // Note: These two handlers are inlined, since they are identical modulo T
-  // private static String extractString(Transferable xfer) throws Exception {
-  //   return (String)xfer.getTransferData(stringFlavor);
-  // }
-  // private static Image extractImage(Transferable xfer) throws Exception {
-  //   return (Image)xfer.getTransferData(imageFlavor);
-  // }
-
-  PropertyChangeWeakSupport propListeners = new PropertyChangeWeakSupport(ExternalClipboard.class);
-  public PropertyChangeWeakSupport getPropertyChangeListeners() { return propListeners; }
 }

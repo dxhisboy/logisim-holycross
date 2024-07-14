@@ -50,6 +50,7 @@ import com.cburch.logisim.comp.ComponentDrawContext;
 import com.cburch.logisim.data.Direction;
 import com.cburch.logisim.data.Location;
 import com.cburch.logisim.gui.main.Canvas;
+import com.cburch.logisim.gui.main.ExternalClipboard;
 import com.cburch.logisim.gui.main.LayoutClipboard;
 import com.cburch.logisim.gui.main.LayoutEditHandler;
 import com.cburch.logisim.gui.main.Selection;
@@ -105,12 +106,12 @@ public final class MenuTool extends Tool {
       Collection<Component> comps = Collections.singletonList(comp);
       Object src = e.getSource();
       if (src == copy) {
-        LayoutClipboard.forComponents.set(proj, comps);
+        SelectionActions.doCopy(proj, comps);
         return;
       }
       CircuitMutation xn = new CircuitMutation(circ);
       if (src == cut) {
-        LayoutClipboard.forComponents.set(proj, comps);
+        SelectionActions.doCopy(proj, comps);
         xn.remove(comp);
         proj.doAction(xn.toAction(S.getter(
                 "removeComponentAction", comp.getFactory().getDisplayGetter())));
@@ -223,7 +224,10 @@ public final class MenuTool extends Tool {
 
       add(paste);
       paste.addActionListener(this);
-      paste.setEnabled(canChange && !LayoutClipboard.forComponents.isEmpty());
+      paste.setEnabled(canChange &&
+          (LayoutClipboard.forComponents.isAvailable()
+           || ExternalClipboard.forString.isAvailable()
+           || ExternalClipboard.forImage.isAvailable()));
       addSeparator();
       add(all);
       all.addActionListener(this);
