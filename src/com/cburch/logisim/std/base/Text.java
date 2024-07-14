@@ -259,14 +259,6 @@ public class Text extends InstanceFactory implements CustomHandles {
     if (border) {
       Bounds bds = getVisibleBounds(loc, attrs, g);
       g.drawRect(bds.getX(), bds.getY(), bds.getWidth(), bds.getHeight());
-
-      Color c = g.getColor();
-      g.setColor(Color.CYAN);
-      Bounds b = getOffsetBounds(attrs).translate(loc);
-      g.drawRect(b.getX(), b.getY(), b.getWidth(), b.getHeight());
-      g.setColor(Color.MAGENTA);
-      g.fillRect(loc.getX()-5, loc.getY()-5, 10, 10);
-      g.setColor(c);
     }
     // Note: This next code is essentially identical to painter.drawLabel(),
     // which draws by using TextFieldMultiline, which in turn uses GraphicsUtil.
