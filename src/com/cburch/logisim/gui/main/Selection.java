@@ -206,7 +206,7 @@ public class Selection {
       Component comp = it.next();
       bds = comp.getNominalBounds();
       x = Math.min(x, bds.getX());
-      y = Math.min(y, bds.getX());
+      y = Math.min(y, bds.getY());
     }
     return Location.create(x, y);
   }

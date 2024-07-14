@@ -141,6 +141,7 @@ public final class SelectTool extends Tool {
 
   private Location start;
   private int state = IDLE;
+  private Location forceSnap;
   private int curDx;
   private int curDy;
   private boolean drawConnections;
@@ -173,6 +174,7 @@ public final class SelectTool extends Tool {
   }
 
   private void computeDxDy(Project proj, MouseEvent e, Graphics g) {
+    forceSnap = null;
     int dx = e.getX() - start.getX();
     int dy = e.getY() - start.getY();
     Location topleft = proj.getSelection().getNominalTopLeftCorner();
@@ -184,6 +186,18 @@ public final class SelectTool extends Tool {
     if (sel.shouldSnap()) {
       dx = Canvas.snapXToGrid(dx);
       dy = Canvas.snapYToGrid(dy);
+    } else if (topleft != null && (e.getModifiersEx() & MouseEvent.ALT_DOWN_MASK) != 0) {
+      // top left corner force align to grid
+      int destx = Canvas.snapXToGrid(topleft.getX() + dx);
+      int desty = Canvas.snapYToGrid(topleft.getY() + dy);
+      dx += destx - (topleft.getX() + dx);
+      dy += desty - (topleft.getY() + dy);
+      forceSnap = topleft;
+    }
+    // after snapping, again ensure top left doesn't go off canvas
+    if (topleft != null) {
+      while (dx < -topleft.getX()) dx += 10;
+      while (dy < -topleft.getY()) dy += 10;
     }
     curDx = dx;
     curDy = dy;
@@ -192,6 +206,17 @@ public final class SelectTool extends Tool {
   @Override
   public void deselect(Canvas canvas) {
     moveGesture = null;
+  }
+
+  public boolean isMoving() {
+    return state == MOVING;
+  }
+
+  public Location getForceSnapPoint() {
+    if (state == MOVING && forceSnap != null)
+      return forceSnap.translate(curDx, curDy);
+    else
+      return null;
   }
 
   @Override
@@ -659,7 +684,7 @@ public final class SelectTool extends Tool {
   private void setState(Project proj, int new_state) {
     if (state == new_state)
       return; // do nothing if state not new
-
+    forceSnap = null;
     state = new_state;
     proj.getFrame().getCanvas().setCursor(getCursor());
   }

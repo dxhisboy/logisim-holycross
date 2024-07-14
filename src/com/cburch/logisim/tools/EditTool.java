@@ -161,8 +161,9 @@ public final class EditTool extends Tool {
 
   @Override
   public void draw(Canvas canvas, ComponentDrawContext context) {
-    Location loc = wireLoc;
-    if (loc != NULL_LOCATION && current != wiring) {
+    Location loc = current == select && select.isMoving() ?
+      select.getForceSnapPoint() : wireLoc;
+    if (loc != NULL_LOCATION && loc != null && current != wiring) {
       int x = loc.getX();
       int y = loc.getY();
       Graphics g = context.getGraphics();
