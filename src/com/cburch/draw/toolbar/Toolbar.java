@@ -200,10 +200,11 @@ public class Toolbar extends JPanel {
     public void mouseClicked(MouseEvent e) { }
     public void mouseEntered(MouseEvent e) { }
     public void mouseExited(MouseEvent e) { }
-    public void mouseReleased(MouseEvent e) { }
+    public void mouseReleased(MouseEvent e) { checkForPopup(e); }
+    public void mousePressed(MouseEvent e) { checkForPopup(e); }
 
-    public void mousePressed(MouseEvent e) {
-      if (!SwingUtilities.isRightMouseButton(e))
+    void checkForPopup(MouseEvent e) {
+      if (!e.isPopupTrigger())
         return;
       JPopupMenu menu = model.getPopupMenu();
       if (menu != null)

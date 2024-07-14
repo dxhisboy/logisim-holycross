@@ -54,7 +54,6 @@ import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
-import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
 import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
@@ -175,8 +174,11 @@ public class LeftPanel extends JTable {
     // popup on right click
 		addMouseListener(new MouseAdapter() {
 			@Override
-			public void mouseClicked(MouseEvent e) {
-        if (!SwingUtilities.isRightMouseButton(e))
+			public void mousePressed(MouseEvent e) { checkForPopup(e); }
+			@Override
+			public void mouseReleased(MouseEvent e) { checkForPopup(e); }
+			void checkForPopup(MouseEvent e) {
+        if (!e.isPopupTrigger())
           return;
         if (!(e.getComponent() instanceof JTable))
           return;

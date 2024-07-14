@@ -125,8 +125,8 @@ public class PopupMenu extends MouseAdapter {
 			doPop(e);
 	}
 
-//	public void mouseReleased(MouseEvent e) {
-//		if (e.isPopupTrigger())
-//			doPop(e);
-//	}
+	public void mouseReleased(MouseEvent e) {
+		if (e.isPopupTrigger())
+			doPop(e);
+	}
 }

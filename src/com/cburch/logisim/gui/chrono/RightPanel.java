@@ -389,6 +389,8 @@ public class RightPanel extends JPanel {
 
 		@Override
 		public void mousePressed(MouseEvent e) {
+      if (checkForPopup(e))
+        return;
       if (SwingUtilities.isLeftMouseButton(e)) {
         chronoPanel.setSignalCursorX(e.getX());
         Signal signal = getSignal(e.getY(), false);
@@ -431,6 +433,8 @@ public class RightPanel extends JPanel {
 
 		@Override
 		public void mouseReleased(MouseEvent e) {
+      if (checkForPopup(e))
+        return;
       if (SwingUtilities.isLeftMouseButton(e)) {
         if (!selectionModel.getValueIsAdjusting())
           return;
@@ -448,10 +452,9 @@ public class RightPanel extends JPanel {
       }
     }
 
-		@Override
-		public void mouseClicked(MouseEvent e) {
-      if (!SwingUtilities.isRightMouseButton(e))
-        return;
+		public boolean checkForPopup(MouseEvent e) {
+      if (!e.isPopupTrigger())
+        return false;
       List<Signal> signals = chronoPanel.getLeftPanel().getSelectedValuesList();
       if (signals.size() == 0) {
         Signal signal = getSignal(e.getY(), false);
@@ -460,6 +463,7 @@ public class RightPanel extends JPanel {
       }
       PopupMenu m = new PopupMenu(chronoPanel, signals);
       m.doPop(e);
+      return true;
 		}
 	}
 
