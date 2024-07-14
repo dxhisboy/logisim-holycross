@@ -221,7 +221,7 @@ public class Text extends InstanceFactory implements CustomHandles {
     int valign = attrs.getVerticalAlign();
     Font font = attrs.getFont();
 
-    String lines[] = text.split("\n");
+    String lines[] = text.split("\n", -1); // keep blank lines, so halo matches caret
     Rectangle r = GraphicsUtil.getTextBounds(g, font, lines, 0, 0, halign, valign);
 
     return Bounds.create(r).expand(4);
@@ -268,7 +268,7 @@ public class Text extends InstanceFactory implements CustomHandles {
     String text = attrs.getText();
     if (text == null || text.equals(""))
       return; // should never happen
-    String[] lines = text.split("\n");
+    String[] lines = text.split("\n"); // no need to draw trailing blank lines
     int halign = attrs.getHorizontalAlign();
     int valign = attrs.getVerticalAlign();
     Font font = attrs.getFont();
