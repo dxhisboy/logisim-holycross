@@ -76,14 +76,15 @@ public class Callout extends Text implements Reshapable {
   }
 
   @Override
-  public Bounds getOffsetBounds(AttributeSet attrsBase) {
+  public Bounds getOffsetBounds(AttributeSet attrsBase) { // nominal
     CalloutAttributes attrs = (CalloutAttributes) attrsBase;
     return super.getOffsetBounds(attrsBase).add(attrs.getDx(), attrs.getDy());
   }
 
-  public Bounds getVisibleBounds(Location loc, AttributeSet attrsBase, Graphics g) {
+  @Override
+  public Bounds getVisibleOffsetBounds(AttributeSet attrsBase, Graphics g) { // visible
     CalloutAttributes attrs = (CalloutAttributes) attrsBase;
-    return super.getVisibleBounds(loc, attrsBase, g).add(loc.translate(attrs.getDx(), attrs.getDy()));
+    return super.getVisibleOffsetBounds(attrsBase, g).add(attrs.getDx(), attrs.getDy());
   }
 
   @Override
@@ -113,7 +114,8 @@ public class Callout extends Text implements Reshapable {
     int valign = attrs.getVerticalAlign();
     Graphics g = painter.getGraphics();
     Location loc = painter.getLocation();
-    Bounds tbds = super.getVisibleBounds(loc, attrs, g);
+    // we can get bounds of just the text via superclass
+    Bounds tbds = super.getVisibleOffsetBounds(attrs, g).translate(loc);
 
     g.setColor(Color.BLACK);
    

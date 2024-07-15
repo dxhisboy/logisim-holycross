@@ -212,7 +212,8 @@ public class Text extends InstanceFactory implements CustomHandles {
     return StringUtil.estimateAlignedBounds(text, font, halign, valign);
   }
 
-  public Bounds getTextOffsetBounds(AttributeSet attrsBase, Graphics g) { // visible
+  @Override
+  public Bounds getVisibleOffsetBounds(AttributeSet attrsBase, Graphics g) { // visible
     TextAttributes attrs = (TextAttributes) attrsBase;
     String text = attrs.getText();
     if (text == null || text.equals(""))
@@ -228,7 +229,7 @@ public class Text extends InstanceFactory implements CustomHandles {
   }
 
   public Bounds getVisibleBounds(Location loc, AttributeSet attrsBase, Graphics g) { // visible
-    return getTextOffsetBounds(attrsBase, g).translate(loc);
+    return getVisibleOffsetBounds(attrsBase, g).translate(loc);
   }
 
   @Override

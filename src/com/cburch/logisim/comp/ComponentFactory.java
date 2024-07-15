@@ -128,9 +128,9 @@ public interface ComponentFactory extends AttributeDefaultProvider {
   //   for Text and Callout is is only approximate.
   public Bounds getOffsetBounds(AttributeSet attrs); // nominal
 
-  // public default Bounds getVisibleOffsetBounds(AttributeSet attrs, Graphics g) { // visible
-  //   return getOffsetBounds(attrs);
-  // }
+  public default Bounds getVisibleOffsetBounds(AttributeSet attrs, Graphics g) { // visible
+    return getOffsetBounds(attrs); // Note: this is incorrect for Text
+  }
 
   public boolean HasThreeStateDrivers(AttributeSet attrs);
 

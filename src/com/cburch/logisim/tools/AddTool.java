@@ -227,8 +227,8 @@ public class AddTool extends Tool {
     }
   }
 
-  private void expose(java.awt.Component c, int x, int y) {
-    Bounds bds = getBounds();
+  private void expose(java.awt.Component c, Graphics g, int x, int y) {
+    Bounds bds = getBounds(g);
     c.repaint(x + bds.getX(), y + bds.getY(), bds.getWidth(),
         bds.getHeight());
   }
@@ -246,7 +246,7 @@ public class AddTool extends Tool {
     return ret;
   }
 
-  private Bounds getBounds() {
+  private Bounds getBounds(Graphics g) {
     Bounds ret = bounds;
     if (ret == null) {
       ComponentFactory source = getFactory();
@@ -254,7 +254,7 @@ public class AddTool extends Tool {
         ret = Bounds.EMPTY_BOUNDS;
       } else {
         AttributeSet base = getBaseAttributes();
-        ret = source.getOffsetBounds(base).expand(5);
+        ret = source.getVisibleOffsetBounds(base, g).expand(5);
       }
       bounds = ret;
     }
@@ -542,11 +542,11 @@ public class AddTool extends Tool {
 
   private synchronized void moveTo(Canvas canvas, Graphics g, int x, int y) {
     if (state != SHOW_NONE)
-      expose(canvas, lastX, lastY);
+      expose(canvas, g, lastX, lastY);
     lastX = x;
     lastY = y;
     if (state != SHOW_NONE)
-      expose(canvas, lastX, lastY);
+      expose(canvas, g, lastX, lastY);
   }
 
   @Override
