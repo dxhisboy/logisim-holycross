@@ -3,6 +3,7 @@
 <script src="/sidebar.js"></script>
 <title>Tool and Library Reference</title>
 <link rel="stylesheet" type="text/css" href="../help.css">
+<link rel="stylesheet" href="callouts.css">
 <style>
 </style>
 </head>
@@ -11,6 +12,32 @@
 
 <h1><em>Tool and Library Reference</em></h1>
 
+<div class="callouts">
+<img src="diagram.png"/>
+
+<ul style="top: 75px; left: 270px; --callout-color: #EFC;">
+<li class="callouts--top">
+<b>Toolbar</b> for quick access.  Use these to edit or interact with your
+circuit, or to add your favorite components.
+<p class="tip">Right-click or drag items to customize toolbar for each
+project.</li></ul>
+
+<ul style="top: 180px; left: 270px; --callout-color: #FCB;">
+<li class="callouts--left">
+<b>Circuit List</b> for your project.  Double-click to open a circuit. Or,
+single-click to place one as a sub-circuit within another.
+<p class="tip">A circuit can be embedded as a sub-circuit within another, by
+selecting with single-click, then clicking to place it.</li></ul>
+
+<ul style="top: 320px; left: 270px; --callout-color: #BCF;">
+<li class="callouts--left">
+<b>Standard and Custom Libraries</b> of components to build your circuits. Click
+to select, then click to place in your circuit.
+<p class="tip">Tip: Go to Project &gt; Load Library to add more libraries.</li></ul>
+
+</div>
+
+<!--
 <p>Logisim libraries hold components you can click and place into your circuits.
 Libraries are shown in the left navigation panel. Logisim comes with several
 built-in libraries, but you can load additional external libraries from a Java
@@ -30,9 +57,11 @@ interacting with circuits. You can customize the toolbar by right-clicking it.
     access. You can even drag multiple copies of a component to the toolbar and
     give each different default properties.
 </blockquote>
+-->
 
 <p>Tools and components available for the toolbar and in Logisim's built-in
-libraries are documented below.</p>
+libraries are documented below. </p>
+<!-- include link to adding libraries, and to customizing toolbar -->
 
 <table>
 
@@ -41,19 +70,25 @@ editing and interacting with circuits</td></tr>
 <tr><td align="right"><a href="base/poke.html"><img class="icon" src="../../icons/poke.gif"></a></td>
 	<td><a href="base/poke.html">Poke Tool</a> &mdash; interact with running simulation</td></tr>
 <tr><td align="right"><a href="base/edit.html"><img class="icon" src="../../icons/edit.gif"></a></td>
-    <td><a href="base/edit.html">Multi-Tool</a> &mdash; select and move things, or draw wires</td></tr>
-<tr><td align="right"><a href="base/select.html"><img class="icon" src="../../icons/move.gif"></a></td>
-    <td><a href="base/select.html">Move Tool</a>&mdash; just select and move things</td> </tr>
+    <td><a href="base/edit.html">Multi-Tool</a> &mdash; select and move components, or draw and edit wires</td></tr>
 <tr><td align="right"><a href="base/wiring.html"><img class="icon" src="../../icons/wiring.gif"></a></td>
-	<td><a href="base/wiring.html">Wiring Tool</a> &mdash; just draw wires</td></tr>
+	<td><a href="base/wiring.html">Wiring Tool</a> &mdash; draw and edit wires only</td></tr>
 <tr><td align="right"><a href="base/cutter.html"><img class="icon" src="../../icons/cutter16.png"></a></td>
-	<td><a href="base/cutter.html">Wire Cutter</a> &mdash; delete wires or parts of wires </td></tr>
+	<td><a href="base/cutter.html">Wire Cutter</a> &mdash; delete wires or cut portions of wires </td></tr>
 <tr><td align="right"><a href="base/text.html"><img class="icon" src="../../icons/text.gif"></a></td>
-	<td><a href="base/text.html">Text Tool</a> &mdash; add or edit labels ad text comments</td></tr>
+	<td><a href="base/text.html">Text Tool</a> &mdash; add text boxes, or edit labels on components</td></tr>
+<tr><td align="right"><a href="base/callout.html"><img class="icon" src="../../icons/callout.png"></a></td>
+	<td><a href="base/callout.html">Callout Tool</a> &mdash; add callouts for documenting your circuit</td></tr>
+<tr><td align="right"><a href="base/image.html"><img class="icon" src="../../icons/image.gif"></a></td>
+	<td><a href="base/image.html">Image Tool</a> &mdash; add images to document your circuit</td></tr>
+
+<tr><td colspan=2 style="padding-left: 20px;"><i>The tools below aren't included in the toolbar by default. You can customize the toolbar to add them.</i></td></tr>
+<tr><td align="right"><a href="base/select.html"><img class="icon" src="../../icons/move.gif"></a></td>
+    <td><a href="base/select.html">Move Tool</a>&mdash; select and move components only</td> </tr>
 <tr><td align="right"><a href="base/menu.html"><img class="icon" src="../../icons/menu.gif"></a></td>
-	<td><a href="base/menu.html">Menu Tool</a> &mdash; bring up the right-click context menu</td></tr>
+	<td><a href="base/menu.html">Popup Menu Tool</a> &mdash; bring up the right-click context menu, as an alternative to right-clicking</td></tr>
 <tr><td align="right"><a href="base/comment.html"><img class="icon" src="../../icons/comment.png"></a></td>
-	<td><a href="base/comment.html">Comment</a> &mdash; add text comments</td></tr>
+	<td><a href="base/comment.html">Comment</a> &mdash; add text boxes</td></tr>
 
 <tr><td colspan="2"><br><font size="+1"><b>Wiring library</b></font> &mdash; Basic elements needed for most circuits</td></tr>
 <tr><td align="right"><a href="wiring/splitter.html"><img class="icon" src="../../icons/splitter.gif"></a></td>
