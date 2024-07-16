@@ -237,8 +237,8 @@ public class Slideshow extends InstanceFactory {
         g.setColor(Color.LIGHT_GRAY);
         g.fillRect(x, y, w, h);
         g.setColor(Color.RED);
-        g.drawLine(x, y, x+w-1, y+w-1);
-        g.drawLine(x, y+w-1, x+w-1, y);
+        g.drawLine(x, y, x+w-1, y+h-1);
+        g.drawLine(x, y+h-1, x+w-1, y);
       }
       // TODO: could add inputs to control rotation, scaling, translucency, etc.
     }
