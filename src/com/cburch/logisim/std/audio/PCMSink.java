@@ -172,7 +172,7 @@ public class PCMSink extends InstanceFactory {
     Bounds bds = painter.getNominalBounds();
     Graphics g = painter.getGraphics();
 
-    if (data != null && data.out != null) {
+    if (data != null && data.out != null && data.out.isOpen()) {
       int n = data.count + (data.out.getBufferSize() - data.out.available());
       int m = data.buf.length + data.out.getBufferSize();
       int h = bds.height * n/m;
