@@ -63,7 +63,7 @@ import com.cburch.logisim.util.GraphicsUtil;
 public class Octave extends InstanceFactory {
 
   static final Attribute<Integer> ATTR_OCTAVE
-    = Attributes.forIntegerRange("octave", S.unlocalized("octave"), 1, 7);
+    = Attributes.forIntegerRange("octave", S.unlocalized("Octave"), 1, 7);
   static final Attribute<Boolean> ATTR_CENTER_ON_C
     = Attributes.forBoolean("centerOnC", S.unlocalized("Center on C"));
 
@@ -131,8 +131,11 @@ public class Octave extends InstanceFactory {
     if (data.out == null)
       return;
 
-    Object trigger = circState.getAttributeValue(StdAttr.EDGE_TRIGGER);
     Value enable = circState.getPortValue(WE);
+    if (enable == Value.FALSE)
+      return;
+
+    Object trigger = circState.getAttributeValue(StdAttr.EDGE_TRIGGER);
     Value clock = circState.getPortValue(CK);
     Value lastClock = data.setLastClock(clock);
 
@@ -147,11 +150,11 @@ public class Octave extends InstanceFactory {
 
     data.out.silenceChannel(0);
 
-    if (enable == Value.FALSE) {
-      for (int i = 0; i < 12; i++)
-        data.on[i] = false;
-      return;
-    }
+    // if (enable == Value.FALSE) {
+    //   for (int i = 0; i < 12; i++)
+    //     data.on[i] = false;
+    //   return;
+    // }
 
     boolean onC = circState.getAttributeValue(ATTR_CENTER_ON_C);
     int octave = circState.getAttributeValue(ATTR_OCTAVE);

@@ -63,13 +63,13 @@ public class PCMSink extends InstanceFactory {
   static final AttributeOption RATE_32KHZ = new AttributeOption("32 kHz", S.unlocalized("32 kHz"));
   static final AttributeOption RATE_64KHZ = new AttributeOption("64 kHz", S.unlocalized("64 kHz"));
   static final Attribute<AttributeOption> ATTR_RATE = Attributes.forOption(
-      "rate", S.unlocalized("sample rate"), new AttributeOption[] { RATE_16KHZ, RATE_32KHZ, RATE_64KHZ });
+      "rate", S.getter("audioSampleRate"), new AttributeOption[] { RATE_16KHZ, RATE_32KHZ, RATE_64KHZ });
 
   public static final AttributeOption SIGNED_OPTION = Comparator.SIGNED_OPTION;
   public static final AttributeOption UNSIGNED_OPTION = Comparator.UNSIGNED_OPTION;
   public static final Attribute<AttributeOption> MODE_ATTR = Comparator.MODE_ATTRIBUTE;
 
-  static Attribute<Integer> ATTR_BUFSIZE = Attributes.forIntegerRange("bufsize", S.unlocalized("buffer capacity"), 16, 16*1024);
+  static Attribute<Integer> ATTR_BUFSIZE = Attributes.forIntegerRange("bufsize", S.getter("audioBufferCapacity"), 16, 16*1024);
 
   // port numbers
   static final int CK = 0;

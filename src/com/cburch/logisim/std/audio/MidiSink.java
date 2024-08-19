@@ -31,7 +31,6 @@
 package com.cburch.logisim.std.audio;
 import static com.cburch.logisim.std.Strings.S;
 
-import java.awt.Color;
 import java.awt.Graphics;
 
 import com.cburch.logisim.data.Attribute;
@@ -176,10 +175,10 @@ public class MidiSink extends InstanceFactory {
       return;
     
     AttributeOption iface = circState.getAttributeValue(ATTR_IFACE);
-    int hold = circState.getAttributeValue(ATTR_HOLD);
 
     if (iface == IFACE_LOGISIM5 || iface == IFACE_LOGISIM1) {
       int note, velo, damp, chan, inst;
+      int hold = circState.getAttributeValue(ATTR_HOLD);
       if (iface == IFACE_LOGISIM5) {
         // five inputs, logisim style
         note = circState.getPortValue(NOTE).toIntValue();
@@ -200,9 +199,9 @@ public class MidiSink extends InstanceFactory {
         Value v = circState.getPortValue(IN);
         note = v.extract(0, 8).toIntValue();
         velo = v.extract(8, 15).toIntValue();
-        damp = v.extract(16, 24).toIntValue();
+        chan = v.extract(16, 24).toIntValue();
         inst = v.extract(24, 28).toIntValue();
-        chan = v.extract(28, 29).toIntValue();
+        damp = v.extract(28, 29).toIntValue();
       }
 
       if (velo < 0)
