@@ -30,8 +30,8 @@
 
 package com.cburch.draw.toolbar;
 
-import java.util.List;
 import java.awt.datatransfer.DataFlavor;
+import java.util.List;
 
 import javax.swing.JPopupMenu;
 

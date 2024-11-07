@@ -53,6 +53,7 @@ import com.cburch.logisim.instance.InstanceState;
 import com.cburch.logisim.instance.Port;
 import com.cburch.logisim.instance.StdAttr;
 import com.cburch.logisim.tools.key.DirectionConfigurator;
+import com.cburch.logisim.tools.key.RotationConfigurator;
 import com.cburch.logisim.util.GraphicsUtil;
 
 public class RGBLed extends InstanceFactory implements DynamicElementProvider {
@@ -96,7 +97,10 @@ public class RGBLed extends InstanceFactory implements DynamicElementProvider {
         StdAttr.DEFAULT_LABEL_FONT, Color.BLACK });
     setFacingAttribute(StdAttr.FACING);
     setIconName("rgbled.gif");
-    setKeyConfigurator(new DirectionConfigurator(StdAttr.LABEL_LOC));
+    setKeyConfigurators(
+      new DirectionConfigurator(StdAttr.LABEL_LOC),
+      new RotationConfigurator(StdAttr.FACING)
+    );
     setInstanceLogger(Logger.class);
   }
 

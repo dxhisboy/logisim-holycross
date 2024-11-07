@@ -39,9 +39,9 @@ import com.cburch.logisim.comp.ComponentFactory;
 import com.cburch.logisim.file.LibraryEvent;
 import com.cburch.logisim.file.LibraryListener;
 import com.cburch.logisim.file.LogisimFile;
-import com.cburch.logisim.tools.AddTool;
-import com.cburch.logisim.std.hdl.VhdlEntity;
 import com.cburch.logisim.std.hdl.VhdlContent;
+import com.cburch.logisim.std.hdl.VhdlEntity;
+import com.cburch.logisim.tools.AddTool;
 import com.cburch.logisim.util.Dag;
 
 public class Dependencies {

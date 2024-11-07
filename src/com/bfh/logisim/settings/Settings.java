@@ -78,6 +78,8 @@ public class Settings {
   // or, AlteraToolsPath can be a URL (starting with http:// or https://) in
   // which case a web API is used.
   private static final String AlteraToolsPath = "AlteraToolsPath";
+  private static final String GowinToolsPath = "GowinToolsPath";
+  private static final String OpenFPGALoaderPath = "OpenFPGALoaderPath";
   private static final String Altera64Bit = "Altera64Bit";
   private static final String LatticeToolsPath = "LatticeToolsPath";
   private static final String ApioToolsPath = "ApioToolsPath";
@@ -227,6 +229,11 @@ public class Settings {
     return normalizePath(s);
   }
 
+  public String GetGowinToolPath() {
+    String s = getAttribute(WorkSpace, GowinToolsPath, "gw_sh");
+    return normalizePath(s);
+  }
+
   public String GetLatticeToolPath() {
     String s = getAttribute(WorkSpace, LatticeToolsPath, "");
     return normalizePath(s);
@@ -267,6 +274,18 @@ public class Settings {
     return true;
   }
 
+  public boolean SetGowinToolPath(String path) {
+    path = normalizePath(path);
+    setAttribute(WorkSpace, GowinToolsPath, path);
+    return true;
+  }
+
+  public boolean SetOpenFPGALoaderPath(String path) {
+    path = normalizePath(path);
+    setAttribute(WorkSpace, OpenFPGALoaderPath, path);
+    return true;
+  }
+
   public boolean validXilinxToolPath(String path) {
     path = normalizePath(path);
     return path == null
@@ -286,6 +305,12 @@ public class Settings {
     path = normalizePath(path);
     return path == null
       || LatticeDownload.getToolChainType(path) != LatticeDownload.TOOLCHAIN.UNKNOWN;
+  }
+
+  public boolean validGowinToolPath(String path) {
+    path = normalizePath(path);
+    return path == null
+      || allToolsPresent(path, FPGADownload.GOWIN_PROGRAMS);
   }
 
   public boolean SetApioToolPath(String path) {
@@ -536,6 +561,8 @@ public class Settings {
     GetStaticWorkspacePath();
     GetXilinxToolPath();
     GetAlteraToolPath();
+    GetGowinToolPath();
+    GetOpenFPGALoaderPath();
     GetHDLType();
     GetAltera64Bit();
 

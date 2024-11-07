@@ -41,8 +41,8 @@ import com.cburch.logisim.data.AttributeOption;
 import com.cburch.logisim.data.Attributes;
 import com.cburch.logisim.data.BitWidth;
 import com.cburch.logisim.data.Direction;
-import com.cburch.logisim.instance.StdAttr;
 import com.cburch.logisim.gui.generic.ComboBox;
+import com.cburch.logisim.instance.StdAttr;
 
 public class SplitterAttributes extends AbstractAttributeSet {
   public static class BitOutAttribute extends Attribute<Integer> {

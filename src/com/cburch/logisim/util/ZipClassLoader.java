@@ -33,6 +33,7 @@ package com.cburch.logisim.util;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -133,7 +134,7 @@ public class ZipClassLoader extends ClassLoader {
           ZipEntry zipEntry = zipFile.getEntry(res);
           if (zipEntry != null) {
             String url = "jar:" + zipPath.toURI() + "!/" + res;
-            ret = new URL(url);
+            ret = new URI(url).toURL(); //new URL(url);
             if (DEBUG >= 3)
               System.err.println("  found: " + url); // OK
           }

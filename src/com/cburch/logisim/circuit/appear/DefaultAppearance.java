@@ -32,12 +32,13 @@ package com.cburch.logisim.circuit.appear;
 
 import java.util.Collection;
 import java.util.List;
+
 import com.cburch.draw.model.CanvasObject;
+import com.cburch.logisim.circuit.CircuitAttributes;
+import com.cburch.logisim.data.AttributeOption;
 import com.cburch.logisim.data.Direction;
 import com.cburch.logisim.data.Location;
-import com.cburch.logisim.data.AttributeOption;
 import com.cburch.logisim.instance.Instance;
-import com.cburch.logisim.circuit.CircuitAttributes;
 
 class DefaultAppearance {
 

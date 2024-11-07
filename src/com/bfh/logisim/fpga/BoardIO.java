@@ -46,17 +46,18 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
+import com.bfh.logisim.netlist.Netlist.Int3;
 import com.cburch.logisim.data.Bounds;
 import com.cburch.logisim.std.io.DipSwitch;
 import com.cburch.logisim.std.io.PortIO;
 import com.cburch.logisim.std.io.RGBLed;
 import com.cburch.logisim.util.Errors;
-import static com.bfh.logisim.netlist.Netlist.Int3;
 
 // Each BoardIO represents one physical I/O resource, like an LED, button, or
 // switch. Some I/O resources can only be used as inputs (e.g. a button), some
@@ -79,12 +80,12 @@ import static com.bfh.logisim.netlist.Netlist.Int3;
 // to be split into separate BoardIO resources).
 public class BoardIO {
 
-  public static final EnumSet<Type> PhysicalTypes = EnumSet.range(Type.Button, Type.SevenSegment);
+  public static final EnumSet<Type> PhysicalTypes = EnumSet.range(Type.Button, Type.LEDVector);
   public static final EnumSet<Type> InputTypes = EnumSet.range(Type.Button, Type.Ribbon);
-  public static final EnumSet<Type> OutputTypes = EnumSet.range(Type.Pin, Type.LED);
+  public static final EnumSet<Type> OutputTypes = EnumSet.range(Type.Pin, Type.LEDVector);
   public static final EnumSet<Type> InOutTypes = EnumSet.of(Type.Pin, Type.Ribbon);
   public static final EnumSet<Type> OneBitTypes = EnumSet.of(Type.Button, Type.Pin, Type.LED);
-
+  public static final EnumSet<Type> FlexBitTypes = EnumSet.of(Type.DIPSwitch, Type.Ribbon, Type.LEDVector, Type.SevenSegmentArray);
 	public static enum Type {
     // Note: The order here matters, because of the EnumSet ranges above.
                    // Physical and synthetic I/O resource characteristics:
@@ -98,6 +99,8 @@ public class BoardIO {
 		LED,           // phys  out onebit
     RGBLED,        // phys  out multibit (degenerates to LED)
     SevenSegment,  // phys  out multibit (degenerates to LED)
+    SevenSegmentArray, //phys out multibit (degenerates to LED)
+    LEDVector,      // phys  out multibit (degenerates to LED)
     Unconnected,   // synth out onebit/multibit
 
     Expanded, // only used by PinBindingsDialog as a placeholder 
@@ -129,13 +132,17 @@ public class BoardIO {
       case Pin:
         return 1;
       case DIPSwitch:
-        return (DipSwitch.MIN_SWITCH + DipSwitch.MAX_SWITCH)/2;
+        return 8;
       case Ribbon:
-        return (PortIO.MIN_IO + PortIO.MAX_IO)/2;
+        return 8;
       case SevenSegment:
         return 8;
+      case SevenSegmentArray:
+        return 9;
       case RGBLED:
         return 3;
+      case LEDVector:
+        return 8;
       default:
         return 0;
       }
@@ -153,6 +160,8 @@ public class BoardIO {
       case LED: return "LED";
       case RGBLED: return "3-wire RGB LED";
       case SevenSegment: return "Seven Segment Display";
+      case LEDVector: return "LEDVector";
+      case SevenSegmentArray: return "Seven Segment Array";
       case Unconnected: return "Unconnected";
       default: return "Unrecognized Board I/O Resource";
       }
@@ -164,6 +173,12 @@ public class BoardIO {
         return com.cburch.logisim.std.io.SevenSegment.pinLabels();
       case RGBLED:
         return RGBLed.pinLabels();
+      case SevenSegmentArray:
+        String segments[] = com.cburch.logisim.std.io.SevenSegment.pinLabels();
+        String ret[] = new String[segments.length + width];
+        for (int i = 0; i < segments.length; i ++) ret[i] = segments[i];
+        for (int i = 0; i < width - segments.length; i ++) ret[segments.length + i] = "SharedPin_" + i;
+        return ret;
       default:
         return genericPinLabels(width);
       }
@@ -302,7 +317,9 @@ public class BoardIO {
         throw new Exception("missing pin FPGA location for " + name);
     } else {
       String cnt = params.get("NrOfPins");
-      if (t == Type.Ribbon || t == Type.DIPSwitch) {
+      System.out.println(cnt);
+
+      if (FlexBitTypes.contains(t)) {
         if (cnt == null)
           throw new Exception("missing pin count for " + name);
         width = Integer.parseInt(cnt);
@@ -315,6 +332,7 @@ public class BoardIO {
       }
       pins = new String[width];
       for (int i = 0; i < width; i++) {
+        System.out.println(i);
         pins[i] = params.get("FPGAPin_" + i);
         if (pins[i] == null)
           throw new Exception("missing pin label " + i + " for " + name);
@@ -368,7 +386,7 @@ public class BoardIO {
     int w = t.defaultWidth();
     BoardIO template = new BoardIO(t, w, null/*no label*/, r,
         defaultStandard, defaultPull, defaultActivity, defaultStrength, null /* no orientation */, null /*no pins*/);
-    if (t == Type.DIPSwitch || t == Type.Ribbon)
+    if (FlexBitTypes.contains(t))
       template = doSizeDialog(template, parent);
     if (template == null)
       return null;
@@ -377,7 +395,7 @@ public class BoardIO {
 
   public static BoardIO redoUserDefined(BoardIO io, BoardEditor parent) {
     BoardIO template = io;
-    if (template.type == Type.DIPSwitch || template.type == Type.Ribbon)
+    if (FlexBitTypes.contains(template.type))
       template = doSizeDialog(template, parent);
     if (template == null)
       return io; // user cancelled before getting to config dialog
@@ -647,23 +665,27 @@ public class BoardIO {
   public Int3 getPinCounts() {
     Int3 num = new Int3();
     switch (type) {
-    case Button:
-    case DIPSwitch:
-    case AllZeros:
-    case AllOnes:
-    case Constant:
-      num.in = width;
-      break;
-    case Pin:
-    case Ribbon:
-      num.inout = width;
-      break;
-    case LED:
-    case SevenSegment:
-    case RGBLED:
-    case Unconnected:
-      num.out = width;
-      break;
+      case Button:
+      case DIPSwitch:
+      case AllZeros:
+      case AllOnes:
+      case Constant:
+        num.in = width;
+        break;
+      case Pin:
+      case Ribbon:
+        num.inout = width;
+        break;
+      case LED:
+      case SevenSegment:
+      case RGBLED:
+      case LEDVector:
+      case SevenSegmentArray:
+      case Unconnected:
+        num.out = width;
+        break;
+      default:
+        num.clear();
     }
     return num;
   }
@@ -675,19 +697,20 @@ public class BoardIO {
       // RGBLed, SevenSegment, or a multi-bit top-level input or output Ribbon.
       // Ribbon can connect to anything (so long as the directions are
       // compatible), but others must connect to the exactly matching type.
-      if (compType != Type.Ribbon && compType != type)
+      // Any bits can be mapped to a LEDVector
+      if (compType != Type.Ribbon && compType != type && !(type == Type.LEDVector && compWidth.out > 0))
         return false;
       // Widths must match exactly, directions must be compatible.
       Int3 rsrc = getPinCounts();
-      return (compWidth.in > 0 && compWidth.in == (rsrc.in + rsrc.inout))
-          || (compWidth.out > 0 && compWidth.out == (rsrc.out + rsrc.inout))
-          || (compWidth.inout > 0 && compWidth.inout == rsrc.inout);
+      return (compWidth.in > 0 && compWidth.in <= (rsrc.in + rsrc.inout))
+          || (compWidth.out > 0 && compWidth.out <= (rsrc.out + rsrc.inout))
+          || (compWidth.inout > 0 && compWidth.inout <= rsrc.inout);
     } else {
       // Component is single-bit, such as Button, LED, or single-bit top-level
       // input or output Pin. Pin can connect to anything (so long as the
       // directions are compatible), but others must connect to the exactly
       // matching type.
-      if (compType != Type.Pin && compType != type)
+      if (compType != Type.Pin && compType != type && !(type == Type.LEDVector && compWidth.out > 0))
         return false;
       // Widths must be sufficient, directions must be compatible.
       Int3 rsrc = getPinCounts();

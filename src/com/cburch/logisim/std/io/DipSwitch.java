@@ -33,8 +33,8 @@ import static com.cburch.logisim.std.Strings.S;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.event.MouseEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 
 import com.bfh.logisim.hdlgenerator.HDLSupport;
 import com.cburch.logisim.comp.Component;
@@ -57,6 +57,8 @@ import com.cburch.logisim.instance.StdAttr;
 import com.cburch.logisim.tools.key.BitWidthConfigurator;
 import com.cburch.logisim.tools.key.DirectionConfigurator;
 import com.cburch.logisim.tools.key.JoinedConfigurator;
+import com.cburch.logisim.tools.key.KeyConfigurator;
+import com.cburch.logisim.tools.key.RotationConfigurator;
 import com.cburch.logisim.util.GraphicsUtil;
 
 public class DipSwitch extends InstanceFactory {
@@ -137,9 +139,11 @@ public class DipSwitch extends InstanceFactory {
         Color.BLACK, BitWidth.create(dipSize) });
     setFacingAttribute(StdAttr.FACING);
     setIconName("dipswitch.gif");
-    setKeyConfigurator(JoinedConfigurator.create(
+    setKeyConfigurators(
           new BitWidthConfigurator(ATTR_SIZE),
-          new DirectionConfigurator(StdAttr.LABEL_LOC)));
+          new DirectionConfigurator(StdAttr.LABEL_LOC),
+          new RotationConfigurator(StdAttr.FACING)
+    );
     setInstancePoker(Poker.class);
   }
 

@@ -31,15 +31,15 @@
 package com.cburch.logisim.gui.appear;
 import static com.cburch.logisim.gui.main.Strings.S;
 
-import java.util.Map;
-import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.cburch.draw.model.CanvasObject;
 import com.cburch.logisim.circuit.Circuit;
-import com.cburch.logisim.circuit.appear.CircuitAppearance;
-import com.cburch.logisim.circuit.CircuitTransaction;
 import com.cburch.logisim.circuit.CircuitMutator;
+import com.cburch.logisim.circuit.CircuitTransaction;
+import com.cburch.logisim.circuit.appear.CircuitAppearance;
 import com.cburch.logisim.proj.Action;
 import com.cburch.logisim.proj.Project;
 

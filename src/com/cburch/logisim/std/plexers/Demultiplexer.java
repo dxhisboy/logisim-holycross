@@ -50,7 +50,7 @@ import com.cburch.logisim.instance.InstanceState;
 import com.cburch.logisim.instance.Port;
 import com.cburch.logisim.instance.StdAttr;
 import com.cburch.logisim.tools.key.BitWidthConfigurator;
-import com.cburch.logisim.tools.key.JoinedConfigurator;
+import com.cburch.logisim.tools.key.RotationConfigurator;
 import com.cburch.logisim.util.GraphicsUtil;
 
 public class Demultiplexer extends InstanceFactory {
@@ -63,9 +63,11 @@ public class Demultiplexer extends InstanceFactory {
         Plexers.SELECT_BOTTOM_LEFT, Plexers.DEFAULT_SELECT,
         BitWidth.ONE, Plexers.DEFAULT_TRISTATE, Plexers.DISABLED_ZERO,
         Plexers.DEFAULT_ENABLE });
-    setKeyConfigurator(JoinedConfigurator.create(new BitWidthConfigurator(
-            Plexers.ATTR_SELECT, 1, 5, 0), new BitWidthConfigurator(
-              StdAttr.WIDTH)));
+    setKeyConfigurators(
+      new BitWidthConfigurator(Plexers.ATTR_SELECT, 1, 5, 0),
+      new BitWidthConfigurator(StdAttr.WIDTH),
+      new RotationConfigurator(StdAttr.FACING)
+    );
     setFacingAttribute(StdAttr.FACING);
     setIconName("demultiplexer.gif");
   }

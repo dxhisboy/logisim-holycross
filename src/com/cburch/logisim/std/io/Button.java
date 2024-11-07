@@ -33,8 +33,8 @@ import static com.cburch.logisim.std.Strings.S;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.event.MouseEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 
 import com.bfh.logisim.hdlgenerator.HDLSupport;
 import com.cburch.logisim.circuit.Wire;
@@ -55,8 +55,11 @@ import com.cburch.logisim.instance.InstancePoker;
 import com.cburch.logisim.instance.InstanceState;
 import com.cburch.logisim.instance.Port;
 import com.cburch.logisim.instance.StdAttr;
-import com.cburch.logisim.util.GraphicsUtil;
 import com.cburch.logisim.tools.key.DirectionConfigurator;
+import com.cburch.logisim.tools.key.JoinedConfigurator;
+import com.cburch.logisim.tools.key.KeyConfigurator;
+import com.cburch.logisim.tools.key.RotationConfigurator;
+import com.cburch.logisim.util.GraphicsUtil;
 
 public class Button extends InstanceFactory {
   public static class Logger extends InstanceLogger {
@@ -116,7 +119,10 @@ public class Button extends InstanceFactory {
         Color.BLACK });
     setFacingAttribute(StdAttr.FACING);
     setIconName("button.gif");
-    setKeyConfigurator(new DirectionConfigurator(StdAttr.LABEL_LOC));
+    setKeyConfigurators(
+      new DirectionConfigurator(StdAttr.LABEL_LOC),
+      new RotationConfigurator(StdAttr.FACING)
+    );
     setPorts(new Port[] { new Port(0, 0, Port.OUTPUT, 1) });
     setInstancePoker(Poker.class);
     setInstanceLogger(Logger.class);

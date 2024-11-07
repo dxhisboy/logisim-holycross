@@ -58,6 +58,7 @@ import com.cburch.logisim.instance.StdAttr;
 import com.cburch.logisim.tools.key.DirectionConfigurator;
 import com.cburch.logisim.tools.key.IntegerConfigurator;
 import com.cburch.logisim.tools.key.JoinedConfigurator;
+import com.cburch.logisim.tools.key.RotationConfigurator;
 import com.cburch.logisim.util.GraphicsUtil;
 import com.cburch.logisim.util.StringUtil;
 
@@ -96,9 +97,11 @@ public class PortIO extends InstanceFactory {
         Color.BLACK, portSize, INOUT_1 });
     setFacingAttribute(StdAttr.FACING);
     setIconName("pio.gif");
-    setKeyConfigurator(JoinedConfigurator.create(
+    setKeyConfigurators(
           new IntegerConfigurator(ATTR_SIZE, MIN_IO, MAX_IO, KeyEvent.ALT_DOWN_MASK),
-          new DirectionConfigurator(StdAttr.LABEL_LOC)));
+          new DirectionConfigurator(StdAttr.LABEL_LOC),
+          new RotationConfigurator(StdAttr.FACING)
+    );
     setInstancePoker(PortPoker.class);
   }
 

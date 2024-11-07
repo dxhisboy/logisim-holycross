@@ -36,8 +36,8 @@ import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Font;
 import java.awt.FontMetrics;
-import java.awt.Graphics2D;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -47,8 +47,8 @@ import java.util.Map;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
-import com.bfh.logisim.hdlgenerator.HDLSupport;
 import com.bfh.logisim.hdlgenerator.CircuitHDLGenerator;
+import com.bfh.logisim.hdlgenerator.HDLSupport;
 import com.cburch.logisim.comp.Component;
 import com.cburch.logisim.data.Attribute;
 import com.cburch.logisim.data.AttributeSet;
@@ -69,6 +69,7 @@ import com.cburch.logisim.proj.Project;
 import com.cburch.logisim.std.wiring.Pin;
 import com.cburch.logisim.tools.MenuExtender;
 import com.cburch.logisim.tools.key.DirectionConfigurator;
+import com.cburch.logisim.tools.key.RotationConfigurator;
 import com.cburch.logisim.util.GraphicsUtil;
 import com.cburch.logisim.util.StringGetter;
 import com.cburch.logisim.util.StringUtil;
@@ -113,7 +114,10 @@ public class SubcircuitFactory extends InstanceFactory {
     setFacingAttribute(StdAttr.FACING);
     setDefaultToolTip(new CircuitFeature(null));
     setInstancePoker(SubcircuitPoker.class);
-    setKeyConfigurator(new DirectionConfigurator(StdAttr.LABEL_LOC));
+    setKeyConfigurators(
+      new DirectionConfigurator(StdAttr.LABEL_LOC),
+      new RotationConfigurator(StdAttr.FACING)
+    );
   }
 
   void computePorts(Instance instance) {

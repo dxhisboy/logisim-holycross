@@ -29,8 +29,6 @@
  */
 package com.cburch.logisim.std.io;
 
-import java.io.File;
-
 import com.bfh.logisim.hdlgenerator.HDLGenerator;
 import com.bfh.logisim.hdlgenerator.HiddenPort;
 import com.bfh.logisim.netlist.NetlistComponent;
@@ -51,23 +49,23 @@ public class KeyboardHDLGenerator extends HDLGenerator {
     parameters.add("counter_size", counter_size);
     vhdlLibraries.add(IEEE_UNSIGNED); // for addition on std_logic_vector
 
-    // Note: We expect the slow clock to actually be FPGAClock (or its inverse).
-    // This is the case whenever the clock input is connected to a proper clock
-    // bus. Other cases, e.g. using a gated clock, are not supported here:
-    // proper HDL would be tricky, since we need data to cross between the raw
-    // clock domain and slow clock domain. There is a warning in HDLGenerator
-    // about this.
+        // Note: We expect the slow clock to actually be FPGAClock (or its inverse).
+        // This is the case whenever the clock input is connected to a proper clock
+        // bus. Other cases, e.g. using a gated clock, are not supported here:
+        // proper HDL would be tricky, since we need data to cross between the raw
+        // clock domain and slow clock domain. There is a warning in HDLGenerator
+        // about this.
 
-    clockPort = new ClockPortInfo("FPGAClock", "SlowClockEnable", Keyboard.CK);
-    // inPorts.add("FPGAClock", 1, -1, null); // see getPortMappings, below
-    inPorts.add("ReadEnable", 1, Keyboard.RE, true); // default enable = true
-    // inPorts.add("Clear", 1, Keyboard.CLR, false); // todo
-    outPorts.add("Data", "AsciiWidth", Keyboard.OUT, null);
-    outPorts.add("Available", 1, Keyboard.AVL, null);
+        clockPort = new ClockPortInfo("FPGAClock", "SlowClockEnable", Keyboard.CK);
+        // inPorts.add("FPGAClock", 1, -1, null); // see getPortMappings, below
+        inPorts.add("ReadEnable", 1, Keyboard.RE, true); // default enable = true
+        // inPorts.add("Clear", 1, Keyboard.CLR, false); // todo
+        outPorts.add("Data", "AsciiWidth", Keyboard.OUT, null);
+        outPorts.add("Available", 1, Keyboard.AVL, null);
 
-    String[] labels = new String[] { "ps2kb_clk", "ps2kb_dat", "ps2ms_clk", "ps2ms_dat" };
-    hiddenPort = HiddenPort.makeInOutport(labels, HiddenPort.Ribbon, HiddenPort.Pin);
-  }
+        String[] labels = new String[] { "ps2kb_clk", "ps2kb_dat", "ps2ms_clk", "ps2ms_dat" };
+        hiddenPort = HiddenPort.makeInOutport(labels, HiddenPort.Ribbon, HiddenPort.Pin);
+    }
 
   @Override
 	protected Hdl getArchitecture() {
@@ -685,11 +683,11 @@ public class KeyboardHDLGenerator extends HDLGenerator {
   //     super.getPortMappings(map, comp, p);
   // }
 
-  @Override
-  protected Hdl.Map getPortMappings(NetlistComponent comp) {
-    // todo: support CLR
-    if (comp.endIsConnected(Keyboard.CLR))
-      _err.AddWarning("Clear signal is not yet supported for Keyboard component in HDL");
-    return super.getPortMappings(comp);
-  }
+    @Override
+    protected Hdl.Map getPortMappings(NetlistComponent comp) {
+        // todo: support CLR
+        if (comp.endIsConnected(Keyboard.CLR))
+            _err.AddWarning("Clear signal is not yet supported for Keyboard component in HDL");
+        return super.getPortMappings(comp);
+    }
 }

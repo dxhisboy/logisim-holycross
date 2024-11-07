@@ -46,6 +46,7 @@ import com.cburch.logisim.file.XmlReader;
 import com.cburch.logisim.instance.Instance;
 import com.cburch.logisim.std.io.HexDigitShape;
 import com.cburch.logisim.std.io.LedShape;
+import com.cburch.logisim.std.io.LedVectorShape;
 import com.cburch.logisim.std.io.RGBLedShape;
 import com.cburch.logisim.std.io.SevenSegmentShape;
 import com.cburch.logisim.std.memory.CounterShape;
@@ -94,6 +95,8 @@ public class AppearanceSvgReader {
       DynamicElement shape;
       if (name.equals("visible-led")) {
         shape = new LedShape(x, y, path);
+      } if (name.equals("visible-ledvector")) {
+        shape = new LedVectorShape(x, y, path);
       } else if (name.equals("visible-rgbled")) {
         shape = new RGBLedShape(x, y, path);
       } else if (name.equals("visible-hexdigit")) {

@@ -46,16 +46,16 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import com.cburch.logisim.proj.ProjectActions;
 import com.cburch.logisim.analyze.model.AnalyzerModel;
 import com.cburch.logisim.analyze.model.VariableList;
 import com.cburch.logisim.circuit.Circuit;
 import com.cburch.logisim.circuit.CircuitMutation;
 import com.cburch.logisim.file.LogisimFileActions;
+import com.cburch.logisim.gui.main.Frame;
 import com.cburch.logisim.proj.Project;
+import com.cburch.logisim.proj.ProjectActions;
 import com.cburch.logisim.proj.Projects;
 import com.cburch.logisim.std.gates.CircuitBuilder;
-import com.cburch.logisim.gui.main.Frame;
 
 class BuildCircuitButton extends JButton {
   private class DialogPanel extends JPanel {

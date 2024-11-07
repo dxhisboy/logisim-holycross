@@ -31,13 +31,14 @@
 package com.cburch.logisim.gui.appear;
 import static com.cburch.logisim.tools.Strings.S;
 
-import java.awt.Graphics;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.Point;
+
 import javax.swing.Icon;
 
-import com.cburch.draw.tools.DrawingAttributeSet;
 import com.cburch.draw.toolbar.ToolbarClickableItem;
+import com.cburch.draw.tools.DrawingAttributeSet;
 import com.cburch.logisim.util.Icons;
 
 public class ShowStateTool implements ToolbarClickableItem {

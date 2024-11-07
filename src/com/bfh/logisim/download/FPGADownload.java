@@ -86,6 +86,8 @@ public abstract class FPGADownload {
         return new LatticeDownload(); // ???
       case APIO_TOOLCHAIN:
         return new ApioDownload();
+      case GOWIN_TOOLCHAIN:
+        return new GowinDownload();
       default:
         return new ApioDownload();
     }
@@ -144,6 +146,7 @@ public abstract class FPGADownload {
 
   public final static String ALTERA_QUARTUS_TOOLCHAIN = "Altera Quartus";
   public final static String XILINX_ISE_TOOLCHAIN = "Xilinx ISE";
+  public final static String GOWIN_TOOLCHAIN = "Gowin";
   public final static String LATTICE_DIAMOND_TOOLCHAIN = "Lattice Diamond";
   public final static String LATTICE_ISPLEVER_TOOLCHAIN = "Lattice ispLEVER";
   public final static String APIO_TOOLCHAIN = "Apio";
@@ -170,6 +173,8 @@ public abstract class FPGADownload {
         return LATTICE_ISPLEVER_TOOLCHAIN;
       case "apio":
         return APIO_TOOLCHAIN;
+      case "gowin":
+        return GOWIN_TOOLCHAIN;
       default:
         return null;
     }
@@ -284,22 +289,22 @@ public abstract class FPGADownload {
         completion.run();
         return;
       }
-      console.printf(console.INFO, "Command: %s\n", shellEscape(cmd));
+      console.printf(Console.INFO, "Command: %s\n", shellEscape(cmd));
       ProcessBuilder builder = new ProcessBuilder(cmd);
       builder.directory(new File(sandboxPath));
       Process process;
       try {
         process = builder.start();
       } catch (IOException e) {
-        console.printf(console.ERROR, e.getMessage());
+        console.printf(Console.ERROR, e.getMessage());
         failed = true;
         completion.run();
         return;
       }
       InputStream stdout = process.getInputStream();
       InputStream stderr = process.getErrorStream();
-      Thread t1 = console.copyFrom(console.INFO, stdout);
-      Thread t2 = console.copyFrom(console.WARNING, stderr);
+      Thread t1 = console.copyFrom(Console.INFO, stdout);
+      Thread t2 = console.copyFrom(Console.WARNING, stderr);
       thread = new Thread(() -> {
         boolean needRetry = false;
         try {

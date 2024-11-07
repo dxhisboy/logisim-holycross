@@ -30,8 +30,8 @@
 
 package com.cburch.logisim.std.hdl;
 
-import com.bfh.logisim.netlist.Netlist;
 import com.bfh.logisim.hdlgenerator.HDLGenerator;
+import com.bfh.logisim.netlist.Netlist;
 import com.cburch.logisim.data.AttributeSet;
 import com.cburch.logisim.hdl.Hdl;
 import com.cburch.logisim.instance.Port;

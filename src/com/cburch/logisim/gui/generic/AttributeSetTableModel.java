@@ -37,11 +37,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import com.cburch.logisim.circuit.SplitterAttributes;
 import com.cburch.logisim.data.Attribute;
 import com.cburch.logisim.data.AttributeEvent;
 import com.cburch.logisim.data.AttributeListener;
 import com.cburch.logisim.data.AttributeSet;
-import com.cburch.logisim.circuit.SplitterAttributes;
 
 public abstract class AttributeSetTableModel
   implements AttrTableModel, AttributeListener {
@@ -143,7 +143,7 @@ public abstract class AttributeSetTableModel
     this.attrs = attrs;
     if (attrs != null) {
       for (Attribute<?> attr : attrs.getAttributes()) {
-        AttrRow<?> row = new AttrRow(attr);
+        AttrRow<?> row = new AttrRow<>(attr);
         rowMap.put(attr, row);
         rows.add(row);
       }
@@ -176,7 +176,7 @@ public abstract class AttributeSetTableModel
     for (Attribute<?> attr : attrs.getAttributes()) {
       AttrRow<?> row = rowMap.get(attr);
       if (row == null) {
-        row = new AttrRow(attr);
+        row = new AttrRow<>(attr);
         rowMap.put(attr, row);
       } else {
         missing.remove(attr);

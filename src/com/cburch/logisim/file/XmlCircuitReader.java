@@ -31,11 +31,13 @@
 package com.cburch.logisim.file;
 import static com.cburch.logisim.file.Strings.S;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.ArrayList;
+
+import javax.swing.JOptionPane;
 
 import org.w3c.dom.Element;
 
@@ -55,8 +57,6 @@ import com.cburch.logisim.std.base.Text;
 import com.cburch.logisim.tools.AddTool;
 import com.cburch.logisim.tools.Library;
 import com.cburch.logisim.tools.Tool;
-
-import javax.swing.JOptionPane;
 
 public class XmlCircuitReader extends CircuitTransaction {
 

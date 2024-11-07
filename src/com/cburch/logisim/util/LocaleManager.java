@@ -306,8 +306,7 @@ public class LocaleManager {
         country = null;
       }
       if (language != null) {
-        Locale loc = country == null ? new Locale(language)
-            : new Locale(language, country);
+        Locale loc = country == null ? new Locale(language) : new Locale(language, country);
         retl.add(loc);
       }
     }

@@ -34,22 +34,22 @@ import static com.cburch.logisim.gui.main.Strings.S;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.cburch.logisim.instance.StdAttr;
-import com.cburch.logisim.data.Attribute;
-import com.cburch.logisim.data.AttributeSet;
-import com.cburch.logisim.proj.Action;
-import com.cburch.logisim.proj.Project;
-import com.cburch.logisim.tools.Tool;
-import com.cburch.logisim.tools.FactoryAttributes;
-import com.cburch.logisim.tools.key.KeyConfigurationEvent;
-import com.cburch.logisim.tools.key.KeyConfigurationResult;
 import com.cburch.logisim.circuit.Circuit;
 import com.cburch.logisim.circuit.CircuitAttributes;
 import com.cburch.logisim.circuit.CircuitMutator;
 import com.cburch.logisim.circuit.CircuitTransaction;
 import com.cburch.logisim.circuit.SubcircuitFactory;
-import com.cburch.logisim.std.hdl.VhdlEntity;
 import com.cburch.logisim.comp.ComponentFactory;
+import com.cburch.logisim.data.Attribute;
+import com.cburch.logisim.data.AttributeSet;
+import com.cburch.logisim.instance.StdAttr;
+import com.cburch.logisim.proj.Action;
+import com.cburch.logisim.proj.Project;
+import com.cburch.logisim.std.hdl.VhdlEntity;
+import com.cburch.logisim.tools.FactoryAttributes;
+import com.cburch.logisim.tools.Tool;
+import com.cburch.logisim.tools.key.KeyConfigurationEvent;
+import com.cburch.logisim.tools.key.KeyConfigurationResult;
 
 public class ToolAttributeAction extends Action {
   public static Action create(KeyConfigurationResult results) {

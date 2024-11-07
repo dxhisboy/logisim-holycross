@@ -66,7 +66,8 @@ public class HiddenPort {
   public static final BoardIO.Type LED = BoardIO.Type.LED; // single-bit
   public static final BoardIO.Type RGBLED = BoardIO.Type.RGBLED; // multi-bit
   public static final BoardIO.Type SevenSegment = BoardIO.Type.SevenSegment; // multi-bit
-  
+  public static final BoardIO.Type LEDVector = BoardIO.Type.LEDVector; // multi-bit
+  public static final BoardIO.Type SevenSegmentArray = BoardIO.Type.SevenSegmentArray;
   public final boolean in, out, inout;
   public final List<String> labels;
   public final List<String> inports, inoutports, outports; // labels by category, for convenience

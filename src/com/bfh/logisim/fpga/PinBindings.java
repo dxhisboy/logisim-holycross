@@ -43,7 +43,6 @@ import com.bfh.logisim.gui.FPGAReport;
 import com.bfh.logisim.netlist.NetlistComponent;
 import com.bfh.logisim.netlist.Path;
 import com.cburch.logisim.file.XmlIterator;
-import com.cburch.logisim.std.wiring.Pin;
 import static com.bfh.logisim.netlist.Netlist.Int3;
 
 // PinBindings tracks the bindings ("mappings") between, on the one side,
@@ -149,14 +148,24 @@ public class PinBindings {
   public static class Dest {
     public final BoardIO io; // may be synthetic
     public final int bit; // -1 means something maps to this entire BoardIO
+    public final int width;
     private Int3 seqno; // set by finalizeMappings(), used during HDL generation
-    public Dest(BoardIO i, int b) { io = i; bit = b; }
+    public Dest(BoardIO i, int b) { io = i; bit = b; width = 1;}
+    public Dest(BoardIO i, int b, int w) { io = i; bit = b; width = w;}
     @Override
     public String toString() {
       if (bit < 0)
         return io.toString();
-      else
+      else if (width == 1)
         return io.pinLabel(bit) + " of " + io;
+      else {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < width; i ++) {
+          if (i > 0) sb.append(",");
+          sb.append(io.pinLabel(bit + i));
+        }
+        return "[" + sb.toString() + "] of " + io;
+      }
     }
     public Int3 seqno() {
       return seqno.copy();
@@ -200,6 +209,8 @@ public class PinBindings {
     i = destName.indexOf(" of ");
     if (i > 0) {
       destPin = destName.substring(0, i);
+      int j = destPin.indexOf(",");
+      if (j > 0) destPin = destPin.substring(1, j);
       destName = destName.substring(i+4);
     }
     BoardIO.Type type = BoardIO.Type.getPhysicalType(m.type);
@@ -450,7 +461,7 @@ public class PinBindings {
 
   public boolean containsMappingFor(BoardIO io, int bit) {
     for (Dest d : mappings.values()) {
-      if (d.io == io && (d.bit < 0 || d.bit == bit))
+      if (d.io == io && (d.bit < 0 || d.bit <= bit && d.bit + d.width > bit))
         return true;
     }
     return false;
@@ -497,7 +508,7 @@ public class PinBindings {
     HashSet<Source> modified = new HashSet<>();
     // sanity check: sizes must match
     int srcWidth = src.bit >= 0 ? 1 : src.width.size();
-    int ioWidth = bit >= 0 ? 1 : io.width;
+    int ioWidth = bit >= 0 ? src.width.size() : io.width;
     if (srcWidth != ioWidth) {
       err.AddError("INTERNAL ERROR: Component is %d bits, but I/O resource is %d bits.",
           srcWidth, ioWidth);
@@ -509,20 +520,22 @@ public class PinBindings {
 
   private void addMapping(Source src, BoardIO io, int bit, HashSet<Source> modified) {
     // remove existing mappings from same source and mappings to same dest
+    int width = src.width.size();
+
     mappings.entrySet().removeIf(e -> {
       Source s = e.getKey();
       Dest d = e.getValue();
       boolean samesource =
           s.path.equals(src.path) && (src.bit < 0 || s.bit < 0 || src.bit == s.bit);
       boolean samedest = 
-          d.io == io && (bit < 0 || d.bit < 0 || bit == d.bit);
+          d.io == io && (bit < 0 || d.bit < 0 || (bit <= d.bit && bit + width > d.bit || d.bit <= bit && d.bit + width > bit));
       if (modified != null && (samesource || samedest))
         modified.add(s);
       return samesource || samedest;
     });
     if (modified != null)
       modified.add(src);
-    mappings.put(src, new Dest(io, bit));
+    mappings.put(src, new Dest(io, bit, width));
   }
 
   public String getStatus() { // result begins with "All" if and only if everything mapped

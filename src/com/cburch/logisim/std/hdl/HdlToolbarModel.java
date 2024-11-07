@@ -31,9 +31,6 @@
 package com.cburch.logisim.std.hdl;
 import static com.cburch.logisim.std.Strings.S;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Component;
@@ -41,6 +38,9 @@ import java.awt.Composite;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import javax.swing.Icon;
 import javax.swing.JPopupMenu;

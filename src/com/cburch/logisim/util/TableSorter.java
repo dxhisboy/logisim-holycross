@@ -303,7 +303,7 @@ public class TableSorter extends AbstractTableModel {
           && column != TableModelEvent.ALL_COLUMNS
           && getSortingStatus(column) == NOT_SORTED
           && modelToView != null) {
-        int viewIndex = getModelToView()[e.getFirstRow()];
+        int viewIndex = getmodelToView2D()[e.getFirstRow()];
         fireTableChanged(new TableModelEvent(TableSorter.this,
               viewIndex, viewIndex, column, e.getType()));
         return;
@@ -446,9 +446,9 @@ public class TableSorter extends AbstractTableModel {
         sortingColumns.indexOf(directive));
   }
 
-  private int[] getModelToView() {
+  private int[] getmodelToView2D() {
     if (modelToView == null) {
-      int n = getViewToModel().length;
+      int n = getviewToModel2D().length;
       modelToView = new int[n];
       for (int i = 0; i < n; i++) {
         modelToView[modelIndex(i)] = i;
@@ -479,7 +479,7 @@ public class TableSorter extends AbstractTableModel {
     return tableModel.getValueAt(modelIndex(row), column);
   }
 
-  private Row[] getViewToModel() {
+  private Row[] getviewToModel2D() {
     if (viewToModel == null) {
       int tableModelRowCount = tableModel.getRowCount();
       viewToModel = new Row[tableModelRowCount];
@@ -503,7 +503,7 @@ public class TableSorter extends AbstractTableModel {
   }
 
   public int modelIndex(int viewIndex) {
-    return getViewToModel()[viewIndex].modelIndex;
+    return getviewToModel2D()[viewIndex].modelIndex;
   }
 
   // Helper classes

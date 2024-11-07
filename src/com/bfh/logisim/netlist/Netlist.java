@@ -40,8 +40,6 @@ import com.bfh.logisim.gui.FPGAReport;
 import com.bfh.logisim.hdlgenerator.CircuitHDLGenerator;
 import com.bfh.logisim.hdlgenerator.HDLSupport;
 import com.bfh.logisim.library.DynamicClock;
-import com.bfh.logisim.netlist.NetlistComponent;
-import com.bfh.logisim.netlist.Path;
 import com.cburch.logisim.circuit.Circuit;
 import com.cburch.logisim.circuit.Splitter;
 import com.cburch.logisim.circuit.SplitterFactory;
@@ -876,7 +874,7 @@ public class Netlist {
 
     // Follow signal through splitters.
     for (Net.SplitterPort sp : net.splitters) {
-      int n = sp.splitter.getEnds().size();
+      // int n = sp.splitter.getEnds().size();
       byte[] dest = sp.splitter.getEndpoints();
       if (sp.end == 0) { // net goes into big combined end
         int end2 = dest[bit];

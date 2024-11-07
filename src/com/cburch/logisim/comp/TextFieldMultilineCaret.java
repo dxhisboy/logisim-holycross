@@ -31,9 +31,9 @@
 package com.cburch.logisim.comp;
 
 import java.awt.Color;
-import java.awt.Rectangle;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 
 import com.cburch.draw.util.TextMetrics;

@@ -36,7 +36,6 @@ import java.util.ArrayList;
 import com.bfh.logisim.netlist.Net;
 import com.bfh.logisim.netlist.Netlist;
 import com.bfh.logisim.netlist.NetlistComponent;
-import com.bfh.logisim.netlist.Path;
 import com.cburch.logisim.hdl.Hdl;
 import com.cburch.logisim.data.Location;
 import com.cburch.logisim.instance.StdAttr;
@@ -150,7 +149,7 @@ public class HDLGenerator extends HDLSupport {
     //   return null;
     // }
     public void add(String name, int val) {
-      add(new ParameterInfo(name, "integer", val, 0));
+      add(new ParameterInfo(name, "integer", val, val));
     }
   }
 

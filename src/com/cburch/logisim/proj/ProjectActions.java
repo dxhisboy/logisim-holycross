@@ -49,8 +49,8 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import com.cburch.logisim.circuit.Circuit;
-import com.cburch.logisim.file.LoadFailedException;
 import com.cburch.logisim.file.LoadCanceledByUser;
+import com.cburch.logisim.file.LoadFailedException;
 import com.cburch.logisim.file.Loader;
 import com.cburch.logisim.file.LogisimFile;
 import com.cburch.logisim.gui.main.Frame;

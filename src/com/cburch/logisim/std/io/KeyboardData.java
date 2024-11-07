@@ -30,9 +30,8 @@
 
 package com.cburch.logisim.std.io;
 
-import java.util.ArrayList;
-
 import java.awt.FontMetrics;
+import java.util.ArrayList;
 
 import com.cburch.logisim.data.Value;
 import com.cburch.logisim.instance.InstanceData;

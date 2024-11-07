@@ -29,10 +29,10 @@
  */
 package com.cburch.logisim.std.io;
 
-import com.bfh.logisim.netlist.Net;
-import com.bfh.logisim.netlist.NetlistComponent;
 import com.bfh.logisim.hdlgenerator.HDLInliner;
 import com.bfh.logisim.hdlgenerator.HiddenPort;
+import com.bfh.logisim.netlist.Net;
+import com.bfh.logisim.netlist.NetlistComponent;
 import com.cburch.logisim.hdl.Hdl;
 
 public class LightsHDLGenerator extends HDLInliner {
@@ -44,6 +44,12 @@ public class LightsHDLGenerator extends HDLInliner {
   public static LightsHDLGenerator forLed(ComponentContext ctx) {
     LightsHDLGenerator g = new LightsHDLGenerator(ctx);
     g.hiddenPort = HiddenPort.makeOutport(1, HiddenPort.LED, HiddenPort.Pin);
+    return g;
+  }
+
+  public static LightsHDLGenerator forLedVector(ComponentContext ctx) {
+    LightsHDLGenerator g = new LightsHDLGenerator(ctx);
+    g.hiddenPort = HiddenPort.makeOutport(ctx.attrs.getValue(LedVector.ATTR_ARRAY_WIDTH), HiddenPort.LEDVector, HiddenPort.LED, HiddenPort.Ribbon, HiddenPort.Pin);
     return g;
   }
 

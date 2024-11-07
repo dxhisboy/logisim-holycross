@@ -31,8 +31,8 @@
 package com.cburch.logisim.std.wiring;
 import static com.cburch.logisim.std.Strings.S;
 
-import java.awt.Font;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 
@@ -53,6 +53,8 @@ import com.cburch.logisim.instance.InstanceState;
 import com.cburch.logisim.instance.Port;
 import com.cburch.logisim.instance.StdAttr;
 import com.cburch.logisim.tools.key.DirectionConfigurator;
+import com.cburch.logisim.tools.key.RotationConfigurator;
+import com.cburch.logisim.util.GraphicsUtil;
 import com.cburch.logisim.util.GraphicsUtil;
 
 public class Probe extends InstanceFactory implements DynamicValueProvider {
@@ -178,7 +180,10 @@ public class Probe extends InstanceFactory implements DynamicValueProvider {
   public Probe() {
     super("Probe", S.getter("probeComponent"));
     setIconName("probe.gif");
-    setKeyConfigurator(new DirectionConfigurator(StdAttr.LABEL_LOC));
+    setKeyConfigurators(
+      new DirectionConfigurator(StdAttr.LABEL_LOC),
+      new RotationConfigurator(StdAttr.FACING)
+    );
     setFacingAttribute(StdAttr.FACING);
     setInstanceLogger(ProbeLogger.class);
   }

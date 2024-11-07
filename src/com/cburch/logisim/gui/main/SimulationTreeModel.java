@@ -30,9 +30,9 @@
 
 package com.cburch.logisim.gui.main;
 
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import javax.swing.event.EventListenerList;
 import javax.swing.event.TreeModelEvent;

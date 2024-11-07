@@ -55,7 +55,7 @@ class PropagationPoints {
     public boolean equals(Object other) {
       if (!(other instanceof Entry))
         return false;
-      Entry o = (Entry) other;
+      Entry<T> o = (Entry<T>) other;
       return state.equals(o.state) && item.equals(o.item);
     }
 

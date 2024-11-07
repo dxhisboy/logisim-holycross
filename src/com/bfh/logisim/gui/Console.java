@@ -43,12 +43,12 @@ import java.util.Date;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
-import javax.swing.text.Document;
-import javax.swing.text.DefaultCaret;
-import javax.swing.text.StyleContext;
-import javax.swing.text.StyleConstants;
 import javax.swing.text.AttributeSet;
+import javax.swing.text.DefaultCaret;
+import javax.swing.text.Document;
 import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyleContext;
 
 public class Console extends JPanel {
 

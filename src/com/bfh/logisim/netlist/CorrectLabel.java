@@ -81,6 +81,6 @@ public class CorrectLabel {
     "liblist", "showcancelled", "endgenerate", "library", "unsigned",
     "generate", "localparam", "use", "genvar", "noshowcancelled" };
 
-  private static final List<String> VerilogKeywords = Arrays
-      .asList(ReservedVerilogWords);
+    private static final List<String> VerilogKeywords = Arrays
+            .asList(ReservedVerilogWords);
 }

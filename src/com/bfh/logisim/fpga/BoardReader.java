@@ -30,12 +30,13 @@
 
 package com.bfh.logisim.fpga;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.HashMap;
 
-import java.awt.image.BufferedImage;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;

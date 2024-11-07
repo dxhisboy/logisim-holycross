@@ -49,6 +49,7 @@ import com.cburch.logisim.data.Direction;
 import com.cburch.logisim.data.Location;
 import com.cburch.logisim.gui.log.Loggable;
 import com.cburch.logisim.tools.Pokable;
+import com.cburch.logisim.tools.key.JoinedConfigurator;
 import com.cburch.logisim.tools.key.KeyConfigurator;
 import com.cburch.logisim.util.Icons;
 import com.cburch.logisim.util.StringGetter;
@@ -331,6 +332,10 @@ public abstract class InstanceFactory extends AbstractComponentFactory {
 
   public void setKeyConfigurator(KeyConfigurator value) {
     keyConfigurator = value;
+  }
+
+  public void setKeyConfigurators(KeyConfigurator ...value) {
+    setKeyConfigurator(JoinedConfigurator.create(value));
   }
 
   public void setOffsetBounds(Bounds value) { // nominal

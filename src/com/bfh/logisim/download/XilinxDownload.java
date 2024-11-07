@@ -37,6 +37,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+
 import javax.swing.SwingUtilities;
 
 import com.bfh.logisim.fpga.Chipset;
@@ -196,7 +197,7 @@ public class XilinxDownload extends FPGADownload {
           }
           File usbtmc = new File("/dev/usbtmc0");
           if (!usbtmc.exists()) {
-            console.printf(console.ERROR, "Could not find usbtmc device: /dev/usbtmc0 not found.");
+            console.printf(Console.ERROR, "Could not find usbtmc device: /dev/usbtmc0 not found.");
             failed = true;
             return false;
           }

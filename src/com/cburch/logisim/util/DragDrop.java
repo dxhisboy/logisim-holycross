@@ -58,8 +58,8 @@ public class DragDrop {
 
   public final DataFlavor dataFlavor;
   public final DataFlavor[] dataFlavors;
-  public final Class dataClass;
-  public final Class[] dataClasses;
+  public final Class<?> dataClass;
+  public final Class<?>[] dataClasses;
 
   // DragDrop and Support are intended to make it easier to add drag and drop
   // support to a class:
@@ -77,7 +77,7 @@ public class DragDrop {
   public DragDrop(Object ...classOrMimeTypeString) {
     int n = classOrMimeTypeString.length;
     DataFlavor[] flavors = new DataFlavor[n];
-    Class[] classes = new Class[n];
+    Class<?>[] classes = new Class[n];
     try {
       for (int i = 0; i < n; i++) {
         Object o  = classOrMimeTypeString[i];

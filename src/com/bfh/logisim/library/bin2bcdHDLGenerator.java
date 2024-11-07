@@ -32,7 +32,6 @@ package com.bfh.logisim.library;
 
 import com.bfh.logisim.hdlgenerator.HDLGenerator;
 import com.cburch.logisim.data.AttributeSet;
-import com.cburch.logisim.data.BitWidth;
 import com.cburch.logisim.hdl.Hdl;
 
 public class bin2bcdHDLGenerator extends HDLGenerator {

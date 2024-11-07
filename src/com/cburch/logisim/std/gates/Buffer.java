@@ -29,11 +29,13 @@
  */
 
 package com.cburch.logisim.std.gates;
+
 import static com.cburch.logisim.std.Strings.S;
 
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.event.KeyEvent;
 
 import com.bfh.logisim.hdlgenerator.HDLSupport;
 import com.cburch.logisim.analyze.model.Expression;
@@ -53,6 +55,7 @@ import com.cburch.logisim.instance.InstanceState;
 import com.cburch.logisim.instance.Port;
 import com.cburch.logisim.instance.StdAttr;
 import com.cburch.logisim.tools.key.BitWidthConfigurator;
+import com.cburch.logisim.tools.key.RotationConfigurator;
 import com.cburch.logisim.util.GraphicsUtil;
 import com.cburch.logisim.util.Icons;
 
@@ -90,15 +93,18 @@ class Buffer extends InstanceFactory {
     super("Buffer", S.getter("bufferComponent"));
     setAttributes(
         new Attribute[] { StdAttr.FACING, StdAttr.WIDTH,
-          GateAttributes.ATTR_OUTPUT, StdAttr.LABEL,
-          StdAttr.LABEL_FONT }, new Object[] { Direction.EAST,
+            GateAttributes.ATTR_OUTPUT, StdAttr.LABEL,
+            StdAttr.LABEL_FONT },
+        new Object[] { Direction.EAST,
             BitWidth.ONE, GateAttributes.OUTPUT_01, "",
             StdAttr.DEFAULT_LABEL_FONT });
     setIcon(Icons.getIcon("bufferGate.gif"));
     setFacingAttribute(StdAttr.FACING);
-    setKeyConfigurator(new BitWidthConfigurator(StdAttr.WIDTH));
+    setKeyConfigurators(
+        new BitWidthConfigurator(StdAttr.WIDTH),
+        new RotationConfigurator(StdAttr.FACING));
     setPorts(new Port[] { new Port(0, 0, Port.OUTPUT, StdAttr.WIDTH),
-      new Port(0, -20, Port.INPUT, StdAttr.WIDTH), });
+        new Port(0, -20, Port.INPUT, StdAttr.WIDTH), });
   }
 
   //

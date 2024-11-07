@@ -41,10 +41,10 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.WeakHashMap;
 
-import com.cburch.logisim.tools.Library;
-import com.cburch.logisim.std.Builtin;
-import com.cburch.logisim.util.Errors;
 import com.cburch.logisim.proj.Project;
+import com.cburch.logisim.std.Builtin;
+import com.cburch.logisim.tools.Library;
+import com.cburch.logisim.util.Errors;
 
 public class LibraryManager {
 

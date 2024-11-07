@@ -33,8 +33,8 @@ import static com.cburch.logisim.std.Strings.S;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.event.MouseEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 
 import javax.swing.Icon;
 
@@ -57,9 +57,10 @@ import com.cburch.logisim.instance.InstancePoker;
 import com.cburch.logisim.instance.InstanceState;
 import com.cburch.logisim.instance.Port;
 import com.cburch.logisim.instance.StdAttr;
+import com.cburch.logisim.tools.key.DirectionConfigurator;
+import com.cburch.logisim.tools.key.RotationConfigurator;
 import com.cburch.logisim.util.GraphicsUtil;
 import com.cburch.logisim.util.Icons;
-import com.cburch.logisim.tools.key.DirectionConfigurator;
 
 public class Clock extends InstanceFactory {
   public static class ClockLogger extends InstanceLogger {
@@ -187,7 +188,10 @@ public class Clock extends InstanceFactory {
     setFacingAttribute(StdAttr.FACING);
     setInstanceLogger(ClockLogger.class);
     setInstancePoker(ClockPoker.class);
-    setKeyConfigurator(new DirectionConfigurator(StdAttr.LABEL_LOC));
+    setKeyConfigurators(
+      new DirectionConfigurator(StdAttr.LABEL_LOC),
+      new RotationConfigurator(StdAttr.FACING)
+    );
   }
 
   @Override

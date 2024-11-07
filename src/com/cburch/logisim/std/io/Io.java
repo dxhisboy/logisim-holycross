@@ -32,12 +32,12 @@ package com.cburch.logisim.std.io;
 import static com.cburch.logisim.std.Strings.S;
 
 import java.awt.Color;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
-import com.cburch.logisim.tools.AddTool;
 import com.cburch.logisim.data.Attribute;
 import com.cburch.logisim.data.Attributes;
+import com.cburch.logisim.tools.AddTool;
 import com.cburch.logisim.tools.FactoryDescription;
 import com.cburch.logisim.tools.Library;
 import com.cburch.logisim.tools.Tool;
@@ -83,6 +83,12 @@ public class Io extends Library {
     new FactoryDescription("DotMatrix",
         S.getter("dotMatrixComponent"), "dotmat.gif",
         "DotMatrix"),
+    new FactoryDescription("LedVector",
+        S.getter("ledVectorComponent"), "dotmat.gif",
+        "LedVector"),
+    new FactoryDescription("7-Segment Array",
+        S.getter("SevenSegmentArrayComponent"), "7seg.gif",
+        "SevenSegmentArray"),
     new FactoryDescription("TTY", S.getter("ttyComponent"),
         "tty.gif", "Tty"),
     new FactoryDescription("FileViewer", S.getter("fileViewerComponent"),

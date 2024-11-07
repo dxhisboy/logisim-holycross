@@ -34,6 +34,7 @@ import static com.cburch.logisim.std.Strings.S;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.event.KeyEvent;
 
 import javax.swing.Icon;
 
@@ -57,6 +58,9 @@ import com.cburch.logisim.instance.StdAttr;
 import com.cburch.logisim.tools.WireRepair;
 import com.cburch.logisim.tools.WireRepairData;
 import com.cburch.logisim.tools.key.BitWidthConfigurator;
+import com.cburch.logisim.tools.key.JoinedConfigurator;
+import com.cburch.logisim.tools.key.KeyConfigurator;
+import com.cburch.logisim.tools.key.RotationConfigurator;
 import com.cburch.logisim.util.GraphicsUtil;
 import com.cburch.logisim.util.Icons;
 
@@ -97,7 +101,10 @@ class ControlledBuffer extends InstanceFactory {
           "", StdAttr.DEFAULT_LABEL_FONT });
     }
     setFacingAttribute(StdAttr.FACING);
-    setKeyConfigurator(new BitWidthConfigurator(StdAttr.WIDTH));
+    setKeyConfigurators(
+      new BitWidthConfigurator(StdAttr.WIDTH),
+      new RotationConfigurator(StdAttr.FACING)
+    );
   }
 
   //

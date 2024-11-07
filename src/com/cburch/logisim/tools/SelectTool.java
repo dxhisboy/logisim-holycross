@@ -503,7 +503,7 @@ public final class SelectTool extends Tool {
     // wants to add/reset selection
     Collection<Component> clicked = circuit.getAllVisiblyContaining(start, g);
     if (!clicked.isEmpty()) {
-      if ((e.getModifiersEx() & InputEvent.SHIFT_DOWN_MASK) == 0) {
+      if ((e.getModifiersExEx() & InputEvent.SHIFT_DOWN_MASK) == 0) {
         if (sel.getComponentsContaining(start, g).isEmpty()) {
           Action act = SelectionActions.dropAll(sel);
           if (act != null) {

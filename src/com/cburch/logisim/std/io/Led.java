@@ -55,6 +55,9 @@ import com.cburch.logisim.instance.InstanceState;
 import com.cburch.logisim.instance.Port;
 import com.cburch.logisim.instance.StdAttr;
 import com.cburch.logisim.tools.key.DirectionConfigurator;
+import com.cburch.logisim.tools.key.JoinedConfigurator;
+import com.cburch.logisim.tools.key.KeyConfigurator;
+import com.cburch.logisim.tools.key.RotationConfigurator;
 import com.cburch.logisim.util.GraphicsUtil;
 
 public class Led extends InstanceFactory implements DynamicElementProvider, DynamicValueProvider {
@@ -90,7 +93,10 @@ public class Led extends InstanceFactory implements DynamicElementProvider, Dyna
         StdAttr.DEFAULT_LABEL_FONT, Color.BLACK });
     setFacingAttribute(StdAttr.FACING);
     setIconName("led.gif");
-    setKeyConfigurator(new DirectionConfigurator(StdAttr.LABEL_LOC));
+    setKeyConfigurators(
+      new DirectionConfigurator(StdAttr.LABEL_LOC),
+      new RotationConfigurator(StdAttr.FACING)
+    );
     setPorts(new Port[] { new Port(0, 0, Port.INPUT, 1) });
     setInstanceLogger(Logger.class);
   }

@@ -41,8 +41,8 @@ import com.cburch.logisim.comp.Component;
 import com.cburch.logisim.comp.ComponentFactory;
 import com.cburch.logisim.data.Attribute;
 import com.cburch.logisim.proj.Action;
-import com.cburch.logisim.util.StringGetter;
 import com.cburch.logisim.std.hdl.VhdlContent;
+import com.cburch.logisim.util.StringGetter;
 
 public final class CircuitMutation extends CircuitTransaction {
   private Circuit primaryCircuit;

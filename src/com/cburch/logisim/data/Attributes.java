@@ -408,26 +408,26 @@ public class Attributes {
     }
   }
 
-  private static class FontChooser extends JFontChooser
-    implements JInputComponent {
-    private static final long serialVersionUID = 1L;
+  // private static class FontChooser extends JFontChooser
+  //   implements JInputComponent {
+  //   private static final long serialVersionUID = 1L;
 
-    FontChooser() {
-      super();
-    }
+  //   FontChooser() {
+  //     super();
+  //   }
 
-    FontChooser(Font initial) {
-      super(initial);
-    }
+  //   FontChooser(Font initial) {
+  //     super(initial);
+  //   }
 
-    public Object getValue() {
-      return getSelectedFont();
-    }
+  //   public Object getValue() {
+  //     return getSelectedFont();
+  //   }
 
-    public void setValue(Object value) {
-      setSelectedFont((Font) value);
-    }
-  }
+  //   public void setValue(Object value) {
+  //     setSelectedFont((Font) value);
+  //   }
+  // }
 
   public static int parseInteger(String value) {
     value = value.toLowerCase();

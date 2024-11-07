@@ -80,6 +80,7 @@ import com.cburch.logisim.instance.StdAttr;
 import com.cburch.logisim.tools.key.BitWidthConfigurator;
 import com.cburch.logisim.tools.key.DirectionConfigurator;
 import com.cburch.logisim.tools.key.JoinedConfigurator;
+import com.cburch.logisim.tools.key.RotationConfigurator;
 import com.cburch.logisim.util.GraphicsUtil;
 import com.cburch.logisim.util.Icons;
 
@@ -563,9 +564,11 @@ public class Pin extends InstanceFactory implements DynamicValueProvider {
   public Pin() {
     super("Pin", S.getter("pinComponent"));
     setFacingAttribute(StdAttr.FACING);
-    setKeyConfigurator(JoinedConfigurator.create(
-          new BitWidthConfigurator(StdAttr.WIDTH),
-          new DirectionConfigurator(StdAttr.LABEL_LOC)));
+    setKeyConfigurators(
+      new BitWidthConfigurator(StdAttr.WIDTH),
+      new DirectionConfigurator(StdAttr.LABEL_LOC),
+      new RotationConfigurator(StdAttr.FACING)
+    );
     setInstanceLogger(PinLogger.class);
     setInstancePoker(PinPoker.class);
   }

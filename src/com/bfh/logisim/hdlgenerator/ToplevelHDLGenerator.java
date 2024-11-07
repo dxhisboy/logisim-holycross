@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import com.bfh.logisim.fpga.BoardIO;
 import com.bfh.logisim.fpga.PinActivity;
 import com.bfh.logisim.fpga.PinBindings;
+import com.bfh.logisim.fpga.BoardIO.Type;
 import com.bfh.logisim.fpga.PullBehavior;
 import com.bfh.logisim.library.DynamicClock;
 import com.bfh.logisim.netlist.ClockBus;
@@ -49,11 +50,11 @@ import com.cburch.logisim.hdl.Hdl;
 import com.cburch.logisim.std.wiring.ClockHDLGenerator;
 import com.cburch.logisim.std.wiring.Pin;
 
+
 public class ToplevelHDLGenerator extends HDLGenerator {
 
   // Name of the top-level HDL module.
   public static final String HDL_NAME = "LogisimToplevelShell";
-
 	private Circuit circUnderTest;
 	private PinBindings ioResources;
   private boolean useTristates;
@@ -415,16 +416,28 @@ public class ToplevelHDLGenerator extends HDLGenerator {
           recordInputPullDirection(out, inputPinPullDir, shadow, src, dest);
           if (src.width.in == 1) {
             out.assign(signal, maybeNot+"FPGA_INPUT_PIN_"+seqno.in);
-          } else for (int i = 0; i < src.width.in; i++) { // TODO: verify src.width.in instead of destwidth.in
-            out.assign(bit, offset+i, maybeNot+"FPGA_INPUT_PIN_"+(seqno.in+i));
+          } else {
+            if (src.type == BoardIO.Type.Ribbon && dest.io.type == Type.DIPSwitch)
+              for (int i = 0; i < src.width.in; i++) { //TODO::: check this, make Ribbon and DIPSwitch follow MSB at left flavor
+                out.assign(bit, offset + src.width.in - 1 - i, maybeNot + "FPGA_INPUT_PIN_" + (seqno.in + i));
+              }
+            else
+              for (int i = 0; i < src.width.in; i++) { // TODO: verify src.width.in instead of destwidth.in
+                out.assign(bit, offset+i, maybeNot+"FPGA_INPUT_PIN_"+(seqno.in+i)); //TODO: handle reverse mapping
+              }
           }
         }
         // Outputs
         else {
           if (src.width.out == 1)
             out.assign("FPGA_OUTPUT_PIN_"+seqno.out, maybeNot+signal);
-          else for (int i = 0; i < src.width.out; i++) // TODO: verify src.width.out instead of destwidth.out
-            out.assign("FPGA_OUTPUT_PIN_"+(seqno.out+i), maybeNot+bit, offset+i);
+          else{
+            if (src.type == BoardIO.Type.Ribbon && dest.io.type == Type.LEDVector) //TODO::: check this, make Ribbon and LedVector follow MSB at left flavor
+              for (int i = 0; i < src.width.out; i++)
+                out.assign("FPGA_OUTPUT_PIN_" + (seqno.out + i), maybeNot + bit, offset + src.width.out - 1 - i);
+            else
+              for (int i = 0; i < src.width.out; i++) // TODO: verify src.width.out instead of destwidth.out
+                out.assign("FPGA_OUTPUT_PIN_"+(seqno.out+i), maybeNot+bit, offset+i);
         }
       }
     } else { // Each bit of pin is assigned to a different BoardIO resource.

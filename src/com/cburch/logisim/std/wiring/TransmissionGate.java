@@ -55,6 +55,7 @@ import com.cburch.logisim.instance.StdAttr;
 import com.cburch.logisim.tools.WireRepair;
 import com.cburch.logisim.tools.WireRepairData;
 import com.cburch.logisim.tools.key.BitWidthConfigurator;
+import com.cburch.logisim.tools.key.RotationConfigurator;
 import com.cburch.logisim.util.GraphicsUtil;
 
 public class TransmissionGate extends InstanceFactory {
@@ -70,7 +71,10 @@ public class TransmissionGate extends InstanceFactory {
       StdAttr.WIDTH }, new Object[] { Direction.EAST,
         Analog.GATE_TOP_LEFT, BitWidth.ONE });
     setFacingAttribute(StdAttr.FACING);
-    setKeyConfigurator(new BitWidthConfigurator(StdAttr.WIDTH));
+    setKeyConfigurators(
+      new BitWidthConfigurator(StdAttr.WIDTH),
+      new RotationConfigurator(StdAttr.FACING)
+    );
   }
 
   private Value computeOutput(InstanceState state) {

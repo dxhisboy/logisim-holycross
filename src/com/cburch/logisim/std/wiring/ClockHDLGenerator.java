@@ -34,7 +34,6 @@ import com.bfh.logisim.hdlgenerator.HDLInliner;
 import com.bfh.logisim.hdlgenerator.TickHDLGenerator;
 import com.bfh.logisim.netlist.Net;
 import com.bfh.logisim.netlist.NetlistComponent;
-import com.bfh.logisim.netlist.ClockBus;
 import com.cburch.logisim.hdl.Hdl;
 import com.cburch.logisim.instance.StdAttr;
 

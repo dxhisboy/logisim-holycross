@@ -32,7 +32,6 @@ package com.bfh.logisim.gui;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dialog.ModalityType;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics2D;
@@ -361,7 +360,7 @@ public class BindingsDialog extends JDialog {
         return;
       if (sources.current == null)
         return;
-      if (sources.current.width.size() == 1 && io.width > 1)
+      if (sources.current.width.size() < io.width)
         doBitSelectPopup(e);
       else {
         Dest dest = pinBindings.mappings.get(sources.current);
@@ -427,7 +426,7 @@ public class BindingsDialog extends JDialog {
     }
   }
 
-  private class SourcesModel extends AbstractListModel {
+  private class SourcesModel extends AbstractListModel<Source> {
     ArrayList<Source> data = new ArrayList<>();
     SourcesModel() {
       sync();
@@ -488,7 +487,7 @@ public class BindingsDialog extends JDialog {
       return -1; // should never happen
     }
     @Override
-    public Object getElementAt(int index) { return data.get(index); }
+    public Source getElementAt(int index) { return data.get(index); }
     @Override
     public int getSize() { return data.size(); }
   }
@@ -509,7 +508,7 @@ public class BindingsDialog extends JDialog {
     }
 
     @Override
-    public Component getListCellRendererComponent(JList list, Object val,
+    public Component getListCellRendererComponent(JList<?> list, Object val,
         int i, boolean sel, boolean focus) {
       boolean done = false;
       typeButton.text = "???";
@@ -598,6 +597,7 @@ public class BindingsDialog extends JDialog {
 
     @Override
     public void mouseClicked(MouseEvent e) {
+      System.out.println("Clicked");
       Point pt = e.getPoint();
       int idx = locationToIndex(pt);
       if (idx < 0)

@@ -50,7 +50,7 @@ import com.cburch.logisim.instance.InstanceState;
 import com.cburch.logisim.instance.Port;
 import com.cburch.logisim.instance.StdAttr;
 import com.cburch.logisim.tools.key.BitWidthConfigurator;
-import com.cburch.logisim.tools.key.JoinedConfigurator;
+import com.cburch.logisim.tools.key.RotationConfigurator;
 import com.cburch.logisim.util.GraphicsUtil;
 
 public class BitSelector extends InstanceFactory {
@@ -62,9 +62,11 @@ public class BitSelector extends InstanceFactory {
     setAttributes(new Attribute[] { StdAttr.FACING, StdAttr.WIDTH,
       GROUP_ATTR }, new Object[] { Direction.EAST,
         BitWidth.create(8), BitWidth.ONE });
-    setKeyConfigurator(JoinedConfigurator.create(new BitWidthConfigurator(
-            GROUP_ATTR, 1, Value.MAX_WIDTH, 0), new BitWidthConfigurator(
-              StdAttr.WIDTH)));
+    setKeyConfigurators(
+      new BitWidthConfigurator(GROUP_ATTR, 1, Value.MAX_WIDTH, 0),
+      new BitWidthConfigurator(StdAttr.WIDTH),
+      new RotationConfigurator(StdAttr.FACING)
+    );
 
     setIconName("bitSelector.gif");
     setFacingAttribute(StdAttr.FACING);

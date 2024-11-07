@@ -34,6 +34,7 @@ import static com.cburch.logisim.std.Strings.S;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.event.KeyEvent;
 
 import com.cburch.logisim.comp.TextField;
 import com.cburch.logisim.data.Attribute;
@@ -48,6 +49,7 @@ import com.cburch.logisim.instance.InstanceState;
 import com.cburch.logisim.instance.Port;
 import com.cburch.logisim.instance.StdAttr;
 import com.cburch.logisim.tools.key.BitWidthConfigurator;
+import com.cburch.logisim.tools.key.RotationConfigurator;
 import com.cburch.logisim.util.GraphicsUtil;
 
 public class Tunnel extends InstanceFactory {
@@ -63,7 +65,10 @@ public class Tunnel extends InstanceFactory {
     super("Tunnel", S.getter("tunnelComponent"));
     setIconName("tunnel.gif");
     setFacingAttribute(StdAttr.FACING);
-    setKeyConfigurator(new BitWidthConfigurator(StdAttr.WIDTH));
+    setKeyConfigurators(
+      new BitWidthConfigurator(StdAttr.WIDTH),
+      new RotationConfigurator(StdAttr.FACING)
+    );
   }
 
   private Bounds computeBounds(TunnelAttributes attrs, int textWidth,

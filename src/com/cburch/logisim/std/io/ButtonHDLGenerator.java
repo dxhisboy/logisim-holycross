@@ -29,10 +29,10 @@
  */
 package com.cburch.logisim.std.io;
 
-import com.bfh.logisim.netlist.Net;
-import com.bfh.logisim.netlist.NetlistComponent;
 import com.bfh.logisim.hdlgenerator.HDLInliner;
 import com.bfh.logisim.hdlgenerator.HiddenPort;
+import com.bfh.logisim.netlist.Net;
+import com.bfh.logisim.netlist.NetlistComponent;
 import com.cburch.logisim.hdl.Hdl;
 
 public class ButtonHDLGenerator extends HDLInliner {

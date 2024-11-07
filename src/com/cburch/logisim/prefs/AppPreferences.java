@@ -461,11 +461,9 @@ public class AppPreferences {
   public static final PrefMonitor<Integer>
       WINDOW_WIDTH = new PrefMonitor("windowWidth", 640);
 
-  public static final PrefMonitor<Integer>
-      WINDOW_HEIGHT = new PrefMonitor("windowHeight", 480);
+  public static final PrefMonitor<Integer> WINDOW_HEIGHT = new PrefMonitor("windowHeight", 480);
 
-  public static final PrefMonitor<String>
-      WINDOW_LOCATION = new PrefMonitor("windowLocation", "0,0");
+  public static final PrefMonitor<String> WINDOW_LOCATION = new PrefMonitor("windowLocation", "0,0");
 
   public static final PrefMonitor<Double>
       WINDOW_MAIN_SPLIT = new PrefMonitor("windowMainSplit", 0.25);

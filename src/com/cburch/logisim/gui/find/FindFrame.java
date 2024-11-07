@@ -285,7 +285,7 @@ public class FindFrame extends LFrame.Dialog implements LocaleListener {
     }
 
     @Override
-    public Object getElementAt(int index) {
+    public Result getElementAt(int index) {
       return data.get(index);
     }
 
@@ -354,7 +354,7 @@ public class FindFrame extends LFrame.Dialog implements LocaleListener {
       searchText(lib.getDisplayName(), source, S.get("matchLibraryName"), src, null);
       for (Tool tool : lib.getTools()) {
         String subsource = source + ", " + tool.getDisplayName();
-        Source toolSrc = src.forTool(tool);
+        Source<?> toolSrc = src.forTool(tool);
         searchAttributes(tool.getAttributeSet(), subsource, toolSrc);
         if (!(tool instanceof AddTool))
           continue;
@@ -383,7 +383,7 @@ public class FindFrame extends LFrame.Dialog implements LocaleListener {
       for (Component comp : circ.getNonWires()) {
         String compName = comp.getDisplayName();
         String subsource = source + "/" + compName;
-        Source compSrc = src.forComponent(comp);
+        Source<?> compSrc = src.forComponent(comp);
         searchAttributes(comp.getAttributeSet(), subsource, compSrc);
         if (!(comp.getFactory() instanceof SubcircuitFactory
               || comp.getFactory() instanceof VhdlEntity))
@@ -415,7 +415,7 @@ public class FindFrame extends LFrame.Dialog implements LocaleListener {
       searchText(code, source, null /*use line number*/, src, null);
     }
 
-    void searchAttributes(AttributeSet as, String source, Source src) {
+    void searchAttributes(AttributeSet as, String source, Source<?> src) {
       if (as == null)
         return;
       for (Attribute<?> a : as.getAttributes()) {
@@ -427,7 +427,7 @@ public class FindFrame extends LFrame.Dialog implements LocaleListener {
       }
     }
 
-    void searchText(String content, String source, String context, Source src, Attribute a) {
+    void searchText(String content, String source, String context, Source<?> src, Attribute<?> a) {
       Matcher newlines = newline.matcher(content);
       Matcher matches = regex.matcher(content);
 
@@ -656,9 +656,9 @@ public class FindFrame extends LFrame.Dialog implements LocaleListener {
     String content, html;
     int ls, le, s, e;
     String source, context;
-    Attribute a; // null for Hdl content and library display name
+    Attribute<?> a; // null for Hdl content and library display name
     int lineno; // only for multi-line Text.ATTR_TEXT content
-    Source src;
+    Source<?> src;
 
     Result() { }
     Result(String content, int ls, int le, int s, int e, String source, String context, int lineno, Source src, Attribute a) {
@@ -716,7 +716,7 @@ public class FindFrame extends LFrame.Dialog implements LocaleListener {
     static final String d = "</font>";
 
     @Override
-    public java.awt.Component getListCellRendererComponent(JList list, Object value,
+    public java.awt.Component getListCellRendererComponent(JList<?> list, Object value,
         int index, boolean isSelected, boolean cellHasFocus) {
       if (value == null) {
         int n = model.data.size() - 1;

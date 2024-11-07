@@ -34,9 +34,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
-import com.cburch.logisim.gui.menu.LogisimMenuBar;
-import com.cburch.logisim.gui.menu.LogisimMenuItem;
-
 public class MenuListener {
   protected class EditListener implements ActionListener, EditHandler.Listener {
     private EditHandler handler = null;

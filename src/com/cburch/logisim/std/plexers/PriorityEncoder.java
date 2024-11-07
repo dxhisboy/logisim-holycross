@@ -48,6 +48,7 @@ import com.cburch.logisim.instance.InstanceState;
 import com.cburch.logisim.instance.Port;
 import com.cburch.logisim.instance.StdAttr;
 import com.cburch.logisim.tools.key.BitWidthConfigurator;
+import com.cburch.logisim.tools.key.RotationConfigurator;
 import com.cburch.logisim.util.GraphicsUtil;
 
 public class PriorityEncoder extends InstanceFactory {
@@ -61,7 +62,10 @@ public class PriorityEncoder extends InstanceFactory {
     setAttributes(new Attribute[] { StdAttr.FACING, Plexers.ATTR_SELECT,
       Plexers.ATTR_DISABLED }, new Object[] { Direction.EAST,
         BitWidth.create(3), Plexers.DISABLED_ZERO });
-    setKeyConfigurator(new BitWidthConfigurator(Plexers.ATTR_SELECT, 1, 5, 0));
+    setKeyConfigurators(
+      new BitWidthConfigurator(Plexers.ATTR_SELECT, 1, 5, 0),
+      new RotationConfigurator(StdAttr.FACING)
+    );
     setIconName("priencod.gif");
     setFacingAttribute(StdAttr.FACING);
   }

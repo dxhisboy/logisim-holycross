@@ -35,8 +35,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.cburch.draw.model.AbstractDrawingAttributeSet;
 import com.cburch.draw.model.AbstractCanvasObject;
+import com.cburch.draw.model.AbstractDrawingAttributeSet;
 import com.cburch.draw.model.CanvasObject;
 import com.cburch.draw.shapes.DrawAttr;
 import com.cburch.logisim.data.AbstractAttributeSet;

@@ -30,8 +30,8 @@
 
 package com.cburch.logisim.gui.generic;
 
-import com.cburch.logisim.tools.Library;
 import com.cburch.logisim.std.base.Base;
+import com.cburch.logisim.tools.Library;
 
 public class ProjectExplorerRootNode extends ProjectExplorerModel.Node<String> {
 

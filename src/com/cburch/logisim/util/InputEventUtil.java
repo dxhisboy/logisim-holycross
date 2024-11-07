@@ -32,6 +32,7 @@ package com.cburch.logisim.util;
 import static com.cburch.logisim.util.Strings.S;
 
 import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.StringTokenizer;

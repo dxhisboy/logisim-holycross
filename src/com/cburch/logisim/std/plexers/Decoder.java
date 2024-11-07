@@ -50,6 +50,7 @@ import com.cburch.logisim.instance.InstanceState;
 import com.cburch.logisim.instance.Port;
 import com.cburch.logisim.instance.StdAttr;
 import com.cburch.logisim.tools.key.BitWidthConfigurator;
+import com.cburch.logisim.tools.key.RotationConfigurator;
 import com.cburch.logisim.util.GraphicsUtil;
 
 public class Decoder extends InstanceFactory {
@@ -61,7 +62,10 @@ public class Decoder extends InstanceFactory {
       Plexers.ATTR_ENABLE }, new Object[] { Direction.EAST,
         Plexers.SELECT_BOTTOM_LEFT, Plexers.DEFAULT_SELECT,
         Plexers.DEFAULT_TRISTATE, Plexers.DISABLED_ZERO, Boolean.TRUE });
-    setKeyConfigurator(new BitWidthConfigurator(Plexers.ATTR_SELECT, 1, 5, 0));
+    setKeyConfigurators(
+      new BitWidthConfigurator(Plexers.ATTR_SELECT, 1, 5, 0),
+      new RotationConfigurator(StdAttr.FACING)
+    );
     setIconName("decoder.gif");
     setFacingAttribute(StdAttr.FACING);
   }

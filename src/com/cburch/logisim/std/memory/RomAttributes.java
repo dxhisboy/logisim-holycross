@@ -35,8 +35,8 @@ import java.util.List;
 import java.util.WeakHashMap;
 
 import com.cburch.logisim.data.AbstractAttributeSet;
-import com.cburch.logisim.data.AttributeOption;
 import com.cburch.logisim.data.Attribute;
+import com.cburch.logisim.data.AttributeOption;
 import com.cburch.logisim.data.BitWidth;
 import com.cburch.logisim.gui.hex.HexFrame;
 import com.cburch.logisim.instance.Instance;

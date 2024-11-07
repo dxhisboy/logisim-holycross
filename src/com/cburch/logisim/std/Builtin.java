@@ -43,8 +43,8 @@ import com.cburch.logisim.std.io.Io;
 import com.cburch.logisim.std.audio.Audio;
 import com.cburch.logisim.std.memory.Memory;
 import com.cburch.logisim.std.plexers.Plexers;
-import com.cburch.logisim.std.wiring.Wiring;
 import com.cburch.logisim.std.wiring.Analog;
+import com.cburch.logisim.std.wiring.Wiring;
 import com.cburch.logisim.tools.Library;
 import com.cburch.logisim.tools.Tool;
 

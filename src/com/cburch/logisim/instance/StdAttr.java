@@ -31,8 +31,8 @@
 package com.cburch.logisim.instance;
 import static com.cburch.logisim.std.Strings.S;
 
-import java.awt.Font;
 import java.awt.Color;
+import java.awt.Font;
 
 import com.cburch.logisim.data.Attribute;
 import com.cburch.logisim.data.AttributeOption;

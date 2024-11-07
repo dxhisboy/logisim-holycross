@@ -57,7 +57,6 @@ import com.cburch.logisim.instance.Port;
 import com.cburch.logisim.instance.StdAttr;
 import com.cburch.logisim.tools.key.BitWidthConfigurator;
 import com.cburch.logisim.tools.key.DirectionConfigurator;
-import com.cburch.logisim.tools.key.JoinedConfigurator;
 import com.cburch.logisim.util.GraphicsUtil;
 import com.cburch.logisim.util.StringUtil;
 
@@ -103,9 +102,9 @@ public class Counter extends InstanceFactory implements DynamicElementProvider, 
     setIconName("counter.gif");
     setInstancePoker(CounterPoker.class);
     setInstanceLogger(RegisterLogger.class);
-    setKeyConfigurator(JoinedConfigurator.create(
+    setKeyConfigurators(
           new BitWidthConfigurator(StdAttr.WIDTH),
-          new DirectionConfigurator(StdAttr.LABEL_LOC)));
+          new DirectionConfigurator(StdAttr.LABEL_LOC));
   }
 
   @Override

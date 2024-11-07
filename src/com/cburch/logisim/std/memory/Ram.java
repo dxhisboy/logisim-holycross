@@ -783,9 +783,11 @@ public class Ram extends Mem {
     BitWidth width = state.getAttributeValue(DATA_ATTR);
     boolean outputEnabled = separate || !state.getPortValue(OE).equals(Value.FALSE);
     if (outputEnabled && goodAddr && (addr % dataLines == 0)) {
-      for (int i = 0; i < dataLines; i++) {
-        int val = myState.getContents().get(addr+i);
-        state.setPort(DATAOUT[i], Value.createKnown(width, val), DELAY);
+      if (triggered) {
+        for (int i = 0; i < dataLines; i++) {
+          int val = myState.getContents().get(addr + i);
+          state.setPort(DATAOUT[i], Value.createKnown(width, val), DELAY);
+        }
       }
     } else if (outputEnabled && (addrValue.isErrorValue() || (goodAddr && (addr % dataLines != 0)))) {
       for (int i = 0; i < dataLines; i++)

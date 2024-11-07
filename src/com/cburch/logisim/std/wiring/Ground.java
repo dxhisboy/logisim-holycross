@@ -53,6 +53,7 @@ import com.cburch.logisim.instance.InstanceState;
 import com.cburch.logisim.instance.Port;
 import com.cburch.logisim.instance.StdAttr;
 import com.cburch.logisim.tools.key.BitWidthConfigurator;
+import com.cburch.logisim.tools.key.RotationConfigurator;
 import com.cburch.logisim.util.GraphicsUtil;
 
 public class Ground extends InstanceFactory {
@@ -62,7 +63,10 @@ public class Ground extends InstanceFactory {
     setAttributes(new Attribute[] { StdAttr.FACING, StdAttr.WIDTH },
         new Object[] { Direction.SOUTH, BitWidth.ONE });
     setFacingAttribute(StdAttr.FACING);
-    setKeyConfigurator(new BitWidthConfigurator(StdAttr.WIDTH));
+    setKeyConfigurators(
+      new BitWidthConfigurator(StdAttr.WIDTH),
+      new RotationConfigurator(StdAttr.FACING)
+    );
     setPorts(new Port[] { new Port(0, 0, Port.OUTPUT, StdAttr.WIDTH) });
   }
 

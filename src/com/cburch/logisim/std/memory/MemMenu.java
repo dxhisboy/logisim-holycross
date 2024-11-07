@@ -45,7 +45,6 @@ import com.cburch.logisim.gui.hex.HexFrame;
 import com.cburch.logisim.instance.Instance;
 import com.cburch.logisim.proj.Project;
 import com.cburch.logisim.tools.MenuExtender;
-import com.cburch.logisim.std.memory.MemContents;
 
 class MemMenu implements ActionListener, MenuExtender {
   private Mem factory;

@@ -31,8 +31,8 @@
 package com.cburch.logisim.std.wiring;
 import static com.cburch.logisim.std.Strings.S;
 
-import java.awt.Font;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.util.Arrays;
 import java.util.List;
@@ -57,7 +57,7 @@ import com.cburch.logisim.instance.InstanceState;
 import com.cburch.logisim.instance.Port;
 import com.cburch.logisim.instance.StdAttr;
 import com.cburch.logisim.tools.key.BitWidthConfigurator;
-import com.cburch.logisim.tools.key.JoinedConfigurator;
+import com.cburch.logisim.tools.key.RotationConfigurator;
 import com.cburch.logisim.util.GraphicsUtil;
 import com.cburch.logisim.util.StringGetter;
 
@@ -148,9 +148,11 @@ public class Constant extends InstanceFactory {
   public Constant() {
     super("Constant", S.getter("constantComponent"));
     setFacingAttribute(StdAttr.FACING);
-    setKeyConfigurator(JoinedConfigurator.create(
-          new ConstantConfigurator(), new BitWidthConfigurator(
-            StdAttr.WIDTH)));
+    setKeyConfigurators(
+      new ConstantConfigurator(),
+      new BitWidthConfigurator(StdAttr.WIDTH),
+      new RotationConfigurator(StdAttr.FACING)
+    );
   }
 
   @Override

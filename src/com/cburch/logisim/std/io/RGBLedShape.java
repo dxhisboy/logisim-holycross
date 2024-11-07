@@ -31,8 +31,8 @@
 package com.cburch.logisim.std.io;
 import static com.cburch.logisim.std.Strings.S;
 
-import java.awt.Graphics;
 import java.awt.Color;
+import java.awt.Graphics;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -40,8 +40,8 @@ import org.w3c.dom.Element;
 import com.cburch.logisim.circuit.CircuitState;
 import com.cburch.logisim.circuit.appear.DynamicElement;
 import com.cburch.logisim.data.Value;
-import com.cburch.logisim.util.GraphicsUtil;
 import com.cburch.logisim.instance.InstanceDataSingleton;
+import com.cburch.logisim.util.GraphicsUtil;
 
 public class RGBLedShape extends LedShape {
   public RGBLedShape(int x, int y, DynamicElement.Path p) {

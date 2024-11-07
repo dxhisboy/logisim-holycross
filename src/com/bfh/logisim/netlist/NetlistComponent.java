@@ -30,15 +30,14 @@
 
 package com.bfh.logisim.netlist;
 
-import static com.bfh.logisim.netlist.Netlist.Int3;
-
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 import com.bfh.logisim.hdlgenerator.HDLSupport;
 import com.bfh.logisim.hdlgenerator.HiddenPort;
+import com.bfh.logisim.netlist.Netlist.Int3;
 import com.cburch.logisim.comp.Component;
 import com.cburch.logisim.comp.ComponentFactory;
 import com.cburch.logisim.comp.EndData;

@@ -33,8 +33,8 @@ package com.cburch.logisim.util;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 // EventSourceWeakSupport implements support for a list of references to event

@@ -29,9 +29,9 @@
  */
 package com.cburch.logisim.std.wiring;
 
+import com.bfh.logisim.hdlgenerator.HDLInliner;
 import com.bfh.logisim.netlist.Net;
 import com.bfh.logisim.netlist.NetlistComponent;
-import com.bfh.logisim.hdlgenerator.HDLInliner;
 import com.cburch.logisim.hdl.Hdl;
 
 public class ConstantHDLGenerator extends HDLInliner {

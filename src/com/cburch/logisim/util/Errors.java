@@ -55,7 +55,6 @@ import javax.swing.UIManager;
 
 import com.cburch.logisim.Main;
 import com.cburch.logisim.file.LogisimFile;
-import com.cburch.logisim.util.JDialogOk;
 
 public class Errors {
 

@@ -40,8 +40,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import javax.swing.JList;
-import javax.swing.JScrollPane;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -54,7 +54,6 @@ import com.cburch.logisim.comp.Component;
 import com.cburch.logisim.comp.ComponentFactory;
 import com.cburch.logisim.data.AttributeSet;
 import com.cburch.logisim.data.Location;
-import com.cburch.logisim.std.hdl.VhdlContent;
 import com.cburch.logisim.std.hdl.VhdlContent;
 import com.cburch.logisim.tools.AddTool;
 import com.cburch.logisim.tools.Library;

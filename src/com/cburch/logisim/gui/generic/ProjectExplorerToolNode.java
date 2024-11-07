@@ -30,6 +30,8 @@
 
 package com.cburch.logisim.gui.generic;
 
+import com.cburch.hdl.HdlModel;
+import com.cburch.hdl.HdlModelListener;
 /**
  * Code taken from Cornell's version of Logisim:
  * http://www.cs.cornell.edu/courses/cs3410/2015sp/
@@ -42,8 +44,6 @@ import com.cburch.logisim.std.hdl.VhdlContent;
 import com.cburch.logisim.std.hdl.VhdlEntity;
 import com.cburch.logisim.tools.AddTool;
 import com.cburch.logisim.tools.Tool;
-import com.cburch.hdl.HdlModelListener;
-import com.cburch.hdl.HdlModel;
 
 public class ProjectExplorerToolNode extends ProjectExplorerModel.Node<Tool>
   implements CircuitListener, HdlModelListener {

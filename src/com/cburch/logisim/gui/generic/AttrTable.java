@@ -291,7 +291,7 @@ public class AttrTable extends JPanel implements LocaleListener {
       if (comp instanceof JTextField) {
         value = ((JTextField) comp).getText();
       } else if (comp instanceof JComboBox) {
-        value = ((JComboBox) comp).getSelectedItem();
+        value = ((JComboBox<?>) comp).getSelectedItem();
       } else if (comp instanceof PopupEditor) {
         value = ((PopupEditor) comp).getResult();
       } else {
