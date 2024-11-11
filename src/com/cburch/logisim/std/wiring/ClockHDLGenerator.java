@@ -36,6 +36,7 @@ import com.bfh.logisim.netlist.Net;
 import com.bfh.logisim.netlist.NetlistComponent;
 import com.cburch.logisim.hdl.Hdl;
 import com.cburch.logisim.instance.StdAttr;
+import com.bfh.logisim.netlist.ClockBus;
 
 // Note: Clock HDL functionality is split into two parts. A counter part is
 // lifted up to the toplevel where it can be duplicated, ensuring that even if

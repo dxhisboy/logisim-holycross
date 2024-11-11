@@ -6,7 +6,9 @@ import java.util.ArrayList;
 import com.bfh.logisim.fpga.PinBindings;
 import com.bfh.logisim.gui.Commander;
 import com.bfh.logisim.gui.Console;
+import com.bfh.logisim.gui.FPGAReport;
 import com.bfh.logisim.hdlgenerator.FileWriter;
+import com.bfh.logisim.settings.Settings;
 import com.cburch.logisim.hdl.Hdl;
 
 public class GowinDownload extends FPGADownload {
@@ -60,20 +62,50 @@ public class GowinDownload extends FPGADownload {
         return command;
     }
 
+    private boolean gwProgPresent(Settings settings){
+        String progPath = settings.GetGowinProgPath();
+        File prog = progPath != null ? new File(progPath + File.separator + FPGADownload.GOWIN_PROG) : null;
+        return prog.exists() && !prog.isDirectory() && prog.canExecute();
+    }
+    public boolean toolchainIsInstalled(Settings settings, FPGAReport err) {
+        String helpmsg = "It should be set to the directory where " + FPGADownload.GOWIN_SH
+              + " and related programs are installed, or set to a file"
+              + " containing a stand-alone executable script.";
+        String shPath = settings.GetGowinShPath();
+        if (shPath == null) {
+          err.AddFatalError("Gowin toolchain path not configured. " + helpmsg);
+          return false;
+        }
+        File sh = new File(shPath + File.separator + FPGADownload.GOWIN_SH);
+        if (!sh.exists() || sh.isDirectory() || !sh.canExecute()) {
+          err.AddFatalError("Gowin Shell is set to " + shPath + ","
+           + " but this appears to be incorrect. " + helpmsg);
+           return false;
+        }
+        if (!gwProgPresent(settings)) {
+            if (!settings.validOpenFPGAloaderPath(settings.GetOpenFPGALoaderPath())) {
+                err.AddFatalError("Either Gowin " + FPGADownload.GOWIN_PROG + " path or " 
+                + "openFPGALoader path should be specified.");
+                return false;
+            }
+        }
+        return true;
+      }
     @Override
     public ArrayList<Stage> initiateDownload(Commander cmdr) {
         ArrayList<Stage> stages = new ArrayList<>();
         if (!readyForDownload()) {
             String script = scriptPath.replace(projectPath, ".." + File.separator) + "gw_download.tcl";
-            stages.add(new Stage(
+            stages.add(new ProcessStage(
                     "compile", "Executing Gowin syn & pnr",
-                    cmd(settings.GetGowinToolPath(), script),
+                    cmd(settings.GetGowinShPath(), script),
                     "Failed to to execute gowin syn & pnr"));
         }
-        String prog = settings.GetOpenFPGALoaderPath();
-        boolean isOpenFPGALoader = prog.endsWith("openFPGALoader");
-        if (isOpenFPGALoader) {
-            stages.add(new Stage("scan", "Scaning for FPGA Devices",
+
+        boolean tryOpenFPGALoader = !gwProgPresent(settings);
+        if (tryOpenFPGALoader) {
+            String prog = settings.GetOpenFPGALoaderPath();
+            stages.add(new ProcessStage("scan", "Scaning for FPGA Devices",
                     cmd(settings.GetOpenFPGALoaderPath(), "--detect"),
                     "Could not find any FPGA devices.") {
                 @Override
@@ -117,15 +149,16 @@ public class GowinDownload extends FPGADownload {
                 }
             });
         }
-        stages.add(new Stage("download", "Download to selected FPGA", null, "Failed to download design") {
+        stages.add(new ProcessStage("download", "Download to selected FPGA", null, "Failed to download design") {
             @Override
             protected boolean prep() {
-                if (!isOpenFPGALoader)
-                    cmd = cmd(settings.GetOpenFPGALoaderPath(),
+                if (!tryOpenFPGALoader) {
+                    String prog = settings.GetGowinProgPath() + File.separator + FPGADownload.GOWIN_PROG;
+                    cmd = cmd(prog,
                             "--fsFile", sandboxPath + "impl" + File.separator + "pnr" + File.separator + TOP_HDL + ".fs",
                             "-r", "2",
                             "--device", board.fpga.Technology);
-                else
+                } else
                     cmd = cmd(settings.GetOpenFPGALoaderPath(),
                             sandboxPath + "impl" + File.separator + "pnr" + File.separator + TOP_HDL + ".fs",
                             "--cable-index", cableIndex);

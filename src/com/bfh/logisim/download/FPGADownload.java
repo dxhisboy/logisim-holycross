@@ -243,11 +243,13 @@ public abstract class FPGADownload {
   public static final String[] LATTICE_PROGRAMS = {
       LATTICE_DIAMOND_WIN, LATTICE_DIAMOND_UNIX // , LATTICE_ISPLEVER_WIN
   };
+  // public static final String[] GOWIN_PROGRAMS = {"gw_sh" + dotexe};
+  public static final String GOWIN_SH = "gw_sh" + dotexe;
+  public static final String GOWIN_PROG = "programmer_cli" + dotexe;
 
   public static final String BIN_APIO = "bin/apio";
   // public static final String APIO_PYVENV = "pyvenv.cfg";
   public static final String[] APIO_PROGRAMS = { BIN_APIO }; // APIO_PYVENV
-
   public abstract class Stage {
     public final String title, msg, errmsg;
     public Console console;

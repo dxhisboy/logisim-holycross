@@ -108,7 +108,7 @@ public class LedVector extends InstanceFactory implements DynamicElementProvider
       ATTR_PERSIST, ATTR_DOT_SHAPE }, new Object[] {
         Integer.valueOf(8), Color.GREEN,
         Color.DARK_GRAY, Integer.valueOf(0), SHAPE_SQUARE });
-    setIconName("dotmat.gif");
+    setIconName("ledvector.gif");
   }
 
   @Override
@@ -150,7 +150,7 @@ public class LedVector extends InstanceFactory implements DynamicElementProvider
     boolean drawSquare = painter.getAttributeValue(ATTR_DOT_SHAPE) == SHAPE_SQUARE;
 
     // State data = getState(painter);
-    Bounds bds = painter.getBounds();
+    Bounds bds = painter.getNominalBounds();
     boolean showState = painter.getShowState();
     Graphics g = painter.getGraphics();
     int rows = 1;

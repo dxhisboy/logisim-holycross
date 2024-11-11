@@ -438,6 +438,7 @@ public class ToplevelHDLGenerator extends HDLGenerator {
             else
               for (int i = 0; i < src.width.out; i++) // TODO: verify src.width.out instead of destwidth.out
                 out.assign("FPGA_OUTPUT_PIN_"+(seqno.out+i), maybeNot+bit, offset+i);
+          }
         }
       }
     } else { // Each bit of pin is assigned to a different BoardIO resource.

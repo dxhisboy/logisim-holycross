@@ -25,6 +25,7 @@ LogisimFPGASettings.xml
 .settings/
 .project
 .classpath
+.idea/
 
 # Mac files
 .DS_Store
